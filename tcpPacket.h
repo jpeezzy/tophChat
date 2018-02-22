@@ -18,7 +18,7 @@
 #include "fifo.h"
 #include "tcpGUI.h"
 #include "constants.h"
-
+#include "tcpGUI.h"
 
 typedef struct PacketClient clientPacket;
 struct messageClient
@@ -27,9 +27,13 @@ struct messageClient
     uint8_t roomNum;
 };
 
-int sendPacket(clientPacket* packet, struct serverConnection* server);
+// send one packet
+int sendPacket(clientPacket *packet, struct serverConnection *server);
 
-int fetchPacket(clientPacket* packet, struct serverConnection* server);
+// receive one packet
+int fetchPacket(clientPacket *packet, struct serverConnection *server);
 
+// process the packets in the FIFO
+int manageIO(connection *server, fifo *inputFIFO, fifo *outputFIFO);
 
 #endif

@@ -11,49 +11,48 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
-
 #include "tcpPacket.h"
 #include "constants.h"
 
-int sendPacket(clientPacket* packet, struct serverConnection* server)
+int sendPacket(clientPacket *packet, struct serverConnection *server)
 {
     // casted as type char for easy implmentation of checking complete transmission
-    char* curByte=packet; 
-    int packetLeft=sizeof(packet);
+    char *curByte = packet;
+    int packetLeft = sizeof(packet);
     int sent;
 
     //implement check to make it sends all bytes
-    while(packetLeft>0)
-    {   
+    while (packetLeft > 0)
+    {
 
-        sent=send(server->socket, (void*) curByte, sizeof(packet),0);
-        if(sent==-1)
+        sent = send(server->socket, (void *)curByte, sizeof(packet), 0);
+        if (sent == -1)
         {
-            if(errno==EPIPE)
+            if (errno == EPIPE)
             {
-                
+
                 return SOCKET_CLOSED;
             }
         }
-        packetLeft-=sent;
-        curByte+=sent;
+        packetLeft -= sent;
+        curByte += sent;
     }
-    return 0; 
+    return 0;
 }
 
-int fetchPacket(clientPacket* packet, struct serverConnection* server)
+int fetchPacket(clientPacket *packet, struct serverConnection *server)
 {
-    int temp=recv(server->socket, packet, sizeof(packet), MSG_DONTWAIT);
-    if(temp==-1)
+    int temp = recv(server->socket, packet, sizeof(packet), MSG_DONTWAIT);
+    if (temp == -1)
     {
-        if(errno==EWOULDBLOCK)
-        {   
-            //no data to read
-            return -1;
+        if (errno == EWOULDBLOCK)
+        {
+            // no data to read
+            return SOCKET_NO_DATA;
         }
     }
 
-    else if(temp==0)
+    else if (temp == 0)
     {
         return SOCKET_CLOSED;
     }
@@ -61,8 +60,16 @@ int fetchPacket(clientPacket* packet, struct serverConnection* server)
     return 0;
 }
 
-int main(void)
-{   
+int manageIO(connection *server, fifo *inputFIFO, fifo *outputFIFO)
+{
 
     return 0;
 }
+
+#ifdef DEBUG_PACKET
+int main(void)
+{
+
+    return 0;
+}
+#endif

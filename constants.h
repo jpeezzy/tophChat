@@ -11,6 +11,9 @@
 // ERROR CODE STARTS HERE
 
 #define SOCKET_CLOSED -2
+#define SOCKET_NO_DATA -3
+#define SOCKET_CANT_CONNECT -4
+
 #define FIFO_FULL -3
 
 #endif
