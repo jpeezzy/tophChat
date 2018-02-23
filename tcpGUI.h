@@ -38,8 +38,7 @@ struct room
 struct allRoom
 {
     int totalRoom;
-    struct room *firstRoom;
-    struct room *lastRoom;
+    struct room roomList[CHAT_ROOM_LIMIT];
 };
 
 int openConnection(connection *server);

@@ -6,8 +6,9 @@
 #define RECONNECT_NUM 5
 #define CHAT_SERVER_PORT "30001"
 #define PORT "20000"
-#define MESS_LIMIT 500 // how many char user can send
-
+#define MESS_LIMIT 500      // how many char user can send
+#define CHAT_ROOM_LIMIT 50  // a user can have maximum of 50 chat room
+#define MAX_SERVER_USERS 20 // maximum number of user the server can support
 // ERROR CODE STARTS HERE
 
 #define SOCKET_CLOSED -2

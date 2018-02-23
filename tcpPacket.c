@@ -60,9 +60,9 @@ int fetchPacket(clientPacket *packet, struct serverConnection *server)
     return 0;
 }
 
+// the mailman thread
 int manageIO(connection *server, fifo *inputFIFO, fifo *outputFIFO)
 {
-
     return 0;
 }
 
