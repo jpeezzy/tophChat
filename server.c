@@ -52,6 +52,7 @@ int mainLoop(int argc, char *argv[])
 	struct timeval tv; 
 	socklen_t clilen;
 	char buffer[256];
+	int maxSocket = 0;
 	struct sockaddr_in serv_addr, cli_addr;
 	int n;
 	if (argc < 2) {
@@ -93,10 +94,11 @@ int mainLoop(int argc, char *argv[])
 		/*Initialize the set of active Sockets */
 
 		printf("client connected!\n");
+		maxSocket = newsockfd + 1;
 		numOfUsers++;
 		printf("There are currently %d Users\n", numOfUsers);
 		printf("there are %d file descriptors \n", 
-				select(newsockfd, &childrenSet, NULL, NULL, &tv));
+				select(maxSocket, &childrenSet, NULL, NULL, NULL));
 		if (newsockfd < 0) 
 			error("ERROR on accept");
 		bzero(buffer,256);
