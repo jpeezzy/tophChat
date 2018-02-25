@@ -9,6 +9,9 @@
 #define MESS_LIMIT 500      // how many char user can send
 #define CHAT_ROOM_LIMIT 50  // a user can have maximum of 50 chat room
 #define MAX_SERVER_USERS 20 // maximum number of user the server can support
+#define LISTENER_TIMEOUT 5  // 5 seconds for timeout
+#define CLIENT_TIMEOUT 2    // timeout for listening on clients
+
 // ERROR CODE STARTS HERE
 
 #define SOCKET_CLOSED -2

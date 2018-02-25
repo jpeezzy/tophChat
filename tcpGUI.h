@@ -21,17 +21,25 @@
 typedef struct serverConnection connection;
 typedef struct messageRoom chatRoom;
 typedef struct allRoom roomList;
+
+// structure used for establishing the initial connection
+// have cookies to password saving
 struct serverConnection
 {
     // socket used for connection
     int socket;
+    FILE *cookies_file; // file that stores a private key and undefined number of public key
+    int privKey;
+    int *pubKey;
+    int pubKeyLength;
 };
 
+// TODO: implement offset from room in user to room in server
 struct room
 {
-    struct serverConnection server;
     int roomNum;
     struct FIFObuffer inMessage;
+    struct FIFObuffer outMessage;
 };
 
 // head of the linked list connecting all the rooms on the client

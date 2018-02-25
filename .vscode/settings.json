@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "string.h": "c"
+        "*.cu": "c",
+        "string.h": "c",
+        "time.h": "c"
     }
 }

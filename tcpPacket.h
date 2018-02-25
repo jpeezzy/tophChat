@@ -21,7 +21,7 @@
 #include "tcpGUI.h"
 
 typedef struct PacketClient clientPacket;
-struct messageClient
+struct PacketClient
 {
     char message[MESS_LIMIT];
     uint8_t roomNum;

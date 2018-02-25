@@ -60,7 +60,7 @@ int fetchPacket(clientPacket *packet, struct serverConnection *server)
     return 0;
 }
 
-// the mailman thread
+// the mailman thread, used for update I/O buffer
 int manageIO(connection *server, fifo *inputFIFO, fifo *outputFIFO)
 {
     return 0;
