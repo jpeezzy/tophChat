@@ -1,7 +1,17 @@
-CXX = gcc 
-FLAGS = -std=c99
-server.o: server.c server.h
-	$(CXX) $(FLAGS) server.c -o $@
+CC = gcc -c
+CC+= g++ -c
+LK+= g++ -lgtest -lpthread
+CFLAGS = -std=c99 -Wall 
+CFLAGS+= -Wall 
+DEBUG= -DDEBUG
+executable_file= fifo_debug.o
 
-client.o: client.c
-	$(CXX) $(FLAGS) client.c -o $(@)
+tdd_fifo: fifo_debug.o fifo_test.o
+	$(LK+) fifo_debug.o fifo_test.o -o $(@) 
+fifo_test.o: fifoTest.cpp fifo.c 
+	$(CC+) fifoTest.cpp -o fifo_test.o 
+fifo_debug.o: fifo.c fifo.h constants.h
+	$(CC) fifo.c $(CFLAGS) $(DEBUG) -o $(@)
+
+clean:
+	rm -rf *.o $(executable_file)
