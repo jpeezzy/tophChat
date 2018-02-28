@@ -1,8 +1,10 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "fifo.h"
 #include "constants.h"
+
 
 // read buffer and pop the element index 0
 struct FIFObuffer *initBuffer(int length)
