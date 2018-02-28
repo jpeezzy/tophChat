@@ -1,17 +1,18 @@
-CC = gcc -c
-CC+= g++ -c
-LK+= g++ -lgtest -lpthread
-CFLAGS = -std=c99 -Wall 
-CFLAGS+= -Wall 
-DEBUG= -DDEBUG
-executable_file= fifo_debug.o
+CC := gcc 
+CCP := g++  
+LKP := -lgmock -lgtest -lpthread 
+CFLAGS := -std=c99 -Wall -Wextra
+CPFLAGS := -Wall -std=c++0x -Wextra
+DEBUG := -DDEBUG
+executable_file := tdd_fifo
 
 tdd_fifo: fifo_debug.o fifo_test.o
-	$(LK+) fifo_debug.o fifo_test.o -o $(@) 
+	$(CCP) fifo_debug.o fifo_test.o -o $(@) $(LKP)
+	./$(@)
 fifo_test.o: fifoTest.cpp fifo.c 
-	$(CC+) fifoTest.cpp -o fifo_test.o 
+	$(CCP) -c fifoTest.cpp $(CPFLAGS) -o $(@)
 fifo_debug.o: fifo.c fifo.h constants.h
-	$(CC) fifo.c $(CFLAGS) $(DEBUG) -o $(@)
+	$(CC) -c fifo.c $(CFLAGS) $(DEBUG) -o $(@)
 
 clean:
 	rm -rf *.o $(executable_file)

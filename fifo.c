@@ -7,23 +7,30 @@
 
 
 // read buffer and pop the element index 0
-struct FIFObuffer *initBuffer(int length)
+fifo* initBuffer(int length)
 {
     assert(length);
 
-    fifo *temp = malloc(sizeof(struct FIFObuffer));
+    fifo *temp = (fifo *)malloc(sizeof(struct FIFObuffer));
     assert(temp);
     temp->bufLength = length;
     temp->readPos = 0;
     temp->writePos = 0;
-
+    temp->buffer=(char**)malloc(sizeof(char*)*length);
     // initialize all pointer with NULL
     for (int i = 0; i < length; ++i)
     {
-        (temp->buffer) = NULL;
+        (temp->buffer)[i] = NULL;
     }
 
     return temp;
+}
+
+int closeBuffer(fifo* buf)
+{
+    free(buf->buffer);
+    free(buf);    
+    return 0;
 }
 
 // return NULL if there is nothing to read
@@ -60,7 +67,7 @@ int writeBuffer(fifo *buffer, char *writeData, int length)
     assert(buffer->bufLength);
     assert(writeData);
 
-    char *temp = malloc(sizeof(char) * length);
+    char *temp = (char*)malloc(sizeof(char) * length);
 
     // will only write if there is no data there
     if ((buffer->buffer)[buffer->writePos] == NULL)
