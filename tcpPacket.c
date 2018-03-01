@@ -14,11 +14,11 @@
 #include "tcpPacket.h"
 #include "constants.h"
 
-int sendPacket(void *packet, serverConnection *server)
+int sendPacket(char *packet, serverConnection *server)
 {
     // casted as type char for easy implmentation of checking complete transmission
     char *curByte = packet;
-    int packetLeft = sizeof(packet);
+    int packetLeft = (strlen(packet)+1)*sizeof(char);
     int sent;
 
     //implement check to make it sends all bytes

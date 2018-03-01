@@ -29,7 +29,7 @@ struct PacketClient
 };
 
 // send one packet
-int sendPacket(void *packet, struct serverConnection *server);
+int sendPacket(char *packet, serverConnection *server);
 
 // receive one packet
 int fetchPacket(clientPacket *packet, struct serverConnection *server);
