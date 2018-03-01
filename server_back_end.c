@@ -1,4 +1,3 @@
-#include <socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -19,6 +18,7 @@
 #include "server_back_end.h"
 #include "constants.h"
 
+#define TEST_SERVER
 int listenSocketInit(void)
 {
     struct timeval timeoutListener;
@@ -32,6 +32,7 @@ int listenSocketInit(void)
     int socketListener;
     // give the server hints about the type of connection we want
     struct addrinfo serverHints;
+    memset(&serverHints, 0, sizeof(serverHints));
     serverHints.ai_family = AF_INET;       // IPV4 address
     serverHints.ai_socktype = SOCK_STREAM; // TCP socket
     serverHints.ai_flags = AI_PASSIVE;     // listening socket
@@ -42,10 +43,29 @@ int listenSocketInit(void)
     if(socketListener<0)
     {
         return SOCKET_NO_CONNECTION;
+         freeaddrinfo(serverListener);
     }
     else
     {
         bind(socketListener, serverListener->ai_addr, serverListener->ai_addrlen);
+        listen(socketListener, MAX_SERVER_USERS);
+         freeaddrinfo(serverListener);
         return socketListener;
     }
 }
+
+#ifdef TEST_SERVER
+int main(void)
+{
+    struct sockaddr* addr;
+    socklen_t len;
+    char dummyPacket[]="123";
+    char receivedPacket[100];
+    int socket=listenSocketInit();
+    int newsocket= accept(socket, addr, &len);
+    //recv(newsocket, receivedPacket, sizeof(receivedPacket),0);
+    //printf("%s", receivedPacket);
+    send(newsocket, dummyPacket, sizeof(dummyPacket),0);
+    return 0;
+}
+#endif

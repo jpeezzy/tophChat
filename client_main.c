@@ -1,4 +1,4 @@
-#include <socket.h>
+#include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -24,9 +24,9 @@
 
 #define DEBUG 
 
-int main_loop(void)
-{
-    serverConnection* serverEndPoint=openConnection();
-    closeConnection(serverEndPoint);
-    return 0;
-}
+// int main_loop(void)
+// {
+//     serverConnection* serverEndPoint=openConnection();
+//     closeConnection(serverEndPoint);
+//     return 0;
+// }

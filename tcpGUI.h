@@ -49,7 +49,7 @@ struct allRoom
     struct room roomList[CHAT_ROOM_LIMIT];
 };
 
-int openConnection(void);
+serverConnection* openConnection(void);
 
 int closeConnection(serverConnection *server);
 

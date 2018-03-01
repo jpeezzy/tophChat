@@ -1,10 +1,11 @@
 CC := gcc 
 CXX := g++  
 LKP := -lgmock -lgtest -lpthread 
-CFLAGS := -std=c99 -Wall -Wextra -g
+#POSIX_C_SOURCE allows c99 to use getaddrinfo function 
+CFLAGS := -std=c99 -Wall -Wextra -g -D_POSIX_C_SOURCE=200112L
 CPFLAGS := -Wall -std=c++0x -g
 DEBUG := -DDEBUG
-executable_file := tdd_fifo tdd_client_server tdd_simple_IO
+executable_file := tdd_fifo tdd_client_server tdd_simple_IO tdd_tcpPacket tdd_tcpGUI tdd_server_back_end
 
 ################################TDD AREA##########################
 #TEST FIFO

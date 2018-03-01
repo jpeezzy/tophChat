@@ -42,6 +42,7 @@ int sendPacket(void *packet, serverConnection *server)
 
 int fetchPacket(void *packet, serverConnection *server)
 {
+    
     int temp = recv(server->socket, packet, sizeof(*packet), MSG_DONTWAIT);
     if (temp == -1)
     {

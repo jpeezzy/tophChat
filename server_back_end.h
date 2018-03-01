@@ -1,7 +1,7 @@
 #ifndef _SERVER_MAIN_H
 #define _SERVER_MAIN_H
 
-#include <socket.h>
+#include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>

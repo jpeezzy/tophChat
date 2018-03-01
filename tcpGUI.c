@@ -1,18 +1,32 @@
-/**
- * List of API used in GUI code 
- */
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/select.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <assert.h>
+#include <strings.h>    //bzero
+#include <sys/select.h> //io multiplexing
 #include <assert.h>
 
 #include "tcpGUI.h"
 #include "constants.h"
+#define DEBUG 
 
 serverConnection* openConnection(void)
 {
-    serverConnection* server=(serverConnection*)malloc(sizeof(serverConnection));
+    serverConnection* server=NULL;
+    server=(serverConnection*)malloc(sizeof(serverConnection));
     assert(server);
 
-    struct addrinfo *serverInfo;
+    struct addrinfo *serverInfo=NULL;
     struct addrinfo serverHints;
 
     bzero(&serverHints, sizeof(serverHints));
@@ -27,11 +41,11 @@ serverConnection* openConnection(void)
     // assuming that the chat server is on zuma
     getaddrinfo(CHAT_SERVER_ADDR, CHAT_SERVER_PORT, &serverHints, &serverInfo);
     #else
-    serverHints.ai_flags = serverHints.ai_socktype = SOCK_STREAM;;
-    getaddrinfo(NULL, CHAT_SERVER_PORT, &serverHints, &serverInfo);
+    getaddrinfo("localhost", CHAT_SERVER_PORT, &serverHints, &serverInfo);
     #endif
-
-    while ((connect(server->socket, serverInfo->ai_addr, &(serverInfo->ai_addrlen))) == -1 && count < RECONNECT_NUM)
+    assert(serverInfo);
+    server->socket=socket(serverInfo->ai_family, serverInfo->ai_socktype,serverInfo->ai_protocol);
+    while ((connect(server->socket, serverInfo->ai_addr, serverInfo->ai_addrlen)) == -1 && count < RECONNECT_NUM)
     {
         ++count;
     }
