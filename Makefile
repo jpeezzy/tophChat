@@ -2,7 +2,7 @@ CC := gcc
 CCP := g++  
 LKP := -lgmock -lgtest -lpthread 
 CFLAGS := -std=c99 -Wall -Wextra -g
-CPFLAGS := -Wall -std=c++0x -Wextra -g
+CPFLAGS := -Wall -std=c++0x -g
 DEBUG := -DDEBUG
 executable_file := tdd_fifo
 

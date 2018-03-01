@@ -50,12 +50,14 @@ TEST_F(FifoTest, writeTest)
     {
         writeBuffer(buf, buf_test_data[i], strlen(buf_test_data[i]));
     }
-
+    ASSERT_EQ(writeBuffer(buf, buf_test_data[0], (strlen(buf_test_data[0])+1)*sizeof(char)), FIFO_FULL);
+    
     for(int i=0; i<fifo_list_length; ++i)
     {
         ASSERT_EQ(0, strcmp(buf_test_data[i], buf->buffer[i]));
         printf("\n%s", buf->buffer[i]);
     }
+
     printf("\n");
     closeBuffer(buf);    
 }
@@ -75,6 +77,8 @@ TEST_F(FifoTest, readTest)
         strcpy(buf_test_data_temp[i], buf_test_data[i]);
     }
     buf= initBuffer(fifo_list_length);
+    ASSERT_EQ(FIFO_NO_DATA, readBuffer(buf, temp));
+
     for(int i=0; i<fifo_list_length; ++i)
     {
         buf->buffer[i]=buf_test_data_temp[i];
@@ -86,6 +90,7 @@ TEST_F(FifoTest, readTest)
         ASSERT_EQ(0, strcmp(buf_test_data[i], temp));
         printf("\n%s", buf_test_data[i]);
     }
+    ASSERT_EQ(FIFO_NO_DATA, readBuffer(buf, temp));
     printf("\n");
     closeBuffer(buf);
 }
