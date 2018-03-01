@@ -18,8 +18,8 @@ struct FIFObuffer
 struct FIFObuffer *initBuffer(int length);
 int closeBuffer(fifo* buf);
 
-char *readBuffer(fifo *buffer);
+int readBuffer(fifo *buf_struct, char* buf_content);
 
-int writeBuffer(fifo *buffer, char *writeData, int length);
+int writeBuffer(fifo *buffer, const char *writeData, int length);
 
 #endif

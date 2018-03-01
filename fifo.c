@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "fifo.h"
 #include "constants.h"
@@ -28,52 +29,50 @@ fifo* initBuffer(int length)
 
 int closeBuffer(fifo* buf)
 {
+    for(int i=0; i<buf->bufLength; ++i)
+    {
+        free(buf->buffer[i]);
+    }
     free(buf->buffer);
     free(buf);    
     return 0;
 }
 
-// return NULL if there is nothing to read
-char *readBuffer(fifo *buffer)
+int readBuffer(fifo *buf_struct, char* buf_content)
 {
-    assert(buffer);
-    assert(buffer->bufLength);
+    assert(buf_struct);
+    assert(buf_struct->bufLength);
 
-    char *temp;
-
-    // if elements had been read or had not been written to, return NULL
-    if ((temp = (buffer->buffer)[buffer->readPos]) == NULL)
+    if ((buf_struct->buffer)[buf_struct->readPos] == NULL)    
     {
-        return NULL;
+        return FIFO_NO_DATA;
     }
     else
     {
-        // empty the buffer that was read
-        free(buffer->buffer[buffer->readPos]);
-        buffer->buffer[buffer->readPos] = NULL;
+        strcpy(buf_content, (buf_struct->buffer)[buf_struct->readPos]);
+        free((buf_struct->buffer)[buf_struct->readPos]);
+        buf_struct->buffer[buf_struct->readPos] = NULL;
     }
-
     // wrap around if reaching the end of buffer
-    buffer->readPos = (buffer->readPos + 1) % (buffer->bufLength);
-
-    return temp;
+    buf_struct->readPos = (buf_struct->readPos + 1) % (buf_struct->bufLength);
+    return 0;
 }
 
 // write to the first free position (prioritize larger index)
 // will malloc new data to copy the writeData to
-int writeBuffer(fifo *buffer, char *writeData, int length)
+int writeBuffer(fifo *buf, const char *writeData, int length)
 {
-    assert(buffer);
-    assert(buffer->bufLength);
+    assert(buf);
+    assert(buf->bufLength);
     assert(writeData);
 
-    char *temp = (char*)malloc(sizeof(char) * length);
-
     // will only write if there is no data there
-    if ((buffer->buffer)[buffer->writePos] == NULL)
+    if ((buf->buffer)[buf->writePos] == NULL)
     {
-        (buffer->buffer)[buffer->writePos] = temp;
-        buffer->writePos = (buffer->writePos + 1) % (buffer->bufLength);
+        char *temp = (char*)malloc(sizeof(char) * (length +1));
+        strcpy(temp, writeData);
+        (buf->buffer)[buf->writePos] = temp;
+        buf->writePos = (buf->writePos + 1) % (buf->bufLength);
     }
     else
     {
@@ -82,16 +81,3 @@ int writeBuffer(fifo *buffer, char *writeData, int length)
 
     return 0;
 }
-
-#ifdef FIFODEBUG
-
-void printBuffer(fifo *buffer)
-{
-}
-
-int main(void)
-{
-    return 0;
-}
-
-#endif

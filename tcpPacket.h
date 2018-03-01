@@ -21,6 +21,7 @@
 #include "tcpGUI.h"
 
 typedef struct PacketClient clientPacket;
+// TODO: change this to the agreed string format 
 struct PacketClient
 {
     char message[MESS_LIMIT];
