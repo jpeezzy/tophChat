@@ -14,7 +14,7 @@
 #include "tcpPacket.h"
 #include "constants.h"
 
-int sendPacket(clientPacket *packet, struct serverConnection *server)
+int sendPacket(void *packet, serverConnection *server)
 {
     // casted as type char for easy implmentation of checking complete transmission
     char *curByte = packet;
@@ -25,7 +25,7 @@ int sendPacket(clientPacket *packet, struct serverConnection *server)
     while (packetLeft > 0)
     {
 
-        sent = send(server->socket, (void *)curByte, sizeof(packet), 0);
+        sent = send(server->socket, (void *)curByte, sizeof(*packet), 0);
         if (sent == -1)
         {
             if (errno == EPIPE)
@@ -40,9 +40,9 @@ int sendPacket(clientPacket *packet, struct serverConnection *server)
     return 0;
 }
 
-int fetchPacket(clientPacket *packet, struct serverConnection *server)
+int fetchPacket(void *packet, serverConnection *server)
 {
-    int temp = recv(server->socket, packet, sizeof(packet), MSG_DONTWAIT);
+    int temp = recv(server->socket, packet, sizeof(*packet), MSG_DONTWAIT);
     if (temp == -1)
     {
         if (errno == EWOULDBLOCK)
@@ -61,15 +61,7 @@ int fetchPacket(clientPacket *packet, struct serverConnection *server)
 }
 
 // the mailman thread, used for update I/O buffer
-int manageIO(connection *server, fifo *inputFIFO, fifo *outputFIFO)
+int manageIO(serverConnection *server, fifo *inputFIFO, fifo *outputFIFO)
 {
     return 0;
 }
-
-#ifdef DEBUG_PACKET
-int main(void)
-{
-
-    return 0;
-}
-#endif

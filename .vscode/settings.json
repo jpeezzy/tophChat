@@ -2,6 +2,11 @@
     "files.associations": {
         "*.cu": "c",
         "string.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "unistd.h": "c",
+        "strings.h": "c",
+        "socket.h": "c",
+        "select.h": "c",
+        "stdlib.h": "c"
     }
 }

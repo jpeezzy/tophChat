@@ -16,28 +16,14 @@
 #include <strings.h>    //bzero
 #include <sys/select.h> //io multiplexing
 
-// #include <pthread.h>
-
+#include "server_back_end.h"
 #include "constants.h"
-#include "tcpGUI.h"
 
-int spawnChildThread()
+int listenSocketInit(void)
 {
-}
-
-// return an available room number
-int assignRoom(roomList *);
-
-int main(void)
-{
-
-    fd_set *setListener;
-    FD_ZERO(setListener);
     struct timeval timeoutListener;
     timeoutListener.tv_sec = LISTENER_TIMEOUT;
 
-    fd_set *setClient;
-    FD_ZERO(setClient);
     struct timeval timeoutClient;
     timeoutListener.tv_sec = CLIENT_TIMEOUT;
 
@@ -53,13 +39,13 @@ int main(void)
     // create a socket for listening incoming collection
     getaddrinfo(NULL, CHAT_SERVER_PORT, &serverHints, &serverListener);
     socketListener = socket(serverListener->ai_family, serverListener->ai_socktype, 0);
-    bind(socketListener, serverListener->ai_addr, serverListener->ai_addrlen);
-    listen(socketListener, MAX_SERVER_USERS);
-    FD_SET(socketListener, setListener);
-
-    // forever loop, main thread watches for new client, other thread handles one client
-    for (;;)
+    if(socketListener<0)
     {
+        return SOCKET_NO_CONNECTION;
     }
-    return 0;
+    else
+    {
+        bind(socketListener, serverListener->ai_addr, serverListener->ai_addrlen);
+        return socketListener;
+    }
 }

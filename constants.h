@@ -17,6 +17,7 @@
 #define SOCKET_CLOSED -2
 #define SOCKET_NO_DATA -3
 #define SOCKET_CANT_CONNECT -4
+#define SOCKET_NO_CONNECTION -5 
 
 #define FIFO_FULL -3
 #define FIFO_NO_DATA -4

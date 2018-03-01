@@ -18,13 +18,13 @@
 #include "constants.h"
 #include "fifo.h"
 
-typedef struct serverConnection connection;
+typedef struct sConnection serverConnection;
 typedef struct messageRoom chatRoom;
 typedef struct allRoom roomList;
 
 // structure used for establishing the initial connection
 // have cookies to password saving
-struct serverConnection
+struct sConnection
 {
     // socket used for connection
     int socket;
@@ -49,9 +49,9 @@ struct allRoom
     struct room roomList[CHAT_ROOM_LIMIT];
 };
 
-int openConnection(connection *server);
+int openConnection(void);
 
-int closeConnection(connection *server);
+int closeConnection(serverConnection *server);
 
 // will need to request a room number from the server
 int openRoom(chatRoom *room);
