@@ -20,6 +20,7 @@
 #include "fifo.h"
 #include "constants.h"
 #include "protocol.h"
+#include "protocol_const.h"
 #include "tcpPacket.h"
 #include "utils.h"
 #define DEBUG

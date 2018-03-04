@@ -5,6 +5,7 @@
 #include "server_back_end.h"
 #include "constants.h"
 #include "utils.h"
+#include "protocol_const.h"
 
 int processPacket(char *packet)
 {
@@ -83,3 +84,4 @@ char getCommandType(char *packet)
     return packet[CHAT_ROOM_CHARACTER + ID_LENGTH];
 }
 int messageDecode(int *roomNum, char *message);
+

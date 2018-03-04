@@ -1,6 +1,5 @@
 #ifndef _CONSTANTS_H
 #define _CONSTANTS_H
-#include "protocol.h"
 
 // NETWORK CONNECTION CONSTANT START HERE
 #define CHAT_SERVER_ADDR "zuma.eecs.uci.edu"
@@ -39,6 +38,8 @@
 
 #define NO_WAITING_ROOM -1
 #define NO_SUCH_ROOM_EXIST -2
+
+#define STR_BUFFER_TOO_SHORT -1
 
 //ROOM STATUS GO HERE
 #define ROOM_FREE 2        // synchronized with server

@@ -67,6 +67,14 @@ server_back_end_test.o: server_back_end_test.cc server_back_end.c
 server_back_end_debug.o: server_back_end.c server_back_end.h constants.h 
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
+#TEST UTILITIES
+tdd_utils: utils_test.o utils.o
+	$(CXX) $(^) -o $(@) $(LKP)
+utils_test.o: utils_test.cc utils.h 
+	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
+utils.o: utils.c utils.h constants.h
+	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
+
 #####################END OF TDD AREA################################
 
 #Executables
