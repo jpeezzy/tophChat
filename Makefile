@@ -5,7 +5,8 @@ LKP := -lgmock -lgtest -lpthread
 CFLAGS := -std=c99 -Wall -Wextra -g -D_POSIX_C_SOURCE=200112L
 CPFLAGS := -Wall -std=c++0x -g
 DEBUG := -DDEBUG
-executable_file := tdd_fifo tdd_client_server tdd_simple_IO tdd_tcpPacket tdd_tcpGUI tdd_server_back_end
+testServerBin=testServer
+executable_file := tdd_fifo tdd_client_server tdd_simple_IO tdd_tcpPacket tdd_tcpGUI tdd_server_back_end $(testServerBin)
 
 ################################TDD AREA##########################
 #TEST FIFO
@@ -17,18 +18,25 @@ fifo_test.o: fifoTest.cc fifo.c
 fifo_debug.o: fifo.c fifo.h constants.h
 	$(CC) -c fifo.c $(CFLAGS) $(DEBUG) -o $(@)
 
+#NETWORK AND CLIENT TEST CLASS
+# networkTestClass.o: networkTestClass.cc networkTestClass.h constants.h tcpGUI.h server_back_end.h 
+# 	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
+
+testServer: server_back_end.c server_back_end.h testString.h
+	$(CC) $(<) $(CFLAGS) $(DEBUG) -o $(@)
+
 #JOINT TEST OF CLIENT AND SERVER
 tdd_client_server: client_main_test.o client_main_debug.o tcpGUI_debug.o tcpPacket_debug.o fifo_debug.o 
 	$(CXX) $(^) -o $(@) $(LKP)
 	#./$(@)
 client_main_test.o: client_main_test.cc client_main.c 
-	$(CXX) -c client_main_test.cc $(CPFLAGS) -o $(@)
+	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
 client_main_debug.o: client_main.c constants.h tcpGUI.h tcpPacket.h 
-	$(CC) -c client_main.c $(CFLAGS) $(DEBUG) -o $(@) 
+	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 server_main_test.o: server_main_test.cc server_main.c 
-	$(CXX) -c server_main_test.cc $(CPFLAGS) -o $(@)
+	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
 server_main_debug.o: server_main.c constants.h tcpGUI.h tcpPacket.h 
-	$(CC) -c server_main.c $(CFLAGS) $(DEBUG) -o $(@) 
+	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
 
 #TEST SIMPLE I/O FUNCTION LIKE SEND, FETCH 
@@ -39,8 +47,8 @@ tcpGUI_test.o: tcpGUI_test.cc tcpGUI.c
 tcpGUI_debug.o: tcpGUI.c tcpGUI.h constants.h 
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
-tdd_tcpPacket: tcpPacket_test.o tcpPacket_debug.o
-	$(CXX) $(^) -o $(@) $(LKP)
+tdd_tcpPacket: tcpPacket_test.o tcpPacket_debug.o testServer
+	$(CXX) tcpPacket_test.o tcpPacket_debug.o -o $(@) $(LKP)
 tcpPacket_test.o: tcpPacket_test.cc tcpPacket.c 
 	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
 tcpPacket_debug.o: tcpPacket.c tcpPacket.h fifo.h tcpGUI.h constants.h 
@@ -56,4 +64,4 @@ server_back_end_debug.o: server_back_end.c server_back_end.h constants.h
 #####################END OF TDD AREA################################
 
 clean:
-	rm -rf *.o $(executable_file)
+	rm -rf *.o $(executable_file) -v

@@ -14,9 +14,11 @@
 #include <assert.h>
 #include <strings.h>    //bzero
 #include <sys/select.h> //io multiplexing
+#include <errno.h>
 
 #include "server_back_end.h"
 #include "constants.h"
+#include "testString.h"
 
 #define TEST_SERVER
 int listenSocketInit(void)
@@ -42,30 +44,43 @@ int listenSocketInit(void)
     socketListener = socket(serverListener->ai_family, serverListener->ai_socktype, 0);
     if(socketListener<0)
     {
+        freeaddrinfo(serverListener);
         return SOCKET_NO_CONNECTION;
-         freeaddrinfo(serverListener);
     }
     else
     {
-        bind(socketListener, serverListener->ai_addr, serverListener->ai_addrlen);
-        listen(socketListener, MAX_SERVER_USERS);
-         freeaddrinfo(serverListener);
+        if(bind(socketListener, serverListener->ai_addr, serverListener->ai_addrlen)<0)
+        {
+        printf("The error is %s\n", strerror(errno));
+        }
+        assert(listen(socketListener, MAX_SERVER_USERS)>=0);
+        freeaddrinfo(serverListener);
         return socketListener;
     }
 }
 
 #ifdef TEST_SERVER
-int main(void)
+int main(int argc, char* argv[])
 {
     struct sockaddr* addr;
     socklen_t len;
-    char dummyPacket[]="123";
-    char receivedPacket[100];
+    char dummyPacket[PACKAGE_SIZE];
+    char receivedPacket[PACKAGE_SIZE];
     int socket=listenSocketInit();
     int newsocket= accept(socket, addr, &len);
-    //recv(newsocket, receivedPacket, sizeof(receivedPacket),0);
-    //printf("%s", receivedPacket);
-    send(newsocket, dummyPacket, sizeof(dummyPacket),0);
+    assert(newsocket>=0);
+    if(strcmp(argv[1], "TestClientSend")==0)
+    {
+        recv(newsocket, receivedPacket, PACKAGE_SIZE,0);
+        printf("the comparision result is %d\n", strcmp(receivedPacket, testString1));
+    }
+    else if(strcmp(argv[1], "TestClientFetch")==0) 
+    {
+        assert(send(newsocket, testString1, PACKAGE_SIZE*sizeof(char),0)>=0);
+        printf("\nsent package\n");
+    }
+    close(socket);
+    close(newsocket);
     return 0;
 }
 #endif

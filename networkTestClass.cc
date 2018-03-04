@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include "networkTestClass.h"
 
 using namespace std;
 extern "C" 
@@ -26,45 +27,42 @@ extern "C"
 #include "tcpGUI.h"
 }
 
-
-class testServer
+// SERVER CLASS USED FOR TESTING 
+void testServer :: setupServer()
 {
-    private:
-        struct sockaddr* addr;
-        socklen_t len;
-        int serverSocket;
-        int newsocket;
-    public: 
-        testServer(void);
-        int sendTestPacket(char array[TEST_PACKET_SIZE]);
-        int recvTestPacket(void);
-        char receivedPacket[TEST_PACKET_SIZE];
-};
-
-testServer :: testServer()
+    assert((serverSocket=listenSocketInit())>=0);
+    newsocket= accept(serverSocket, addr, &len)>=0;
+    printf("\nnewsocket server error: %s\n",strerror(errno));
+}
+int testServer :: sendTestPacket(char* packet)
 {
-    serverSocket=listenSocketInit();
-    newsocket= accept(serverSocket, addr, &len);
-} 
-
-int testServer :: sendTestPacket(char packet[TEST_PACKET_SIZE])
-{
-    if(send(newsocket, packet, sizeof(packet),0)<0)
+    int count=0;
+    for(;;)
+    {
+    if(send(newsocket, packet, PACKAGE_SIZE*sizeof(char),0)<0)
     {
         cout<<"error sending server test messages\n";
-        return -1;
+        printf("error from server sending:%s\n", strerror(errno));
+        if(count >=5)
+        {
+            return -1;
+        }
+        else
+        {
+            ++count;
+        }
     }
     else
     {
         return 0; 
     }
-    
+    }
     
 }
 
 int testServer :: recvTestPacket()
 {
-    if(recv(newsocket, receivedPacket, sizeof(receivedPacket),0) <0)
+    if(recv(newsocket, receivedPacket, PACKAGE_SIZE*sizeof(char),0) <0)
     {
         cout<<"error receiving server test messages\n";
         return -1;
@@ -75,21 +73,14 @@ int testServer :: recvTestPacket()
     }
 }
 
-class testClient
+testServer :: ~testServer()
 {
-    private:
-        serverConnection* server;
-         struct addrinfo *serverInfo;
-         struct addrinfo serverHints;
-    public:
-        testClient(void);
-        ~testClient(void);
-        int sendTestPacket(char array[TEST_PACKET_SIZE]);
-        int recvTestPacket(void);
-        char receivedPacket[TEST_PACKET_SIZE];
-};
+    close(newsocket);
+    close(serverSocket);
+}
 
-testClient :: testClient()
+// CLIENT CLASS USED FOR TESTING
+void testClient :: setupClient()
 {
     server=(serverConnection*)malloc(sizeof(serverConnection));
     assert(server);
@@ -99,7 +90,7 @@ testClient :: testClient()
     getaddrinfo("localhost", CHAT_SERVER_PORT, &serverHints, &serverInfo);
     assert(serverInfo);
     server->socket=socket(serverInfo->ai_family, serverInfo->ai_socktype,serverInfo->ai_protocol);
-    assert(connect(server->socket, serverInfo->ai_addr, serverInfo->ai_addrlen));   
+    assert(connect(server->socket, serverInfo->ai_addr, serverInfo->ai_addrlen)>=0);   
 }
 
 testClient :: ~testClient()
@@ -111,7 +102,7 @@ testClient :: ~testClient()
 
 int testClient:: sendTestPacket(char packet[TEST_PACKET_SIZE])
 {
-    if(send(server->socket, packet, sizeof(packet),0)<0)
+    if(send(server->socket, packet, PACKAGE_SIZE*sizeof(char),0)<0)
     {
         cout<<"error sending server test messages\n";
         return -1;
@@ -124,7 +115,7 @@ int testClient:: sendTestPacket(char packet[TEST_PACKET_SIZE])
 
 int testClient:: recvTestPacket(void)
 {
-    if(recv(server->socket, receivedPacket, sizeof(receivedPacket),0) <0)
+    if(recv(server->socket, receivedPacket, PACKAGE_SIZE*sizeof(char),0) <0)
     {
         cout<<"error receiving server test messages\n";
         return -1;

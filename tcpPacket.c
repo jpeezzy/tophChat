@@ -14,18 +14,16 @@
 #include "tcpPacket.h"
 #include "constants.h"
 
-int sendPacket(char *packet, serverConnection *server)
+int sendPacket(char *packet, int socket)
 {
-    // casted as type char for easy implmentation of checking complete transmission
     char *curByte = packet;
-    int packetLeft = (strlen(packet)+1)*sizeof(char);
+    int packetLeft = sizeof(char) * PACKAGE_SIZE;
     int sent;
 
     //implement check to make it sends all bytes
     while (packetLeft > 0)
     {
-
-        sent = send(server->socket, (void *)curByte, sizeof(*packet), 0);
+        sent = send(socket, (void *)curByte, packetLeft, 0);
         if (sent == -1)
         {
             if (errno == EPIPE)
@@ -40,10 +38,10 @@ int sendPacket(char *packet, serverConnection *server)
     return 0;
 }
 
-int fetchPacket(void *packet, serverConnection *server)
+int fetchPacket(char *packet, int socket)
 {
     
-    int temp = recv(server->socket, packet, sizeof(*packet), MSG_DONTWAIT);
+    int temp = recv(socket, packet, sizeof(char)*PACKAGE_SIZE, 0);
     if (temp == -1)
     {
         if (errno == EWOULDBLOCK)
@@ -52,7 +50,6 @@ int fetchPacket(void *packet, serverConnection *server)
             return SOCKET_NO_DATA;
         }
     }
-
     else if (temp == 0)
     {
         return SOCKET_CLOSED;
@@ -60,6 +57,10 @@ int fetchPacket(void *packet, serverConnection *server)
 
     return 0;
 }
+
+
+
+
 
 // the mailman thread, used for update I/O buffer
 int manageIO(serverConnection *server, fifo *inputFIFO, fifo *outputFIFO)

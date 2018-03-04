@@ -29,12 +29,13 @@ struct PacketClient
 };
 
 // send one packet
-int sendPacket(char *packet, serverConnection *server);
+int sendPacket(char *packet, int socket);
 
 // receive one packet
-int fetchPacket(clientPacket *packet, struct serverConnection *server);
+int fetchPacket(char *packet, int socket);
+
 
 // process the packets in the FIFO
-int manageIO(connection *server, fifo *inputFIFO, fifo *outputFIFO);
+int manageIO(serverConnection *server, fifo *inputFIFO, fifo *outputFIFO);
 
 #endif

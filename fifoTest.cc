@@ -1,4 +1,9 @@
-#include "fifo.c"
+extern "C"
+{
+#include "fifo.h"
+}
+#include "constants.h"
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <string.h>

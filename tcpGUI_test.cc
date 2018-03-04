@@ -2,8 +2,10 @@
 #include <gmock/gmock.h>
 #include <string.h>
 
-#include "tcpGUI.c"
-
+extern "C"
+{
+#include "tcpGUI.h"
+}
 //#ifdef DEBUG
 TEST(ClientConnectionLocal, CloseOpenTest)
 {
