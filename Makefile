@@ -72,32 +72,32 @@ server_back_end_debug.o: server_back_end.c server_back_end.h constants.h
 #Executables
 
 ChatGUI: GTKMain.c GTK.o
-	$(CC) -ansi $(CFLAGS) $(^) -o ChatGUI `pkg-config --cflags --libs gtk+-2.0` -g 
+	$(CC) -ansi $(CFLAGS) $(^) -o $(@) `pkg-config --cflags --libs gtk+-2.0` -g 
 	./ChatGUI
 
 serverGUI: serverGUI.o
-	$(CC) $(LFLAGS) $(^)  -o serverGUI	
+	$(CC) $(LFLAGS) $(^)  -o $(@)	
 
 #Object files
 
 GTK.o:  GTK.c GTK.h
-	$(CC) $(CFLAGS) -ansi  -c $(<) -o GTK.o `pkg-config --cflags --libs gtk+-2.0` 
+	$(CC) $(CFLAGS) -ansi  -c $(<) -o $(@) `pkg-config --cflags --libs gtk+-2.0` 
 
 rsa.o: rsa.c rsa.h 
-	$(CC) $(CLFAGS) -c $(<) -o rsa.o
+	$(CC) $(CLFAGS) -c $(<) -o $(@)
 
 serverGUI.o: serverGUI.c
-	$(CC) $(CFLAGS) $(<) -o serverGUI.o
+	$(CC) $(CFLAGS) $(<) -o $(@)
 
 #Test object files
 
 rsa_DEBUG.o: rsa.c rsa.h
-	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) -c $(<) -o rsa_DEBUG.o
+	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) -c $(<) -o $(@)
 
 #Test Executables
 
 testRSA: rsa_DEBUG.o 
-	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) $(<) -o testRSA
+	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) $(<) -o $(@)
 
 clean:
 	rm -rf *.o $(executable_file) -v testRSA serverGUI ChatGUI serverGUI
