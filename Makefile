@@ -8,7 +8,7 @@ CPFLAGS := -Wall -std=c++0x -g
 DEBUG := -DDEBUG
 MAIN := -DMAIN
 testServerBin=testServer
-executable_file := tdd_fifo tdd_client_server tdd_simple_IO tdd_tcpPacket tdd_tcpGUI tdd_server_back_end $(testServerBin)
+executable_file := tdd_protocol tdd_utils tdd_fifo tdd_client_server tdd_simple_IO tdd_tcpPacket tdd_tcpGUI tdd_server_back_end $(testServerBin)
 
 # compiler flags for GTK usage
 GTKINC := `pkg-config --cflags gtk+-2.0`
@@ -75,6 +75,13 @@ utils_test.o: utils_test.cc utils.h
 utils.o: utils.c utils.h constants.h
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
+#TEST PROTOCOLS DECODER
+tdd_protocol: protocol_test.o protocol.o
+	$(CXX) $(^) -o $(@) $(LKP)
+protocol_test.o: protocol_test.cc protocol.h protocol_const.h utils.h constants.h server_back_end.h
+	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
+protocol.o: protocol.c protocol.h protocol_const.h utils.h constants.h server_back_end.h
+	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 #####################END OF TDD AREA################################
 
 #Executables

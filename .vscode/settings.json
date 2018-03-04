@@ -15,6 +15,7 @@
         "*.tcc": "c",
         "istream": "c",
         "tuple": "c",
-        "utility": "c"
+        "utility": "c",
+        "utils.h": "c"
     }
 }
