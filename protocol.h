@@ -18,4 +18,10 @@
 #define VAL_OPENCOM 5   // open a new communication
 #define VAL_MESSAGE 0   // just a regular message
 
+// return the type of message 
+int messageTriage(char* message);
+
+// divide special command into categories:
+// friend related
+// personal related only 
 #endif
