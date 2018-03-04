@@ -3,48 +3,56 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 #include <assert.h>
 #include <strings.h> //bzero
 #include <sys/select.h> //io multiplexing 
-
 #include "server.h" //holds numOfUsers
 
-void error(const char *msg)
+const char *Program = "Toph Chat Server";
+
+void FatalError(const char *msg)
 {
-	perror(msg);
-	exit(1);
+    fputs(Program, stderr);
+    fputs(": ", stderr);   
+    perror(msg);
+    fputs(Program, stderr);
+    fputs(": Exiting!\n", stderr);
+    exit(1);
 }
 
-int main(int argc, char *argv[])
+int setupServer(int portNum)
 {
-	mainLoop(argc, argv);
-	return 0; 
+    int ServSocketFD;
+    struct sockaddr_in ServSocketName;
+
+    /* create the socket */
+    ServSocketFD = socket(PF_INET, SOCK_STREAM, 0);
+    if (ServSocketFD < 0)
+    {
+        FatalError("Server socket creation failed");
+    }   
+    /* bind the socket to this server */
+    ServSocketName.sin_family = AF_INET;
+    ServSocketName.sin_port = htons(portNum);
+    ServSocketName.sin_addr.s_addr = htonl(INADDR_ANY);
+    if (bind(ServSocketFD, (struct sockaddr*)&ServSocketName,
+
 }
 
-int getUsers()
+int closeSocket(int * newsockfd, int *sockfd)
 {
-	if(numOfUsers == 0)
-	{
-		printf("You have 0 users!\n");
-		return 0;
-	}
-	return numOfUsers;
+    assert(newsockfd);
+    assert(sockfd);
+    close(*newsockfd);
+    close(*sockfd);
+    printf("Closed Server Sockets Successfully!\n");
+    return 0;
 }
-
-int closeSocket(int *newsockfd, int *sockfd)
-{
-	assert(newsockfd);
-	assert(sockfd);
-	close(*newsockfd);
-	close(*sockfd);
-	printf("Server Closed Sockets Successfully!\n");
-	return 0;
-}
-
 int mainLoop(int argc, char *argv[])
 {
 	int sockfd, newsockfd, portno;
