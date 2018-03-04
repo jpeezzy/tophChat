@@ -42,41 +42,96 @@ int listenSocketInit(void)
     // create a socket for listening incoming collection
     getaddrinfo(NULL, CHAT_SERVER_PORT, &serverHints, &serverListener);
     socketListener = socket(serverListener->ai_family, serverListener->ai_socktype, 0);
-    if(socketListener<0)
+    if (socketListener < 0)
     {
         freeaddrinfo(serverListener);
         return SOCKET_NO_CONNECTION;
     }
     else
     {
-        if(bind(socketListener, serverListener->ai_addr, serverListener->ai_addrlen)<0)
+        if (bind(socketListener, serverListener->ai_addr, serverListener->ai_addrlen) < 0)
         {
-        printf("The error is %s\n", strerror(errno));
+            printf("The error is %s\n", strerror(errno));
         }
-        assert(listen(socketListener, MAX_SERVER_USERS)>=0);
+        assert(listen(socketListener, MAX_SERVER_USERS) >= 0);
         freeaddrinfo(serverListener);
         return socketListener;
     }
 }
 
-#ifdef TEST_SERVER
-int main(int argc, char* argv[])
+struct allServerRoom *serverRoomSetCreate(void)
 {
-    struct sockaddr* addr;
+    struct allServerRoom *allRoom = malloc(sizeof(struct allServerRoom));
+    allRoom->firstFreeRoom = 0;
+    allRoom->totalRoom = MAX_SERVER_CHATROOMS;
+    for (int i = 0; i < allRoom->totalRoom; ++i)
+    {
+        ((allRoom->roomList)[i]).isOccupied = 0;
+        ((allRoom->roomList)[i]).roomNum = i;
+    }
+}
+void serverRoomSetDel(struct allServerRoom *allRoom)
+{
+    free(allRoom);
+}
+
+// update which room is not occupied
+void updateFreeRoom(struct allServerRoom *allRoom)
+{
+    int i;
+    for (i = 0; i < allRoom->totalRoom; ++i)
+    {
+        if (((allRoom->roomList)[i]).isOccupied == 0)
+        {
+            allRoom->firstFreeRoom = i;
+            break;
+        }
+        if (i == allRoom->totalRoom)
+        {
+            allRoom->firstFreeRoom = -1;
+        }
+    }
+}
+
+// return a free room
+struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom)
+{
+    if (allRoom->firstFreeRoom == -1)
+    {
+        return NULL;
+    }
+    else
+    {
+        return &(allRoom->roomList[allRoom->firstFreeRoom]);
+    }
+}
+
+// mark the room as free
+void serverRoomReturn(serverChatRoom *room)
+{
+    room->isOccupied = 0;
+}
+
+int serverRoomFIFOWrite(struct messageServerRoom *room);
+
+#ifdef TEST_SERVER
+int main(int argc, char *argv[])
+{
+    struct sockaddr *addr;
     socklen_t len;
     char dummyPacket[PACKAGE_SIZE];
     char receivedPacket[PACKAGE_SIZE];
-    int socket=listenSocketInit();
-    int newsocket= accept(socket, addr, &len);
-    assert(newsocket>=0);
-    if(strcmp(argv[1], "TestClientSend")==0)
+    int socket = listenSocketInit();
+    int newsocket = accept(socket, addr, &len);
+    assert(newsocket >= 0);
+    if (strcmp(argv[1], "TestClientSend") == 0)
     {
-        recv(newsocket, receivedPacket, PACKAGE_SIZE,0);
+        recv(newsocket, receivedPacket, PACKAGE_SIZE, 0);
         printf("the comparision result is %d\n", strcmp(receivedPacket, testString1));
     }
-    else if(strcmp(argv[1], "TestClientFetch")==0) 
+    else if (strcmp(argv[1], "TestClientFetch") == 0)
     {
-        assert(send(newsocket, testString1, PACKAGE_SIZE*sizeof(char),0)>=0);
+        assert(send(newsocket, testString1, PACKAGE_SIZE * sizeof(char), 0) >= 0);
         printf("\nsent package\n");
     }
     close(socket);

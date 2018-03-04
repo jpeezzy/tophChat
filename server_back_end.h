@@ -20,12 +20,15 @@
 #include <sys/select.h> //io multiplexing
 
 #include "constants.h"
+#include "fifo.h"
 typedef struct messageServerRoom serverChatRoom;
 typedef struct allServerRoom serverRoomList;
 
+// when a message is received by the server, it will be parsed to include the original, room and who sent them
 struct messageServerRoom
 {
     int adminID;
+    int isOccupied; //0 for free 1 for occupied
     int roomNum;
     struct FIFObuffer inMessage;
     struct FIFObuffer outMessage;
@@ -36,17 +39,17 @@ struct messageServerRoom
 struct allServerRoom
 {
     int totalRoom;
-    struct messageRoom roomList[MAX_SERVER_CHATROOMS];
+    int firstFreeRoom;
+    struct messageServerRoom roomList[MAX_SERVER_CHATROOMS];
 };
 
-// the
 typedef int (*roomFunc)(struct messageServerRoom *room, int num, char *);
 typedef int (*friendFunc)(char *name1, char *name2);
 typedef int (*comFunc)(int socket);
 
 int listenSocketInit(void);
 
-int serverRoomCreate(struct messageServerRoom *room);
+struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom);
 
 int serverRoomDel(struct messageServerRoom *room);
 

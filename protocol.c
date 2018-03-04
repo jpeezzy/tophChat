@@ -3,25 +3,7 @@
 #include "protocol.h"
 #include "server_back_end.h"
 #include "constants.h"
-
-// slice including the start the last index
-int stringSlicer(char *original, char *result, int start_index, int stop_index)
-{
-    int length = stop_index - start_index + 1;
-    int i = 0;
-    assert(strlen(result) >= length);
-    for (i = 0; i < length; ++i)
-    {
-        result[i] = original[start_index + i];
-    }
-    result[i] = '\0';
-}
-
-int charToInt(char character)
-{
-    // values based on ASCII tables
-    return (int)(character - 48);
-}
+#include "utils.h"
 
 int processPacket(char *packet)
 {

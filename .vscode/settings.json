@@ -9,6 +9,7 @@
         "select.h": "c",
         "stdlib.h": "c",
         "system_error": "c",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "limits": "c"
     }
 }

@@ -14,8 +14,11 @@
 #define CHAT_ROOM_LIMIT 20    // a user can have maximum of
 #define CHAT_ROOM_CHARACTER 3 // how many char needed to define the room number, doesn't have null terminator
 
-#define MAX_SERVER_USERS 20      // maximum number of user the server can support
-#define MAX_SERVER_CHATROOMS 400 // equal to max user * max room per user
+#define MAX_SERVER_USERS 20 // maximum number of user the server can support
+
+// for alpha make it 20
+#define MAX_SERVER_CHATROOMS 20
+//#define MAX_SERVER_CHATROOMS 400 // equal to max user * max room per user
 
 #define MAX_USER_PER_ROOM 5
 
