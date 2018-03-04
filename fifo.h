@@ -16,9 +16,9 @@ struct FIFObuffer
 };
 
 struct FIFObuffer *initBuffer(int length);
-int closeBuffer(fifo* buf);
+int closeBuffer(fifo *buf);
 
-int readBuffer(fifo *buf_struct, char* buf_content);
+int readBuffer(fifo *buf_struct, char *buf_content);
 
 int writeBuffer(fifo *buffer, const char *writeData, int length);
 

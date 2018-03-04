@@ -7,7 +7,7 @@
 #define ISMESSAGE 1
 #define ID_COMM "1TPC{}H" // idenfity that this is a command
 #define ISCOMM 2
-#define ID_LENGTH 7       // doesn't account for the null terminator
+#define ID_LENGTH 7 // doesn't account for the null terminator
 
 // friend related request
 #define FRIENDID 'F' // initials for friend related command
@@ -22,7 +22,7 @@
 #define RODEL 2    // delete room, only admin can do that
 #define ROADMIN 3  // change admin
 #define ROINVITE 4 // invite someone to room
-#define ROCREATE 5
+#define ROCREATE 5 // create a room
 #define TOTAL_RORQ 5
 
 // communication related

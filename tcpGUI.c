@@ -72,6 +72,23 @@ int closeConnection(serverConnection *server)
     return 0;
 }
 
+// return a pointer to the room speicified by the server room number
+chatRoom *retrieveRoom(roomList *allRoom, int roomNum)
+{
+    int i = 0;
+    for (i = 0; i < allRoom->totalRoom; ++i)
+    {
+        if ((allRoom->roomList)[i].roomNum == roomNum)
+        {
+            return &((allRoom->roomList)[i]);
+        }
+    }
+    if (i == allRoom->totalRoom)
+    {
+        return NO_SUCH_ROOM_EXIST;
+    }
+}
+
 // copy the received message to the buffer
 int fetchMessage(chatRoom *room, char *buffer, serverConnection *server)
 {
@@ -103,7 +120,7 @@ int sendMessage(chatRoom *room, char *message, serverConnection *server, int isC
     return 0;
 }
 
-chatRoom *requestRoom(roomList *allRoom, serverConnection *server)
+chatRoom *allocateRoom(roomList *allRoom, serverConnection *server)
 {
     int i = 0;
     for (i = 0; i < allRoom->totalRoom; ++i)
@@ -127,7 +144,7 @@ int closeRoom(chatRoom *room, serverConnection *server)
     return 0;
 }
 
-int allocateRoom(roomList *allRoom, serverConnection *server)
+int requestRoom(roomList *allRoom, serverConnection *server)
 {
     int i = 0;
     for (i = 0; i < allRoom->totalRoom; ++i)
@@ -141,21 +158,64 @@ int allocateRoom(roomList *allRoom, serverConnection *server)
     }
 }
 
+int prepareRoom(roomList *allRoom, int roomNum)
+{
+    int i = 0;
+    for (i = 0; i < allRoom->totalRoom; ++i)
+    {
+        if ((allRoom->roomList)[i].status == ROOM_WAITING)
+        {
+            (allRoom->roomList)[i].roomNum = roomNum;
+            break;
+        }
+    }
+    // TODO: implement error response for no waiting rooms
+    if (i == allRoom->totalRoom)
+    {
+        return NO_WAITING_ROOM;
+    }
+}
+
 int mailMan(roomList *allRoom, serverConnection *server)
 {
     char packet[PACKAGE_SIZE];
-    char packetType[ID_LENGTH+1];
-    char roomNum[CHAT_ROOM_CHARACTER+1];
+    chatRoom *tempRoom;
+    char messageBody[MESS_LIMIT + 1];
+    char roomNum[CHAT_ROOM_CHARACTER + 1];
     if (fetchPacket(packet, server->socket) != SOCKET_NO_DATA)
     {
-        stringSlicer(packet, messageType, CHAT_ROOM_CHARACTER, CHAT_ROOM_CHARACTER + ID_LENGTH - 1);
-        if (strcmp(messageType, ID_MESS) == 0)
-        {
-            stringSlicer()
-        }
-    }
 
+        if (getpacketType(packet) == ISMESSAGE)
+        {
+            // TODO: fix room number mechanism
+            getMessageBody(packet, messageBody);
+            tempRoom = retrieveRoom(allRoom, getroomNumber(packet));
+            writeBuffer(&(tempRoom->inMessage), messageBody, MESS_LIMIT + 1);
+        }
+        else if (getpacketType(packet) == ISCOMM)
+        {
+            switch (getCommandType(packet))
+            {
+            case FRIENDID:
+                switch (getCommandID(packet))
+                {
+                case ROCREATE:
+                    prepareRoom(allRoom, getroomNumber(packet));
+                    break;
+                case RODEL:
+                    closeRoom(retrieveRoom(allRoom, getroomNumber(packet)));
+                }
+                break;
+            case ROID:
+                break;
+            case COMID:
+                break;
+            default:
+                return UNKNOWN_COMMAND_TYPE;
+            }
+        }
+        return 0;
+    }
     // no data
     return -1;
 }
-//create a function with static identifer

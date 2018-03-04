@@ -35,4 +35,14 @@
 #define FIFO_FULL -3
 #define FIFO_NO_DATA -4
 
+#define UNKNOWN_COMMAND_TYPE -6
+
+#define NO_WAITING_ROOM -1
+#define NO_SUCH_ROOM_EXIST -2
+
+//ROOM STATUS GO HERE
+#define ROOM_FREE 2        // synchronized with server
+#define ROOM_WAITING 1     // waiting for server
+#define ROOM_UNALLOCATED 0 // haven't talked to server
+
 #endif

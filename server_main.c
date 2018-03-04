@@ -24,14 +24,6 @@
 #include "utils.h"
 
 #define ALPLHA_RELEASE
-
-int spawnChildThread()
-{
-}
-
-// return an available room number
-int assignRoom(roomList *);
-
 // TODO: implement multi-threaded
 
 #ifdef ALPLHA_RELEASE

@@ -10,6 +10,11 @@
         "stdlib.h": "c",
         "system_error": "c",
         "type_traits": "cpp",
-        "limits": "c"
+        "limits": "c",
+        "array": "c",
+        "*.tcc": "c",
+        "istream": "c",
+        "tuple": "c",
+        "utility": "c"
     }
 }
