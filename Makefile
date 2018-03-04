@@ -63,5 +63,13 @@ server_back_end_debug.o: server_back_end.c server_back_end.h constants.h
 
 #####################END OF TDD AREA################################
 
+ChatGUI: GTKMain.c GTK.o
+	gcc -ansi -std=c99 GTKMain.c GTK.o -o ChatGUI `pkg-config --cflags --libs gtk+-2.0` -g 
+	./ChatGUI
+
+GTK.o: GTK.h GTK.c
+	gcc -Wall -ansi -std=c99 -c GTK.c -o GTK.o `pkg-config --cflags --libs gtk+-2.0` -g
+
+
 clean:
 	rm -rf *.o $(executable_file) -v
