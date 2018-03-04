@@ -74,10 +74,6 @@ void SendButton(GtkWidget *widget, GtkWidget *widgets[])
     
         gtk_text_buffer_insert(buffer, &iter, gtk_entry_get_text(GTK_ENTRY(widgets[2])), -1);   /* inserts user text */
  
-//        gtk_text_buffer_insert_at_cursor(buffer, "\n\n", -1);   /* inserts 2 \n's for formatting */
-
-//        gtk_text_buffer_insert_at_cursor(buffer, gtk_entry_get_text(GTK_ENTRY(widgets[2])), -1); /* adds new text */
-  
         gtk_entry_set_text(GTK_ENTRY(widgets[2]), "");  /* replaces textBox with empty text again */
     }
 }
