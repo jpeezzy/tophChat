@@ -3,10 +3,16 @@ CXX := g++
 LKP := -lgmock -lgtest -lpthread -lm
 #POSIX_C_SOURCE allows c99 to use getaddrinfo function 
 CFLAGS := -std=c99 -Wall -Wextra -g -D_POSIX_C_SOURCE=200112L
+LFLAGS := -Wall
 CPFLAGS := -Wall -std=c++0x -g
 DEBUG := -DDEBUG
+MAIN := -DMAIN
 testServerBin=testServer
 executable_file := tdd_fifo tdd_client_server tdd_simple_IO tdd_tcpPacket tdd_tcpGUI tdd_server_back_end $(testServerBin)
+
+# compiler flags for GTK usage
+GTKINC := `pkg-config --cflags gtk+-2.0`
+GTKLIBS := `pkg-config --libs gtk+-2.0`
 
 ################################TDD AREA##########################
 #TEST FIFO
@@ -63,13 +69,35 @@ server_back_end_debug.o: server_back_end.c server_back_end.h constants.h
 
 #####################END OF TDD AREA################################
 
+#Executables
+
 ChatGUI: GTKMain.c GTK.o
 	gcc -ansi -std=c99 GTKMain.c GTK.o -o ChatGUI `pkg-config --cflags --libs gtk+-2.0` -g 
 	./ChatGUI
 
+serverGUI: serverGUI.o
+	$(CC) $(LFLAGS) serverGUI.o -o serverGUI	
+
+#Object files
+
 GTK.o: GTK.h GTK.c
 	gcc -Wall -ansi -std=c99 -c GTK.c -o GTK.o `pkg-config --cflags --libs gtk+-2.0` -g
 
+rsa.o: rsa.c rsa.h 
+	$(CC) $(CLFAGS) -c rsa.c -o rsa.o
+
+serverGUI.o: serverGUI.c
+	$(CC) $(CFLAGS) serverGUI.c -o serverGUI.o
+
+#Test object files
+
+rsa_DEBUG.o: rsa.c rsa.h
+	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) -c rsa.c -o rsa_DEBUG.o
+
+#Test Executables
+
+testRSA: rsa_DEBUG.o 
+	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) rsa_DEBUG.o -o testRSA
 
 clean:
-	rm -rf *.o $(executable_file) -v
+	rm -rf *.o $(executable_file) -v testRSA serverGUI

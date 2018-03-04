@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <time.h>
 #include "rsa.h"
-#include "randGen.h"
+//#include "randGen.h"
 
 #define PUBLIC_e_VALUE 65537
 #define RSA_BITS 62 
@@ -335,8 +335,7 @@ int main()
     scanf("%lu", &mod);
     d = mod_inv(e, mod);
     printf("d = %lu\n", d); */
-    unsigned long x;
-    x = randNum();
+    unsigned long x= 0;
     printf("x = %lu\n", x);
     rsaPriv = createRSA_priv(0, 0);
     rsaPub = createRSA_pub(0, 0);
