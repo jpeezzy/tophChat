@@ -38,6 +38,7 @@ struct sConnection
 struct messageRoom
 {
     int roomNum;
+    int status;
     int offSet; //offset from local room number and server room
     struct FIFObuffer inMessage;
     struct FIFObuffer outMessage;
@@ -59,7 +60,7 @@ int openRoom(chatRoom *room);
 
 // make available the room number so that the server
 // can use it for other room
-int closeRoom(chatRoom *room);
+int closeRoom(chatRoom *room, serverConnection *server);
 
 // return the next message in the FIFO
 int fetchMessage(chatRoom *room, char *buffer);

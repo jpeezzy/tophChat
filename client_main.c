@@ -22,11 +22,12 @@
 #include "tcpGUI.h"
 #include "tcpPacket.h"
 
-#define DEBUG 
+#define DEBUG
 
-// int main_loop(void)
-// {
-//     serverConnection* serverEndPoint=openConnection();
-//     closeConnection(serverEndPoint);
-//     return 0;
-// }
+int main_loop(void)
+{
+    serverConnection *server = openConnection();
+
+    closeConnection(server);
+    return 0;
+}

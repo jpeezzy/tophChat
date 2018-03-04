@@ -30,6 +30,7 @@ struct messageServerRoom
     int adminID;
     int isOccupied; //0 for free 1 for occupied
     int roomNum;
+    int peopleNum;
     struct FIFObuffer inMessage;
     struct FIFObuffer outMessage;
     int socketList[MAX_USER_PER_ROOM];

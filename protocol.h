@@ -4,7 +4,9 @@
 
 // define protocol command for communications
 #define ID_MESS "1TPM{}H" // identify that this his a message
+#define ISMESSAGE 1
 #define ID_COMM "1TPC{}H" // idenfity that this is a command
+#define ISCOMM 2
 #define ID_LENGTH 7       // doesn't account for the null terminator
 
 // friend related request
@@ -20,7 +22,8 @@
 #define RODEL 2    // delete room, only admin can do that
 #define ROADMIN 3  // change admin
 #define ROINVITE 4 // invite someone to room
-#define TOTAL_RORQ 4
+#define ROCREATE 5
+#define TOTAL_RORQ 5
 
 // communication related
 #define COMID 'C'
@@ -41,8 +44,6 @@
 // overall wrapper of all message handling function
 
 int processPacket(char *packet);
-// return the type of message
-int messageTriage(char *message);
 
 // divide special command into categories:
 // room related

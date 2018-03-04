@@ -1,6 +1,6 @@
 CC := gcc 
 CXX := g++  
-LKP := -lgmock -lgtest -lpthread 
+LKP := -lgmock -lgtest -lpthread -lm
 #POSIX_C_SOURCE allows c99 to use getaddrinfo function 
 CFLAGS := -std=c99 -Wall -Wextra -g -D_POSIX_C_SOURCE=200112L
 CPFLAGS := -Wall -std=c++0x -g

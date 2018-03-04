@@ -19,6 +19,7 @@
 #include "server_back_end.h"
 #include "constants.h"
 #include "testString.h"
+#include "tcpPacket.h"
 
 #define TEST_SERVER
 int listenSocketInit(void)
@@ -68,6 +69,7 @@ struct allServerRoom *serverRoomSetCreate(void)
     {
         ((allRoom->roomList)[i]).isOccupied = 0;
         ((allRoom->roomList)[i]).roomNum = i;
+        ((allRoom->roomList)[i]).peopleNum = 0;
     }
 }
 void serverRoomSetDel(struct allServerRoom *allRoom)
@@ -96,6 +98,7 @@ void updateFreeRoom(struct allServerRoom *allRoom)
 // return a free room
 struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom)
 {
+    assert(allRoom);
     if (allRoom->firstFreeRoom == -1)
     {
         return NULL;
@@ -110,9 +113,24 @@ struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom)
 void serverRoomReturn(serverChatRoom *room)
 {
     room->isOccupied = 0;
+    room->peopleNum = 0;
 }
 
-int serverRoomFIFOWrite(struct messageServerRoom *room);
+// send message to everyone in the room except the writer
+int serverRoomSpreadMessage(int writerSocket, struct messageServerRoom *room, char *packet)
+{
+    assert(packet);
+    assert(room);
+    assert(writerSocket >= 0);
+    for (int i = 0; i < room->peopleNum; ++i)
+    {
+        if ((room->socketList[i]) != writerSocket)
+        {
+            // TODO: Change this
+            assert(sendPacket(packet, room->socketList[i]) >= 0);
+        }
+    }
+}
 
 #ifdef TEST_SERVER
 int main(int argc, char *argv[])
