@@ -22,6 +22,8 @@
 #include "tcpGUI.h"
 #include "server_back_end.h"
 
+#define ALPLHA_RELEASE
+
 int spawnChildThread()
 {
 }
@@ -29,6 +31,16 @@ int spawnChildThread()
 // return an available room number
 int assignRoom(roomList *);
 
+// TODO: implement multi-threaded
+
+#ifdef ALPLHA_RELEASE
+// alpha release will just have two machines connecting to each other
+int main_loop(void)
+{
+
+    return 0;
+}
+#else
 int main_loop(void)
 {
 
@@ -37,7 +49,7 @@ int main_loop(void)
     fd_set *setListener;
     FD_ZERO(setListener);
 
-    int socketListener=listenSocketInit();
+    int socketListener = listenSocketInit();
     listen(socketListener, MAX_SERVER_USERS);
     FD_SET(socketListener, setListener);
 
@@ -47,3 +59,4 @@ int main_loop(void)
     }
     return 0;
 }
+#endif

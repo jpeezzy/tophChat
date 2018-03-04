@@ -6,9 +6,7 @@
 #include "fifo.h"
 #include "constants.h"
 
-
-// read buffer and pop the element index 0
-fifo* initBuffer(int length)
+fifo *initBuffer(int length)
 {
     assert(length);
 
@@ -17,7 +15,7 @@ fifo* initBuffer(int length)
     temp->bufLength = length;
     temp->readPos = 0;
     temp->writePos = 0;
-    temp->buffer=(char**)malloc(sizeof(char*)*length);
+    temp->buffer = (char **)malloc(sizeof(char *) * length);
     // initialize all pointer with NULL
     for (int i = 0; i < length; ++i)
     {
@@ -27,23 +25,23 @@ fifo* initBuffer(int length)
     return temp;
 }
 
-int closeBuffer(fifo* buf)
+int closeBuffer(fifo *buf)
 {
-    for(int i=0; i<buf->bufLength; ++i)
+    for (int i = 0; i < buf->bufLength; ++i)
     {
         free(buf->buffer[i]);
     }
     free(buf->buffer);
-    free(buf);    
+    free(buf);
     return 0;
 }
 
-int readBuffer(fifo *buf_struct, char* buf_content)
+int readBuffer(fifo *buf_struct, char *buf_content)
 {
     assert(buf_struct);
     assert(buf_struct->bufLength);
 
-    if ((buf_struct->buffer)[buf_struct->readPos] == NULL)    
+    if ((buf_struct->buffer)[buf_struct->readPos] == NULL)
     {
         return FIFO_NO_DATA;
     }
@@ -69,7 +67,7 @@ int writeBuffer(fifo *buf, const char *writeData, int length)
     // will only write if there is no data there
     if ((buf->buffer)[buf->writePos] == NULL)
     {
-        char *temp = (char*)malloc(sizeof(char) * (length +1));
+        char *temp = (char *)malloc(sizeof(char) * (length + 1));
         strcpy(temp, writeData);
         (buf->buffer)[buf->writePos] = temp;
         buf->writePos = (buf->writePos + 1) % (buf->bufLength);

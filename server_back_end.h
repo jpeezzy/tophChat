@@ -20,7 +20,36 @@
 #include <sys/select.h> //io multiplexing
 
 #include "constants.h"
+typedef struct messageServerRoom serverChatRoom;
+typedef struct allServerRoom serverRoomList;
+
+struct messageServerRoom
+{
+    int adminID;
+    int roomNum;
+    struct FIFObuffer inMessage;
+    struct FIFObuffer outMessage;
+    int socketList[MAX_USER_PER_ROOM];
+};
+
+// head of the linked list connecting all the rooms on the client
+struct allServerRoom
+{
+    int totalRoom;
+    struct messageRoom roomList[MAX_SERVER_CHATROOMS];
+};
+
+// the
+typedef int (*roomFunc)(struct messageServerRoom *room, int num, char *);
+typedef int (*friendFunc)(char *name1, char *name2);
+typedef int (*comFunc)(int socket);
 
 int listenSocketInit(void);
 
-#endif 
+int serverRoomCreate(struct messageServerRoom *room);
+
+int serverRoomDel(struct messageServerRoom *room);
+
+int serverRoomFIFOWrite(struct messageServerRoom *room);
+
+#endif

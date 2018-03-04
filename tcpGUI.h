@@ -35,9 +35,10 @@ struct sConnection
 };
 
 // TODO: implement offset from room in user to room in server
-struct room
+struct messageRoom
 {
     int roomNum;
+    int offSet; //offset from local room number and server room
     struct FIFObuffer inMessage;
     struct FIFObuffer outMessage;
 };
@@ -46,10 +47,10 @@ struct room
 struct allRoom
 {
     int totalRoom;
-    struct room roomList[CHAT_ROOM_LIMIT];
+    struct messageRoom roomList[CHAT_ROOM_LIMIT];
 };
 
-serverConnection* openConnection(void);
+serverConnection *openConnection(void);
 
 int closeConnection(serverConnection *server);
 
@@ -61,9 +62,9 @@ int openRoom(chatRoom *room);
 int closeRoom(chatRoom *room);
 
 // return the next message in the FIFO
-char *fetchMessage(chatRoom *room);
+int fetchMessage(chatRoom *room, char *buffer);
 
 // package and send the message both to the input FIFO of the room
 // as well as to the output FIFO of the client
-int sendMessage(chatRoom *room, char *message);
+int sendMessage(chatRoom *room, char *message, serverConnection *server);
 #endif
