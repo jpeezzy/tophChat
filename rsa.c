@@ -1,3 +1,8 @@
+/* rsa.c: rsa encryption 
+ * Author: Aung Thu
+ * references: https://www.di-mgt.com.au/rsa_alg.html
+               https://en.wikipedia.org/wiki/RSA_(cryptosystem)*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -331,8 +336,7 @@ int main()
     d = mod_inv(e, mod);
     printf("d = %lu\n", d); */
     unsigned long x;
-    printf("Enter x: ");
-    scanf("%lu", &x);
+    x = randNum();
     printf("x = %lu\n", x);
     rsaPriv = createRSA_priv(0, 0);
     rsaPub = createRSA_pub(0, 0);
