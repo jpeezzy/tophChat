@@ -92,6 +92,7 @@ chatRoom *retrieveRoom(roomList *allRoom, int roomNum)
 // copy the received message to the buffer
 int fetchMessage(chatRoom *room, char *buffer, serverConnection *server)
 {
+    // TODO: implement muxtex if using multithreaded
     readBuffer(&(room->inMessage), buffer);
     return 0;
 }
@@ -203,7 +204,7 @@ int mailMan(roomList *allRoom, serverConnection *server)
                     prepareRoom(allRoom, getroomNumber(packet));
                     break;
                 case RODEL:
-                    closeRoom(retrieveRoom(allRoom, getroomNumber(packet)));
+                    closeRoom(retrieveRoom(allRoom, getroomNumber(packet)), server);
                 }
                 break;
             case ROID:
