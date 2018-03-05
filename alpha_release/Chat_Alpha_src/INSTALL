@@ -1,0 +1,46 @@
+	      Main Chat Progam:
+To install:
+1. Go to Chat_Alpha_src/src/ directory with command "cd src"
+2. Run command "make"
+     -the executable file will be generated in the Chat_Alpha_src/bin/ directory
+
+To run:
+3. Go to Chat_Alpha_src/bin/ directory with command "cd bin"
+4. Run command "./chat"
+5. Start chatting!
+
+*If an error message is returned, the chat server 
+ may not be online or there may be an internet connectivity issue.
+ Try again later.  
+
+
+
+	      Test Executables:
+TestClientGUI: opens up the current work-in-progress client GUI for viewing and interaction
+    1. move to Chat_Alpha_src directory
+    2. make the TestClientGUI executable with command "make TestClientGUI"
+    3. move to Chat_Alpha_src/bin/ directory with command "cd bin"
+    4. run TestClientGUI executable with command "./TestClientGUI"
+TestServerGUI: opens up the current work-in-progress server GUI for viewing and interaction
+    1. move to Chat_Alpha_src directory
+    2. make the TestServerGUI executable with command "make TestServerClientGUI"
+    3. move to Chat_Alpha_src/bin/ directory with command "cd bin"
+    4. run TestServerGUI executable with command "./TestServerGUI"
+TestRSA: checks if RSA encryption/decryption is working 
+    1. move to Chat_Alpha_src directory
+    2. make the TestRSA executable with command "make TestRSA"
+    3. move to Chat_Alpha_src/bin/ directory with command "cd bin"
+    4. run TestRSA executable with command "./TestRSA"
+TestServer: tests if server runs and can accept client data
+    1. move to Chat_Alpha_src directory
+    2. make the TestServer executable with command "make TestServer"
+    3. move to Chat_Alpha_src/bin/ directory with command "cd bin"
+    4. run TestServer executable with command "./TestServer"
+TestClient: tests if client is able to send data to server successfully
+    1. move to Chat_Alpha_src directory 
+    2. make the TestClient executable with command "make TestClient"
+    3. move to Chat_Alpha_src/bin/ directory with command "cd bin"
+    4. run TestClient executable with command "./TestClient"
+
+
+
