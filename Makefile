@@ -87,32 +87,39 @@ protocol.o: protocol.c protocol.h protocol_const.h utils.h constants.h server_ba
 #Executables
 
 ChatGUI: GTKMain.c GTK.o
-	$(CC) -ansi $(CFLAGS) $(^) -o $(@) `pkg-config --cflags --libs gtk+-2.0` -g 
-	./ChatGUI
+	$(CC) $(CFLAGS) $(GTKLIBS) $(^) -o $(@)
 
 serverGUI: serverGUI.o
-	$(CC) $(LFLAGS) $(^)  -o $(@)	
+	$(CC) $(LFLAGS) $(GTKLIBS) $(^) -o $(@)	
 
 #Object files
 
 GTK.o:  GTK.c GTK.h
-	$(CC) $(CFLAGS) -ansi  -c $(<) -o $(@) `pkg-config --cflags --libs gtk+-2.0` 
+	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
 rsa.o: rsa.c rsa.h 
 	$(CC) $(CLFAGS) -c $(<) -o $(@)
 
 serverGUI.o: serverGUI.c
-	$(CC) $(CFLAGS) $(<) -o $(@)
+	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
 #Test object files
 
 rsa_DEBUG.o: rsa.c rsa.h
 	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) -c $(<) -o $(@)
 
+serverGUI_DEBUG.o: serverGUI.c
+	$(CC) $(CFLAGS) $(DEBUG) $(GTKINC) -c $(<) -o $(@)	
+
 #Test Executables
 
-testRSA: rsa_DEBUG.o 
-	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) $(<) -o $(@)
+test_RSA: rsa_DEBUG.o 
+	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) $(^) -o $(@)
+
+test_serverGUI: serverGUI_DEBUG.o
+	$(CC) $(LFLAGS) $(DEBUG) $(GTKLIBS) $(^) -o $(@)
+
+#clean 
 
 clean:
-	rm -rf *.o $(executable_file) -v testRSA serverGUI ChatGUI serverGUI
+	rm -rf *.o $(executable_file) -v serverGUI ChatGUI serverGUI test_RSA test_serverGUI

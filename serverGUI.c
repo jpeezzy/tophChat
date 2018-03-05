@@ -440,7 +440,7 @@ void ServerMainLoop(int ServSocketFD, /* server socket to wait on */
                         }
                     #ifdef DEBUG
                         printf("%s: New client connected from %s:%hu.\n", 
-                                Program, inet_ntoa(ClientAddress.sin.addr), 
+                                Program, inet_ntoa(ClientAddress.sin_addr), 
                                 ntohs(ClientAddress.sin_port));
                     #endif
                         FD_SET(DataSocketFD, &ActiveFDs);
