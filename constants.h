@@ -4,7 +4,7 @@
 // NETWORK CONNECTION CONSTANT START HERE
 #define CHAT_SERVER_ADDR "zuma.eecs.uci.edu"
 #define RECONNECT_NUM 5
-#define CHAT_SERVER_PORT "30001"
+#define CHAT_SERVER_PORT "5000"
 
 #define MAX_USER_NAME 20 // 20 character maximum
 #define MESS_LIMIT 500   // how many char user can send

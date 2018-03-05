@@ -84,4 +84,11 @@ char getCommandType(char *packet)
 {
     return packet[CHAT_ROOM_CHARACTER + ID_LENGTH];
 }
+
+// extract user name from a command
+int getUserName(char *packet, char *userName)
+{
+    stringSlicer(packet, userName, CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH, PACKAGE_SIZE - 1);
+}
+
 int messageDecode(int *roomNum, char *message);

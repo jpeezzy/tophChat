@@ -33,18 +33,13 @@ int main(void)
 {
     // when connection is read, user needs to send a packet with the name of the persion they need to connect
 
-    int socketList[MAX_USERS];
-    for (int i = 0; i < MAX_USERS; ++i)
-    {
-        socketList[i] = -1;
-    }
+    int socketList[2];
     struct sockaddr *addrList[MAX_USERS];
     for (int i = 0; i < MAX_USERS; ++i)
     {
         addrList[i] = malloc(sizeof(struct sockaddr));
     }
     socklen_t socklenList[MAX_USERS];
-    int listenerSocket = listenSocketInit();
 
     // fd_set *setClient;
     // FD_ZERO(setClient);
@@ -58,22 +53,25 @@ int main(void)
     int j = 0;
     for (;;)
     {
-        if (select(listenerSocket + 1, &setListener, NULL, NULL, NULL) > 0 || isFull)
+        if (isFull || select(socketListener + 1, &setListener, NULL, NULL, NULL) > 0)
         {
-            if (!isFull)
+            printf("\nreceived connection\n");
+            if (isFull != 1)
             {
-                socketList[j] = accept(listenerSocket, addrList[j], &socklenList[j]);
+                socketList[j] = accept(socketListener, addrList[j], &socklenList[j]);
                 ++j;
             }
             else
             {
-                if (fetchPacket(packet, socketList[0]) > 0)
+                if (fetchPacket(packet, socketList[0]) == 0)
                 {
+                    printf("\nreceived packet from 0\n");
                     sendPacket(packet, socketList[1]);
                 }
 
-                if (fetchPacket(packet, socketList[1]) > 0)
+                if (fetchPacket(packet, socketList[1]) == 0)
                 {
+                    printf("\nreceived packet from 1\n");
                     sendPacket(packet, socketList[0]);
                 }
             }

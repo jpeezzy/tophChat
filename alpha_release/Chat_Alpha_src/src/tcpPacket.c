@@ -40,8 +40,8 @@ int sendPacket(char *packet, int socket)
 
 int fetchPacket(char *packet, int socket)
 {
-    
-    int temp = recv(socket, packet, sizeof(char)*PACKAGE_SIZE, 0);
+
+    int temp = recv(socket, packet, sizeof(char) * PACKAGE_SIZE, MSG_DONTWAIT);
     if (temp == -1)
     {
         if (errno == EWOULDBLOCK)
@@ -57,10 +57,6 @@ int fetchPacket(char *packet, int socket)
 
     return 0;
 }
-
-
-
-
 
 // the mailman thread, used for update I/O buffer
 int manageIO(serverConnection *server, fifo *inputFIFO, fifo *outputFIFO)

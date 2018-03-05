@@ -40,16 +40,19 @@ int listenSocketInit(void)
     // the socket that will be listening
     struct addrinfo *serverListener;
     int socketListener;
+
     // give the server hints about the type of connection we want
     struct addrinfo serverHints;
     memset(&serverHints, 0, sizeof(serverHints));
     serverHints.ai_family = AF_INET;       // IPV4 address
     serverHints.ai_socktype = SOCK_STREAM; // TCP socket
     serverHints.ai_flags = AI_PASSIVE;     // listening socket
+    int n = 1;
 
     // create a socket for listening incoming collection
     getaddrinfo(NULL, CHAT_SERVER_PORT, &serverHints, &serverListener);
-    socketListener = socket(serverListener->ai_family, serverListener->ai_socktype, 0);
+    socketListener = socket(serverListener->ai_family, serverListener->ai_socktype, serverListener->ai_protocol);
+    setsockopt(socketListener, SOL_SOCKET, SO_REUSEADDR, &n, sizeof(n));
     if (socketListener < 0)
     {
         freeaddrinfo(serverListener);
@@ -57,7 +60,7 @@ int listenSocketInit(void)
     }
     else
     {
-        if (bind(socketListener, serverListener->ai_addr, serverListener->ai_addrlen) < 0)
+        if (bind(socketListener, serverListener->ai_addr, serverListener->ai_addrlen) == -1)
         {
             printf("The error is %s\n", strerror(errno));
         }

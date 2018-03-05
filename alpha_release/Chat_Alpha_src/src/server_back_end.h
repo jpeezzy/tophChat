@@ -21,9 +21,11 @@
 
 #include "constants.h"
 #include "fifo.h"
+#include "tophChatUsers.h"
 typedef struct messageServerRoom serverChatRoom;
 typedef struct allServerRoom serverRoomList;
-
+typedef struct allOnlineUser onlineUserList;
+typedef struct onlUser onlineUser;
 // when a message is received by the server, it will be parsed to include the original, room and who sent them
 struct messageServerRoom
 {
@@ -42,6 +44,21 @@ struct allServerRoom
     int totalRoom;
     int firstFreeRoom;
     struct messageServerRoom roomList[MAX_SERVER_CHATROOMS];
+};
+
+// list of all users currently online
+
+struct onlUser
+{
+    tophChatUsers userProfile;
+    int status;
+    int socket;
+};
+
+struct allOnlineUser
+{
+    struct onlUser userList[MAX_SERVER_USERS];
+    int totalUser;
 };
 
 typedef int (*roomFunc)(struct messageServerRoom *room, int num, char *);

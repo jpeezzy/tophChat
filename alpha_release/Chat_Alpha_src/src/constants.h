@@ -4,7 +4,7 @@
 // NETWORK CONNECTION CONSTANT START HERE
 #define CHAT_SERVER_ADDR "zuma.eecs.uci.edu"
 #define RECONNECT_NUM 5
-#define CHAT_SERVER_PORT "30001"
+#define CHAT_SERVER_PORT "5000"
 
 #define MAX_USER_NAME 20 // 20 character maximum
 #define MESS_LIMIT 500   // how many char user can send
@@ -17,6 +17,9 @@
 
 // for alpha make it 20
 #define MAX_SERVER_CHATROOMS 20
+
+// maximum inbox request the user can ahve
+#define MAX_REQUEST 10
 //#define MAX_SERVER_CHATROOMS 400 // equal to max user * max room per user
 
 #define MAX_USER_PER_ROOM 5
@@ -41,9 +44,19 @@
 
 #define STR_BUFFER_TOO_SHORT -1
 
-//ROOM STATUS GO HERE
+#define SERVER_FULL -1
+
+//ROOM STATUS GO HERE FOR CLIENTS
 #define ROOM_FREE 2        // synchronized with server
 #define ROOM_WAITING 1     // waiting for server
 #define ROOM_UNALLOCATED 0 // haven't talked to server
+
+//ROOM STATUS GO HERE FOR SERVER
+#define ROOM_OCCUPIED 0
+#define ROOM_BUSY 1
+
+//USER PERSONAL STUFFS GO HERE
+#define NOT_ONLINE 0
+#define ONLINE 1
 
 #endif

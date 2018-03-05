@@ -1,4 +1,4 @@
-#include <socket.h>
+#include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -19,9 +19,8 @@
 // #include <pthread.h>
 
 #include "constants.h"
-#include "tcpGUI.h"
+#include "tcpPacket.h"
 #include "server_back_end.h"
-#include "utils.h"
 
 #define ALPLHA_RELEASE
 // TODO: implement multi-threaded
@@ -29,23 +28,18 @@
 #ifdef ALPLHA_RELEASE
 // alpha release will just have two machines connecting to each other
 
-#define MAX_USERS 10 // maximum number of user conversation
-int main_loop(void)
+#define MAX_USERS 2 // maximum number of user conversation
+int main(void)
 {
     // when connection is read, user needs to send a packet with the name of the persion they need to connect
 
-    int socketList[MAX_USERS];
-    for (int i = 0; i < MAX_USERS; ++i)
-    {
-        socketList[i] = -1;
-    }
+    int socketList[2];
     struct sockaddr *addrList[MAX_USERS];
     for (int i = 0; i < MAX_USERS; ++i)
     {
         addrList[i] = malloc(sizeof(struct sockaddr));
     }
     socklen_t socklenList[MAX_USERS];
-    int listenerSocket = listenSocketInit();
 
     // fd_set *setClient;
     // FD_ZERO(setClient);
@@ -53,30 +47,35 @@ int main_loop(void)
     FD_ZERO(&setListener);
 
     int socketListener = listenSocketInit();
-    int nextFreeSocket = 0;
     int isFull = 0;
-    listen(socketListener, MAX_SERVER_USERS);
+    char packet[PACKAGE_SIZE];
     FD_SET(socketListener, &setListener);
-
+    int j = 0;
     for (;;)
     {
-        if (select(listenerSocket + 1, &setListener, NULL, NULL, NULL) > 0)
+        if (isFull || select(socketListener + 1, &setListener, NULL, NULL, NULL) > 0)
         {
-            if (!isFull)
+            printf("\nreceived connection\n");
+            if (isFull != 1)
             {
-                socketList[nextFreeSocket] = accept(listenerSocket, addrList[nextFreeSocket], socklenList[nextFreeSocket]);
+                socketList[j] = accept(socketListener, addrList[j], &socklenList[j]);
+                ++j;
             }
-
-            int j;
-            for (j = 0; j < MAX_USERS; ++j)
+            else
             {
-                if (socketList[j] == -1)
+                if (fetchPacket(packet, socketList[0]) == 0)
                 {
-                    nextFreeSocket = j;
-                    isFull = 0;
+                    printf("\nreceived packet from 0\n");
+                    sendPacket(packet, socketList[1]);
+                }
+
+                if (fetchPacket(packet, socketList[1]) == 0)
+                {
+                    printf("\nreceived packet from 1\n");
+                    sendPacket(packet, socketList[0]);
                 }
             }
-            if (j == MAX_USERS)
+            if (j == 2)
             {
                 isFull = 1;
             }

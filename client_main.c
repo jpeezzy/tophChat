@@ -29,24 +29,26 @@
 int main(void)
 {
     serverConnection *server = openConnection();
+    assert(server);
     char packet[PACKAGE_SIZE];
+    packet[0] = '\0';
     char message[MESS_LIMIT];
     int userInputAvail = 0;
     for (;;)
     {
-        if (fetchPacket(packet, server->socket) > 0)
+        if (fetchPacket(packet, server->socket) == 0)
         {
             getMessageBody(packet, message);
             printf("\nThe message is %s\n", message);
         }
 
-        if (userInputAvail)
-        {
-            strcat(packet, "555");
-            strcat(packet, ID_MESS);
-            strcat(packet, message);
-            sendPacket(packet, server->socket);
-        }
+        scanf("%s", message);
+        printf("\nReceived input\n");
+        packet[0] = '\0';
+        strcat(packet, "555");
+        strcat(packet, ID_MESS);
+        strcat(packet, message);
+        sendPacket(packet, server->socket);
     }
     closeConnection(server);
     return 0;
