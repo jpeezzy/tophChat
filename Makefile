@@ -76,7 +76,7 @@ utils.o: utils.c utils.h constants.h
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
 #TEST PROTOCOLS DECODER
-tdd_protocol: protocol_test.o protocol.o
+tdd_protocol: protocol_test.o protocol.o utils.o
 	$(CXX) $(^) -o $(@) $(LKP)
 protocol_test.o: protocol_test.cc protocol.h protocol_const.h utils.h constants.h server_back_end.h
 	$(CXX) -c $(<) $(CPFLAGS) -o $(@)

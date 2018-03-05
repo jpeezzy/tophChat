@@ -70,12 +70,13 @@ int getroomNumber(char *packet)
 // return the body of the message doesn't have room num or DI string
 int getMessageBody(char *packet, char *MessageBody)
 {
-    stringSlicer(packet, MessageBody, 0, MESS_LIMIT - 1);
+    stringSlicer(packet, MessageBody, ID_LENGTH + CHAT_ROOM_CHARACTER, MESS_LIMIT - 1);
+    return 0;
 }
 
 int getCommandID(char *packet)
 {
-    return charToInt(packet[CHAT_ROOM_CHARACTER + ID_LENGTH] + 1);
+    return charToInt(packet[CHAT_ROOM_CHARACTER + ID_LENGTH + 1]);
 }
 
 // return the letter representing the category of the command
@@ -84,4 +85,3 @@ char getCommandType(char *packet)
     return packet[CHAT_ROOM_CHARACTER + ID_LENGTH];
 }
 int messageDecode(int *roomNum, char *message);
-
