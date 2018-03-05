@@ -9,13 +9,15 @@ MAIN := -DMAIN
 GTKLIBS := `pkg-config --libs gtk+-2.0`
 
 #tar
-all: TestClientGUI TestServerGUI TestRSA TestServer TestClient ServerGUI Server Client
+all: ServerGUI Server Client
 
+test: TestClientGUI TestServerGUI TestRSA TestServer TestClient
+ 
 tar: 
 	gtar cvzf Chat_Alpha_src.tar.gz bin doc src COPYRIGHT INSTALL README Makefile
 
 #test executables
-test_executables := ./bin/TestClientGUI ./bin/TestServerGUI ./bin/TestRSA
+test_executables := ./bin/TestClientGUI ./bin/TestServerGUI ./bin/TestRSA ./bin/TestServer ./bin/TestClient
 
 TestClientGUI: ./src/GTK.o ./src/GTKMain.c
 	$(CC) $(CFLAGS) ./src/GTK.o ./src/GTKMain.c -o ./bin/TestClientGUI
@@ -32,6 +34,9 @@ TestServer: ./src/tcpPacket_debug.o ./src/server_back_end_debug.o ./src/server_m
 TestClient: ./src/tcpPacket_debug.o ./src/protocol.o ./src/tcpGUI_debug.o ./src/client_main.o ./src/utils.o
 	$(CC)  $(DEBUG) $(MAIN) $(^) -o ./bin/TestClient $(LFLAGS)
 
+#executables
+executables := ./bin/ServerGUI ./bin/Server ./bin/Client
+
 ServerGUI: ./src/serverGUI.o
 	$(CC) $(LFLAGS) $(GTKLIBS) $(^) -o ./bin/ServerGUI
 
@@ -43,4 +48,4 @@ Client: ./src/tcpPacket_debug.o ./src/protocol.o ./src/tcpGUI_debug.o ./src/clie
 #clean
 
 clean: 
-	rm -rf *./bin/*.o $(test_executables)
+	rm -rf *./bin/*.o $(test_executables) $(executables)
