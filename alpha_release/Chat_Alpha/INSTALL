@@ -1,7 +1,7 @@
 To Install and Run the chat application, "chat"
 
 1. Go to /bin/ directory with command "cd bin"
-2. Run command "./chat" 
+2. Run command "./Client" 
 3. Start chatting!
  
 *If an error message is returned, the chat server 
