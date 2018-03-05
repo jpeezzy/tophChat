@@ -11,7 +11,7 @@ executable_file := server_main client_main $(testServerBin)
 GTKINC := `pkg-config --cflags gtk+-2.0`
 GTKLIBS := `pkg-config --libs gtk+-2.0`
 
-all: utils.o protocol.o server_main.o client_main.o tcpGUI_debug.o tcpGUI.o tcpPacket_debug.o tcpPacket.o server_back_end.o server_back_end_debug.o serverGUI.o serverGUI_DEBUG.o rsa.o rsa_DEBUG.o GTK.o
+all: utils.o protocol.o server_main.o client_main.o tcpGUI_debug.o tcpGUI.o tcpPacket_debug.o tcpPacket.o server_back_end.o server_back_end_debug.o
 
 #####################END OF TDD AREA################################
 

@@ -2,6 +2,7 @@
 #define GTK
 #include <gtk/gtk.h>
 
+
 gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data);    /* Exits out of the window and the program */
 //void click(GtkWidget *widget, GdkEvent *event, gpointer data);
 //GtkWidget *CreateBox(GtkWidget *window, GtkWidget *button);
