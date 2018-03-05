@@ -2,6 +2,7 @@
 #define RSA_H
 
 /*  How to use RSA.h
+ *  initialize rand() using srand(time(0); 
  *  First create RSA_PRIV and RSA_PUB using 
  *  createRSA_priv(0, 0) and createRSA_pub(0, 0)
  *  use generateRSA_Keys() to initialize created structures
