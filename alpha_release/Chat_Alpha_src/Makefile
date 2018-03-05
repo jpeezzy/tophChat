@@ -10,7 +10,7 @@ GTKLIBS := `pkg-config --libs gtk+-2.0`
 GTKINC := `pkg-config --libs --cflags gtk+-2.0`
 
 #tar
-all: ServerGUI Server Client
+all: ClientGUI ServerGUI Server Client
 
 test: TestClientGUI TestServerGUI TestRSA TestServer TestClient
  
@@ -37,6 +37,9 @@ TestClient: ./src/tcpPacket_debug.o ./src/protocol.o ./src/tcpGUI_debug.o ./src/
 
 #executables
 executables := ./bin/ServerGUI ./bin/Server ./bin/Client
+
+ClientGUI: ./src/GTK.o ./src/GTKMain.c
+	$(CC) $(CFLAGS) $(GTKINC) ./src/GTK.o ./src/GTKMain.c -o ./bin/ClientGUI
 
 ServerGUI: ./src/serverGUI.o
 	$(CC) $(GTKLIBS) $(^) -o ./bin/ServerGUI $(LFLAGS)
