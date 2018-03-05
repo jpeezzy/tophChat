@@ -103,6 +103,9 @@ rsa.o: rsa.c rsa.h
 serverGUI.o: serverGUI.c
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
+encrypt.o: encrypt.c encrypt.h
+	$(CC) $(CFLAGS) -c $(<) -o $(@)
+
 #Test object files
 
 rsa_DEBUG.o: rsa.c rsa.h
