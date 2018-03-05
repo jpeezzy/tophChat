@@ -36,7 +36,7 @@ TestClient: ./src/tcpPacket_debug.o ./src/protocol.o ./src/tcpGUI_debug.o ./src/
 	$(CC)  $(DEBUG) $(MAIN) $(^) -o ./bin/TestClient $(LFLAGS)
 
 #executables
-executables := ./bin/ServerGUI ./bin/Server ./bin/Client
+executables := ./bin/ServerGUI ./bin/Server ./bin/Client ./bin/ClientGUI
 
 ClientGUI: ./src/GTK.o ./src/GTKMain.c
 	$(CC) $(CFLAGS) $(GTKINC) ./src/GTK.o ./src/GTKMain.c -o ./bin/ClientGUI
