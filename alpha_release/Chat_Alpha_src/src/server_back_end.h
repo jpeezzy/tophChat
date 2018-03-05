@@ -50,7 +50,7 @@ struct allServerRoom
 
 struct onlUser
 {
-    tophChatUsers userProfile;
+    struct tophChatUser userProfile;
     int status;
     int socket;
 };
