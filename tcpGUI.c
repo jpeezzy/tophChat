@@ -73,6 +73,31 @@ int closeConnection(serverConnection *server)
     return 0;
 }
 
+inboxQueue *initializeInboxQueue(void)
+{
+    inboxQueue *inbox = malloc(sizeof(inboxQueue));
+
+    for (int i = 0; i < MAX_REQUEST; ++i)
+    {
+        inbox->MessageList[i] = NULL;
+    }
+}
+
+int delInboxQueue(inboxQueue *inbox)
+{
+    for (int i = 0; i < MAX_REQUEST; ++i)
+    {
+        free(inbox->MessageList[i]);
+    }
+    free(inbox);
+    return 0;
+}
+
+// contact the server to obtain special requests like friend requests
+int retrieveInboxMessage()
+{
+}
+
 // return a pointer to the room speicified by the server room number
 chatRoom *retrieveRoom(roomList *allRoom, int roomNum)
 {

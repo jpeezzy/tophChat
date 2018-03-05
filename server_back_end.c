@@ -20,8 +20,15 @@
 #include "constants.h"
 #include "testString.h"
 #include "tcpPacket.h"
+#include "tophChatUsers.h"
+#include "protocol_const.h"
 
 #define TEST_SERVER
+
+/**
+ * as of right now, the server is single threaded, the server will need to call
+ * update free room occassionally 
+ */
 int listenSocketInit(void)
 {
     struct timeval timeoutListener;
@@ -60,6 +67,8 @@ int listenSocketInit(void)
     }
 }
 
+/**********************ROOM_STUFFS HERE********************/
+// create list of all rooms on server
 struct allServerRoom *serverRoomSetCreate(void)
 {
     struct allServerRoom *allRoom = malloc(sizeof(struct allServerRoom));
@@ -67,7 +76,7 @@ struct allServerRoom *serverRoomSetCreate(void)
     allRoom->totalRoom = MAX_SERVER_CHATROOMS;
     for (int i = 0; i < allRoom->totalRoom; ++i)
     {
-        ((allRoom->roomList)[i]).isOccupied = 0;
+        ((allRoom->roomList)[i]).isOccupied = ROOM_OCCUPIED;
         ((allRoom->roomList)[i]).roomNum = i;
         ((allRoom->roomList)[i]).peopleNum = 0;
     }
@@ -80,10 +89,11 @@ void serverRoomSetDel(struct allServerRoom *allRoom)
 // update which room is not occupied
 void updateFreeRoom(struct allServerRoom *allRoom)
 {
+    assert(allRoom);
     int i;
     for (i = 0; i < allRoom->totalRoom; ++i)
     {
-        if (((allRoom->roomList)[i]).isOccupied == 0)
+        if (((allRoom->roomList)[i]).isOccupied == ROOM_OCCUPIED)
         {
             allRoom->firstFreeRoom = i;
             break;
@@ -109,9 +119,10 @@ struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom)
     }
 }
 
-// mark the room as free
+// mark the room as free when conversation is done
 void serverRoomReturn(serverChatRoom *room)
 {
+    assert(room);
     room->isOccupied = 0;
     room->peopleNum = 0;
 }
@@ -130,6 +141,142 @@ int serverRoomSpreadMessage(int writerSocket, struct messageServerRoom *room, ch
             assert(sendPacket(packet, room->socketList[i]) >= 0);
         }
     }
+}
+
+/*******************************USER STUFFS HERE**************************/
+// create a list of online user
+onlineUserList *serverCreateOnlineList(void)
+{
+    onlineUserList *userList = malloc(sizeof(onlineUserList));
+    userList->totalUser = MAX_SERVER_USERS;
+
+    for (int i = 0; i < userList->totalUser; ++i)
+    {
+        (userList->userList[i]).status = NOT_ONLINE;
+    }
+}
+
+onlineUser *serverAddOnlineUser(char *userName, int userSocket, onlineUserList *allUser)
+{
+    int i = 0;
+    for (i = 0; i < allUser->totalUser; ++i)
+    {
+        if ((allUser->userList[i]).status == NOT_ONLINE)
+        {
+            (allUser->userList[i]).status = ONLINE;
+            (allUser->userList[i]).status = userSocket;
+            (allUser->userList[i]).userProfile.userName = userName;
+            return &(allUser->userList[i]);
+        }
+        if (i == allUser->totalUser)
+        {
+            // server full
+            return NULL;
+        }
+    }
+}
+
+int sendRoomInvite(char *userName, chatRoom *room, onlineUserList *allUser)
+{
+    int i = 0;
+    char packet[PACKAGE_SIZE];
+    for (i = 0; i < allUser->totalUser; ++i)
+    {
+        if (allUser->userList[i].status == 1 && (strcmp(allUser->userList[i].userProfile.userName, userName) == 0))
+        {
+            strcat(packet, "000");
+            strcat(packet, ID_COMM);
+            strcat(packet, "R4");
+            sendPacket(packet, allUser->userList[i].socket);
+        }
+        else
+        {
+            return NOT_ONLINE;
+        }
+    }
+}
+
+int serverLogOffUser(onlineUser *user)
+{
+    user->status = NOT_ONLINE;
+    close(user->socket);
+    return 0;
+}
+
+/********************************UTILITIES HERE*********************************/
+// TODO implement lookup
+int lookUpUser();
+
+// return the pointer to the room based on room number
+serverChatRoom *lookUpRoom(struct allServerRoom *allRoom, int roomNum)
+{
+    int j = 0;
+    for (j = 0; j < allRoom->totalRoom; ++j)
+    {
+        if (allRoom->roomList[j].roomNum == roomNum)
+        {
+            return &(allRoom->roomList[j]);
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+}
+
+// TODO: make this multithreaded
+// do all administrative tasks to keep server running
+int serverMailman(onlineUserList *userList, struct allServerRoom *allRoom)
+{
+    char packet[PACKAGE_SIZE];
+    struct messageServerRoom *tempRoom;
+    char messageBody[MESS_LIMIT + 1];
+    int roomNum;
+    struct messageServerRoom *tempRoom;
+    for (int i = 0; i < userList->totalUser; ++i)
+    {
+        if (fetchPacket(packet, userList->userList[i].socket) != SOCKET_NO_DATA)
+        {
+            if (getpacketType(packet) == ISMESSAGE)
+            {
+                // TODO handle error better
+                // this is a message
+                roomNum = getroomNumber(packet);
+                if ((tempRoom = lookUpRoom(allRoom, roomNum)) != NULL)
+                {
+                    serverRoomSpreadMessage(userList->userList[i].socket, tempRoom, packet);
+                }
+            }
+
+            else if (getpacketType(packet) == ISCOMM)
+            {
+                char comType = getCommandType(packet);
+                if (comType == ROID)
+                {
+                    switch (getCommandID(packet))
+                    {
+                    case ROCREATE:
+                        if ((tempRoom = serverRoomCreate(allRoom)) != NULL)
+                        {
+                            // TODO: Check for if room is full
+                            tempRoom->isOccupied = ROOM_OCCUPIED;
+                            tempRoom->socketList[tempRoom->peopleNum - 1] = userList->userList[i].socket;
+                            tempRoom->peopleNum += 1;
+                        }
+                        break;
+                    case RODEL:
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                // not a recognizable format
+            }
+        }
+    }
+    // no data
+    return -1;
 }
 
 #ifdef TEST_SERVER
@@ -157,3 +304,29 @@ int main(int argc, char *argv[])
     return 0;
 }
 #endif
+
+// #ifdef TEST_SERVER
+// int main(int argc, char *argv[])
+// {
+//     struct sockaddr *addr;
+//     socklen_t len;
+//     char dummyPacket[PACKAGE_SIZE];
+//     char receivedPacket[PACKAGE_SIZE];
+//     int socket = listenSocketInit();
+//     int newsocket = accept(socket, addr, &len);
+//     assert(newsocket >= 0);
+//     if (strcmp(argv[1], "TestClientSend") == 0)
+//     {
+//         recv(newsocket, receivedPacket, PACKAGE_SIZE, 0);
+//         printf("the comparision result is %d\n", strcmp(receivedPacket, testString1));
+//     }
+//     else if (strcmp(argv[1], "TestClientFetch") == 0)
+//     {
+//         assert(send(newsocket, testString1, PACKAGE_SIZE * sizeof(char), 0) >= 0);
+//         printf("\nsent package\n");
+//     }
+//     close(socket);
+//     close(newsocket);
+//     return 0;
+// }
+// #endif

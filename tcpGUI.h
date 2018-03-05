@@ -21,7 +21,7 @@
 typedef struct sConnection serverConnection;
 typedef struct messageRoom chatRoom;
 typedef struct allRoom roomList;
-
+typedef struct requestStorage inboxQueue;
 // structure used for establishing the initial connection
 // have cookies to password saving
 struct sConnection
@@ -49,6 +49,11 @@ struct allRoom
 {
     int totalRoom;
     struct messageRoom roomList[CHAT_ROOM_LIMIT];
+};
+
+struct requestStorage
+{
+    char MessageList[MAX_REQUEST];
 };
 
 serverConnection *openConnection(void);

@@ -22,6 +22,7 @@
 #include "tcpGUI.h"
 #include "server_back_end.h"
 #include "utils.h"
+#include "tcpPacket.h"
 
 #define ALPLHA_RELEASE
 // TODO: implement multi-threaded
@@ -29,7 +30,7 @@
 #ifdef ALPLHA_RELEASE
 // alpha release will just have two machines connecting to each other
 
-#define MAX_USERS 10 // maximum number of user conversation
+#define MAX_USERS 2 // maximum number of user conversation
 int main_loop(void)
 {
     // when connection is read, user needs to send a packet with the name of the persion they need to connect
@@ -55,28 +56,32 @@ int main_loop(void)
     int socketListener = listenSocketInit();
     int nextFreeSocket = 0;
     int isFull = 0;
+    char packet[PACKAGE_SIZE];
     listen(socketListener, MAX_SERVER_USERS);
     FD_SET(socketListener, &setListener);
-
+    int j = 0;
     for (;;)
     {
-        if (select(listenerSocket + 1, &setListener, NULL, NULL, NULL) > 0)
+        if (select(listenerSocket + 1, &setListener, NULL, NULL, NULL) > 0 || isFull)
         {
             if (!isFull)
             {
-                socketList[nextFreeSocket] = accept(listenerSocket, addrList[nextFreeSocket], socklenList[nextFreeSocket]);
+                socketList[j] = accept(listenerSocket, addrList[j], socklenList[j]);
+                ++j;
             }
-
-            int j;
-            for (j = 0; j < MAX_USERS; ++j)
+            else
             {
-                if (socketList[j] == -1)
+                if (fetchPacket(packet, socketList[0]) > 0)
                 {
-                    nextFreeSocket = j;
-                    isFull = 0;
+                    sendPacket(packet, socketList[1]);
+                }
+
+                if (fetchPacket(packet, socketList[1]) > 0)
+                {
+                    sendPacket(packet, socketList[0]);
                 }
             }
-            if (j == MAX_USERS)
+            if (j == 2)
             {
                 isFull = 1;
             }

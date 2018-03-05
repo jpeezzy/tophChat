@@ -16,6 +16,7 @@
         "istream": "c",
         "tuple": "c",
         "utility": "c",
-        "utils.h": "c"
+        "utils.h": "c",
+        "typeinfo": "cpp"
     }
 }
