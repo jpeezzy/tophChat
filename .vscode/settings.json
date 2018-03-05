@@ -17,6 +17,8 @@
         "tuple": "c",
         "utility": "c",
         "utils.h": "c",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "tcppacket.h": "c",
+        "protocol_const.h": "c"
     }
 }

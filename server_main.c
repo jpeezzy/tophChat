@@ -1,4 +1,4 @@
-#include <socket.h>
+#include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -19,10 +19,8 @@
 // #include <pthread.h>
 
 #include "constants.h"
-#include "tcpGUI.h"
-#include "server_back_end.h"
-#include "utils.h"
 #include "tcpPacket.h"
+#include "server_back_end.h"
 
 #define ALPLHA_RELEASE
 // TODO: implement multi-threaded
@@ -31,7 +29,7 @@
 // alpha release will just have two machines connecting to each other
 
 #define MAX_USERS 2 // maximum number of user conversation
-int main_loop(void)
+int main(void)
 {
     // when connection is read, user needs to send a packet with the name of the persion they need to connect
 
@@ -54,10 +52,8 @@ int main_loop(void)
     FD_ZERO(&setListener);
 
     int socketListener = listenSocketInit();
-    int nextFreeSocket = 0;
     int isFull = 0;
     char packet[PACKAGE_SIZE];
-    listen(socketListener, MAX_SERVER_USERS);
     FD_SET(socketListener, &setListener);
     int j = 0;
     for (;;)
@@ -66,7 +62,7 @@ int main_loop(void)
         {
             if (!isFull)
             {
-                socketList[j] = accept(listenerSocket, addrList[j], socklenList[j]);
+                socketList[j] = accept(listenerSocket, addrList[j], &socklenList[j]);
                 ++j;
             }
             else
