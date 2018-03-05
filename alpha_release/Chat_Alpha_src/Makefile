@@ -7,6 +7,7 @@ MAIN := -DMAIN
 # compiler flags for GTK usage
 
 GTKLIBS := `pkg-config --libs gtk+-2.0`
+GTKINC := `pkg-config --libs --cflags gtk+-2.0`
 
 #tar
 all: ServerGUI Server Client
@@ -20,13 +21,13 @@ tar:
 test_executables := ./bin/TestClientGUI ./bin/TestServerGUI ./bin/TestRSA ./bin/TestServer ./bin/TestClient
 
 TestClientGUI: ./src/GTK.o ./src/GTKMain.c
-	$(CC) $(CFLAGS) ./src/GTK.o ./src/GTKMain.c -o ./bin/TestClientGUI
+	$(CC) $(CFLAGS) $(GTKINC) ./src/GTK.o ./src/GTKMain.c -o ./bin/TestClientGUI
 
 TestServerGUI: ./src/serverGUI_DEBUG.o
-	$(CC) $(LFLAGS) $(DEBUG) $(GTKLIBS) $(^) -o ./bin/TestServerGUI
+	$(CC) $(DEBUG) $(GTKLIBS) $(^) -o ./bin/TestServerGUI $(LFLAGS)
 
 TestRSA: ./src/rsa_DEBUG.o
-	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) $(^) -o ./bin/TestRSA
+	$(CC) $(DEBUG) $(MAIN) $(^) -o ./bin/TestRSA $(LFLAGS)
 
 TestServer: ./src/tcpPacket_debug.o ./src/server_back_end_debug.o ./src/server_main.o
 	$(CC)  $(DEBUG) $(MAIN) $(^) -o ./bin/TestServer $(LFLAGS)
@@ -38,7 +39,7 @@ TestClient: ./src/tcpPacket_debug.o ./src/protocol.o ./src/tcpGUI_debug.o ./src/
 executables := ./bin/ServerGUI ./bin/Server ./bin/Client
 
 ServerGUI: ./src/serverGUI.o
-	$(CC) $(LFLAGS) $(GTKLIBS) $(^) -o ./bin/ServerGUI
+	$(CC) $(GTKLIBS) $(^) -o ./bin/ServerGUI $(LFLAGS)
 
 Server: ./src/tcpPacket.o ./src/server_back_end.o ./src/server_main.o
 	$(CC)  $(MAIN) $(^) -o ./bin/Server $(LFLAGS)

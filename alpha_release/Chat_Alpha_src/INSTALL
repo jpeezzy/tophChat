@@ -1,6 +1,6 @@
 	      Main Chat Progam:
 To install:
-1. Go to Chat_Alpha_src/src/ directory with command "cd src"
+1. Go to Chat_Alpha_src
 2. Run command "make"
      -the executable file will be generated in the Chat_Alpha_src/bin/ directory
 
