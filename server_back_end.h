@@ -47,17 +47,18 @@ struct allServerRoom
 };
 
 // list of all users currently online
-struct allOnlineUser
-{
-    struct onlUser userList[MAX_SERVER_USERS];
-    int totalUser;
-};
 
 struct onlUser
 {
     tophChatUsers userProfile;
     int status;
     int socket;
+};
+
+struct allOnlineUser
+{
+    struct onlUser userList[MAX_SERVER_USERS];
+    int totalUser;
 };
 
 typedef int (*roomFunc)(struct messageServerRoom *room, int num, char *);

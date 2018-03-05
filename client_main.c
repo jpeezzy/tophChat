@@ -26,7 +26,7 @@
 
 #define DEBUG
 
-int main_loop(void)
+int main(void)
 {
     serverConnection *server = openConnection();
     char packet[PACKAGE_SIZE];
@@ -42,7 +42,7 @@ int main_loop(void)
 
         if (userInputAvail)
         {
-            strcat(packet, 555);
+            strcat(packet, "555");
             strcat(packet, ID_MESS);
             strcat(packet, message);
             sendPacket(packet, server->socket);
