@@ -42,5 +42,5 @@ TestClient: tests if client is able to send data to server successfully
     3. move to Chat_Alpha_src/bin/ directory with command "cd bin"
     4. run TestClient executable with command "./TestClient"
 
-
+* or run command "make test" to compile all test executables.
 
