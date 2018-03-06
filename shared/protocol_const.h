@@ -52,6 +52,7 @@
 #define OPENCOM 2  // open a new communication
 #define TOTAL_COMRQ 2
 
+// TODO: use enum for this
 // return value of parse function based on the the ype of request
 #define VAL_FREQUEST 1  // friend request
 #define VAL_DEREQUEST 2 // deny friend request

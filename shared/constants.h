@@ -3,7 +3,7 @@
 
 // NETWORK CONNECTION CONSTANT START HERE
 #define CHAT_SERVER_ADDR "zuma.eecs.uci.edu"
-#define RECONNECT_NUM 5
+#define RECONNECT_NUM 5 //how many times server try to reconnect 
 #define CHAT_SERVER_PORT "5000"
 
 #define MAX_USER_NAME 20 // 20 character maximum
@@ -24,7 +24,7 @@
 
 #define MAX_USER_PER_ROOM 5
 
-#define LISTENER_TIMEOUT 50 // 5 seconds for timeout
+#define LISTENER_TIMEOUT 50 // seconds for timeout
 #define CLIENT_TIMEOUT 50   // timeout for listening on clients
 
 // ERROR CODE STARTS HERE

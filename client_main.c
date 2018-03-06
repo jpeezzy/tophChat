@@ -30,10 +30,9 @@ int main(void)
 {
     serverConnection *server = openConnection();
     assert(server);
-    char packet[PACKAGE_SIZE];
-    packet[0] = '\0';
-    char message[MESS_LIMIT];
-    int userInputAvail = 0;
+    char packet[PACKAGE_SIZE]="";
+    char message[MESS_LIMIT]="";
+
     for (;;)
     {
         if (fetchPacket(packet, server->socket) == 0)

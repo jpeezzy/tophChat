@@ -13,8 +13,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <assert.h>
-#include <strings.h>    //bzero
-#include <sys/select.h> //io multiplexing
+#include <strings.h>    
+#include <sys/select.h>
 
 // #include <pthread.h>
 
@@ -31,8 +31,6 @@
 #define MAX_USERS 2 // maximum number of user conversation
 int main(void)
 {
-    // when connection is read, user needs to send a packet with the name of the persion they need to connect
-
     int socketList[2];
     struct sockaddr *addrList[MAX_USERS];
     for (int i = 0; i < MAX_USERS; ++i)
@@ -55,10 +53,11 @@ int main(void)
     {
         if (isFull || select(socketListener + 1, &setListener, NULL, NULL, NULL) > 0)
         {
-            printf("\nreceived connection\n");
+            
             if (isFull != 1)
             {
                 socketList[j] = accept(socketListener, addrList[j], &socklenList[j]);
+                printf("\nreceived connection\n");
                 ++j;
             }
             else
