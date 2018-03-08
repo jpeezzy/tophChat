@@ -5,6 +5,7 @@
 extern "C" {
 #include "tcpGUI.h"
 #include "fifo.h"
+#include "protocol.h"
 #include "protocol_const.h"
 #include "constants.h"
 #include <stdio.h>
@@ -63,7 +64,9 @@ TEST(InboxTest, ReadWriteTest)
     fifo *tempBuffer = tempInboxQueue->messageQueue;
     char buffer[500] = "";
     char *testMessage[] = {"This is nice", "That's not right", "fjldshvjdsnkjwehg;ke", "9283741892uioUoi@fds", "dfsfdsq1@!##$!",
-                           "fjdslfjew", "sjdklfjdslkgndsv,mnklwje", "123451fdsfdsa", "@!!@}{FL:ASL<><AD", "#PHFGJSBH(*@!P(*"};
+                           "fjdslfjew", "sjdklfjdslkgndsv,mnklwje", "123451fdsfdsa", "@!!@}{FL:ASL<><AD", "#PHFGJSBH(*@!P(*"
+                           , "fdshjfjjdslkfjwdsjlnvkls", "2", "3", "~#@!3ewdflkna;", "nc,mxvns/.,/", "1", "2", "546", "142423"
+                           , "fi2jwrwe", "12412fdsa", "bcnxz., flkawej", "/,/.3,12/lkaf", "fsdlj912pfa", "`13124ujrklj"};
     int testMessageNum = sizeof(testMessage) / sizeof(char *);
     for (int i = 0; i < testMessageNum; ++i)
     {
@@ -71,14 +74,7 @@ TEST(InboxTest, ReadWriteTest)
         retrieveInboxMessage(buffer, tempInboxQueue);
 
         printf("\ntesting %s\n", testMessage[i]);
-        if (i >= MAX_REQUEST)
-        {
-            ASSERT_TRUE(buffer == NULL);
-        }
-        else
-        {
-            ASSERT_EQ(strcmp(buffer, testMessage[i]), 0);
-        }
+        ASSERT_EQ(strcmp(buffer, testMessage[i]), 0);
     }
 }
 
@@ -151,6 +147,40 @@ TEST(RoomSetTest, findTest)
 
     roomsetDel(testroomList);
 }
+
+TEST(roomTest, CreateCloseTest)
+{
+    fifo* outputFIFO= initBuffer(CLIENT_OUTPUT_FIFO_MAX);
+    roomList *testroomList = roomsetInit();
+    int firstUnAllocatedRoom;
+    char tempPacket[PACKAGE_SIZE]="";
+    char *testMessage[] = {"This is nice", "That's not right", "fjldshvjdsnkjwehg;ke", "9283741892uioUoi@fds", "dfsfdsq1@!##$!",
+                           "fjdslfjew", "sjdklfjdslkgndsv,mnklwje", "123451fdsfdsa", "@!!@}{FL:ASL<><AD", "#PHFGJSBH(*@!P(*"
+                           , "fdshjfjjdslkfjwdsjlnvkls", "2", "3", "~#@!3ewdflkna;", "nc,mxvns/.,/", "1", "2", "546", "142423"
+                           , "fi2jwrwe", "12412fdsa", "bcnxz., flkawej", "/,/.3,12/lkaf", "fsdlj912pfa", "`13124ujrklj"};
+    char commandType[10];
+    char messageBody[MESS_LIMIT];
+    for(int i=0; i<testroomList->totalRoom;++i)
+    {
+    requestRoom(testroomList, outputFIFO);
+    readBuffer(outputFIFO, tempPacket);
+    
+    ASSERT_EQ(getroomNumber(tempPacket), i);
+    ASSERT_EQ(getCommandType(tempPacket), ROID);
+    ASSERT_EQ(getCommandID(tempPacket), ROCREATE);
+    getMessageBody(tempPacket, messageBody);
+    ASSERT_EQ(0, strcmp(messageBody, testMessage[i]));
+    }
+    
+    for(int i=0; i<testroomList->totalRoom;++i)
+    {
+        testroomList->roomList[i].status=ROOM_TAKEN;
+    }       
+    ASSERT_EQ(-1, requestRoom(testroomList, outputFIFO));
+
+
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

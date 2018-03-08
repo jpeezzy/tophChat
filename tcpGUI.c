@@ -106,13 +106,15 @@ int requestRoom(roomList *allRoom, fifo *outputFIFO)
     char tempMessage[PACKAGE_SIZE];
     for (i = 0; i < allRoom->totalRoom; ++i)
     {
-        if ((allRoom->roomList[i]).status == 0)
+        if ((allRoom->roomList[i]).status == ROOM_UNALLOCATED)
         {
             assembleCommand(111, ROID, ROCREATE, NULL, tempMessage);
             writeBuffer(outputFIFO, tempMessage);
+            allRoom->roomList[i]).status=ROOM_WAITING;
+            return 0;
         }
     }
-    return 0;
+    return -1;
 }
 
 // when receiving the confirmation of room from a server, mark the room as ready
@@ -207,8 +209,14 @@ chatRoom *findReadyRoom(roomList *allRoom)
 int fetchMessage(chatRoom *room, char *buffer)
 {
     // TODO: implement muxtex if using multithreaded
-    readBuffer(room->inMessage, buffer);
+    if(readBuffer(room->inMessage, buffer)==FIFO_NO_DATA)
+    {
+        return -1;
+    }
+    else
+    {
     return 0;
+    }
 }
 
 // copy the user message to the output queue of the program
@@ -218,8 +226,14 @@ int sendMessage(chatRoom *room, fifo *outputFIFO, char *message)
     char tempPacket[PACKAGE_SIZE];
     // TODO: multithreaded mutex
     assembleMessage(room->roomNum, message, tempPacket);
-    writeBuffer(outputFIFO, tempPacket);
+    if(writeBuffer(outputFIFO, tempPacket)==FIFO_FULL)
+    {
+        return -1;
+    }
+    else
+    {
     return 0;
+    }
 }
 
 // int mailMan(roomList *allRoom, serverConnection *server)

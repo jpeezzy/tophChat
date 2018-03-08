@@ -54,9 +54,10 @@ TEST_F(FifoTest, writeTest)
 
     for(int i=0; i<fifo_list_length; ++i)
     {
-        writeBuffer(buf, buf_test_data[i], strlen(buf_test_data[i]));
+        writeBuffer(buf, buf_test_data[i]);
     }
-    ASSERT_EQ(writeBuffer(buf, buf_test_data[0], (strlen(buf_test_data[0])+1)*sizeof(char)), FIFO_FULL);
+
+    ASSERT_EQ(writeBuffer(buf, buf_test_data[0]), FIFO_FULL);
     
     for(int i=0; i<fifo_list_length; ++i)
     {

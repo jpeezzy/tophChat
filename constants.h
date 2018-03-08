@@ -13,8 +13,11 @@
 #define PACKAGE_SIZE 515                    // 5 additional char for socket number
 #define CHAT_ROOM_LIMIT 20                  // a user can have maximum of
 #define CHAT_ROOM_CHARACTER 3               // how many char needed to define the room number, doesn't have null terminator
+
+// Queue Limit Constant
 #define CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX 30 // can store 30 messages in the fifo
 #define SERVER_CHAT_ROOM_INPUT_FIFO_MAX 100
+#define CLIENT_OUTPUT_FIFO_MAX 100 // how many messages can output fifo store
 #define MAX_SERVER_USERS 20 // maximum number of user the server can support
 
 // maximum inbox request the user can ahve
@@ -46,8 +49,9 @@
 #define SERVER_FULL -1
 
 //ROOM STATUS GO HERE FOR CLIENTS
+#define ROOM_TAKEN 3
 #define ROOM_READY 2       // synchronized with server
-#define ROOM_WAITING 1     // waiting for server
+#define ROOM_WAITING 1     // used for marking which room is wating
 #define ROOM_UNALLOCATED 0 // haven't talked to server
 
 //ROOM STATUS GO HERE FOR SERVER
