@@ -103,14 +103,14 @@ int requestRoom(roomList *allRoom, fifo *outputFIFO)
 {
     // TODO: thread sensitive
     int i = 0;
-    char tempMessage[PACKAGE_SIZE];
+    char tempMessage[PACKAGE_SIZE]="";
     for (i = 0; i < allRoom->totalRoom; ++i)
     {
         if ((allRoom->roomList[i]).status == ROOM_UNALLOCATED)
         {
             assembleCommand(111, ROID, ROCREATE, NULL, tempMessage);
             writeBuffer(outputFIFO, tempMessage);
-            allRoom->roomList[i]).status=ROOM_WAITING;
+            allRoom->roomList[i].status=ROOM_WAITING;
             return 0;
         }
     }
