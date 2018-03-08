@@ -6,13 +6,15 @@
 #define RECONNECT_NUM 5 //how many times server try to reconnect
 #define CHAT_SERVER_PORT "5000"
 
-#define MAX_USER_NAME 20 // 20 character maximum
-#define MESS_LIMIT 500   // how many char user can send
+#define SOCKET_NUM_CHAR 5 // how many char needed to describe the socket number
+#define MAX_USER_NAME 20  // 20 character maximum
+#define MESS_LIMIT 500    // how many char user can send
 // #define PACKAGE_SIZE 510 // 500 char, 7 word command/message ID and and 2 char for room ID, 1 for /0
-#define PACKAGE_SIZE 510
-#define CHAT_ROOM_LIMIT 20    // a user can have maximum of
-#define CHAT_ROOM_CHARACTER 3 // how many char needed to define the room number, doesn't have null terminator
-
+#define PACKAGE_SIZE 515                    // 5 additional char for socket number
+#define CHAT_ROOM_LIMIT 20                  // a user can have maximum of
+#define CHAT_ROOM_CHARACTER 3               // how many char needed to define the room number, doesn't have null terminator
+#define CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX 30 // can store 30 messages in the fifo
+#define SERVER_CHAT_ROOM_INPUT_FIFO_MAX 100
 #define MAX_SERVER_USERS 20 // maximum number of user the server can support
 
 // for alpha make it 20
@@ -52,7 +54,7 @@
 #define ROOM_UNALLOCATED 0 // haven't talked to server
 
 //ROOM STATUS GO HERE FOR SERVER
-#define ROOM_OCCUPIED 0
+#define ROOM_NOT_OCCUPIED 0
 #define ROOM_BUSY 1
 
 //USER PERSONAL STUFFS GO HERE

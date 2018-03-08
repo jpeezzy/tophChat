@@ -19,6 +19,9 @@
  * 1TPC{}H is the id string of the command
  * F is the identifier for type of command F is for friend
  * 1 is the command ID, every command has an ID
+ * 
+ * once the message reached the server, it appended the sender socket list and then put that into FIFO
+ * 
  */
 
 // define protocol command for communications

@@ -31,4 +31,6 @@ int getCommandID(char *packet);
 // return the letter representing the category of the command
 char getCommandType(char *packet);
 
+int getSocketNum(char *serverPacket);
+
 #endif

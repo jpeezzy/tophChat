@@ -34,7 +34,6 @@ struct messageServerRoom
     int roomNum;
     int peopleNum;
     struct FIFObuffer *inMessage;
-    struct FIFObuffer *outMessage;
     int socketList[MAX_USER_PER_ROOM];
 };
 

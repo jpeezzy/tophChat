@@ -8,35 +8,35 @@
 #include "utils.h"
 #include "protocol_const.h"
 
-int processPacket(char *packet)
-{
-    // arrays carrying function pointers to appropriate actions to take
-    roomFunc allroomFunc[TOTAL_RORQ];
-    friendFunc allfriendFunc[TOTAL_FRRQ];
-    comFunc allcomFunc[TOTAL_COMRQ];
+// int processPacket(char *packet)
+// {
+//     // arrays carrying function pointers to appropriate actions to take
+//     roomFunc allroomFunc[TOTAL_RORQ];
+//     friendFunc allfriendFunc[TOTAL_FRRQ];
+//     comFunc allcomFunc[TOTAL_COMRQ];
 
-    // -1 since strlen doesn't take int the null terminator
-    assert(strlen(packet) == PACKAGE_SIZE - 1);
-    getpacketType(packet);
-    if (getpacketType(packet) == ID_MESS)
-    {
-        // this is a message
-    }
-    else
-    {
-        // this is a command
-        int commandID = getCommandID(packet);
-        switch (packet[CHAT_ROOM_CHARACTER + ID_LENGTH])
-        {
-        case FRIENDID:
-            break;
-        case ROID:
-            break;
-        case COMID:
-            break;
-        }
-    }
-}
+//     // -1 since strlen doesn't take int the null terminator
+//     assert(strlen(packet) == PACKAGE_SIZE - 1);
+//     getpacketType(packet);
+//     if (getpacketType(packet) == ID_MESS)
+//     {
+//         // this is a message
+//     }
+//     else
+//     {
+//         // this is a command
+//         int commandID = getCommandID(packet);
+//         switch (packet[CHAT_ROOM_CHARACTER + ID_LENGTH])
+//         {
+//         case FRIENDID:
+//             break;
+//         case ROID:
+//             break;
+//         case COMID:
+//             break;
+//         }
+//     }
+// }
 
 int getpacketType(char *packet)
 {
@@ -92,6 +92,16 @@ char getCommandType(char *packet)
 int getUserName(char *packet, char *userName)
 {
     stringSlicer(packet, userName, CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH, PACKAGE_SIZE - 1);
+    return 0;
+}
+
+// get the socket from a packet on the server room fifo
+int getSocketNum(char *serverPacket)
+{
+    char *dummyPtr = NULL;
+    char socketChar[SOCKET_NUM_CHAR + 1];
+    stringSlicer(serverPacket, socketChar, 0, SOCKET_NUM_CHAR - 1);
+    return (int)strtol(socketChar, &dummyPtr, 10);
 }
 
 // assemble a command from a list of details like room number, type of command and which command of the type it is
@@ -105,7 +115,7 @@ int assembleCommand(int roomNum, char COM_ID, int COM_NUM, char *additionInfo, c
     strcat(outputCom, roomNumChar);
     strcat(outputCom, ID_COMM);
     outputCom[CHAT_ROOM_CHARACTER + COM_LENGTH] = COM_ID;
-    outputCom[CHAT_ROOM_CHARACTER + COM_LENGTH + 1] = intToChar(COM_ID);
+    outputCom[CHAT_ROOM_CHARACTER + COM_LENGTH + 1] = intToChar(COM_NUM);
     if (additionInfo != NULL)
     {
         strcat(outputCom, additionInfo);
@@ -120,12 +130,12 @@ int assembleCommand(int roomNum, char COM_ID, int COM_NUM, char *additionInfo, c
 int assembleMessage(int roomNum, char *message, char *outputPacket)
 {
     assert(message);
-    char tempPacket[PACKAGE_SIZE] = "";
+    outputPacket[0] = '\0';
     char roomNumChar[CHAT_ROOM_CHARACTER + 1];
     snprintf(roomNumChar, (CHAT_ROOM_CHARACTER + 1) * sizeof(char), "%d", roomNum);
-    strcat(tempPacket, roomNumChar);
-    strcat(tempPacket, ID_MESS);
-    strcat(tempPacket, message);
+    strcat(outputPacket, roomNumChar);
+    strcat(outputPacket, ID_MESS);
+    strcat(outputPacket, message);
     return 0;
 }
 

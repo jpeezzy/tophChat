@@ -22,6 +22,7 @@
 #include "tcpPacket.h"
 #include "tophChatUsers.h"
 #include "protocol_const.h"
+#include "utils.h"
 
 //#define TEST_SERVER
 
@@ -70,81 +71,107 @@ int listenSocketInit(void)
     }
 }
 
-    /**********************ROOM_STUFFS HERE********************/
-    // create list of all rooms on server
-    // struct allServerRoom *serverRoomSetCreate(void)
-    // {
-    //     struct allServerRoom *allRoom = malloc(sizeof(struct allServerRoom));
-    //     allRoom->firstFreeRoom = 0;
-    //     allRoom->totalRoom = MAX_SERVER_CHATROOMS;
-    //     for (int i = 0; i < allRoom->totalRoom; ++i)
-    //     {
-    //         ((allRoom->roomList)[i]).isOccupied = ROOM_OCCUPIED;
-    //         ((allRoom->roomList)[i]).roomNum = i;
-    //         ((allRoom->roomList)[i]).peopleNum = 0;
-    //     }
-    // }
-    // void serverRoomSetDel(struct allServerRoom *allRoom)
-    // {
-    //     free(allRoom);
-    // }
+/**********************SERVER ROOM STUFFS HERE********************/
+// create list of all rooms on server
+struct allServerRoom *serverRoomSetCreate(void)
+{
+    struct allServerRoom *allRoom = malloc(sizeof(struct allServerRoom));
+    allRoom->firstFreeRoom = 0;
+    allRoom->totalRoom = MAX_SERVER_CHATROOMS;
 
-    // // update which room is not occupied
-    // void updateFreeRoom(struct allServerRoom *allRoom)
-    // {
-    //     assert(allRoom);
-    //     int i;
-    //     for (i = 0; i < allRoom->totalRoom; ++i)
-    //     {
-    //         if (((allRoom->roomList)[i]).isOccupied == ROOM_OCCUPIED)
-    //         {
-    //             allRoom->firstFreeRoom = i;
-    //             break;
-    //         }
-    //         if (i == allRoom->totalRoom)
-    //         {
-    //             allRoom->firstFreeRoom = -1;
-    //         }
-    //     }
-    // }
+    for (int i = 0; i < allRoom->totalRoom; ++i)
+    {
+        ((allRoom->roomList)[i]).isOccupied = ROOM_NOT_OCCUPIED;
+        ((allRoom->roomList)[i]).roomNum = i;
+        ((allRoom->roomList)[i]).peopleNum = 0;
+        ((allRoom->roomList)[i]).inMessage = initBuffer(SERVER_CHAT_ROOM_INPUT_FIFO_MAX);
+    }
+}
+void serverRoomSetDel(struct allServerRoom *allRoom)
+{
+    for (int i = 0; i < allRoom->totalRoom; ++i)
+    {
+        closeBuffer(((allRoom->roomList)[i]).inMessage);
+    }
+    free(allRoom);
+}
 
-    // // return a free room
-    // struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom)
-    // {
-    //     assert(allRoom);
-    //     if (allRoom->firstFreeRoom == -1)
-    //     {
-    //         return NULL;
-    //     }
-    //     else
-    //     {
-    //         return &(allRoom->roomList[allRoom->firstFreeRoom]);
-    //     }
-    // }
+// update which room is not occupied
+void updateFreeRoom(struct allServerRoom *allRoom)
+{
+    assert(allRoom);
+    int i;
+    for (i = 0; i < allRoom->totalRoom; ++i)
+    {
+        if (!(((allRoom->roomList)[i]).isOccupied))
+        {
+            allRoom->firstFreeRoom = i;
+            break;
+        }
+        if (i == allRoom->totalRoom)
+        {
+            allRoom->firstFreeRoom = -1;
+        }
+    }
+}
 
-    // // mark the room as free when conversation is done
-    // void serverRoomReturn(serverChatRoom *room)
-    // {
-    //     assert(room);
-    //     room->isOccupied = 0;
-    //     room->peopleNum = 0;
-    // }
+// return a free room
+struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom)
+{
+    assert(allRoom);
+    updateFreeRoom(allRoom);
+    if (allRoom->firstFreeRoom == -1)
+    {
+        return NULL;
+    }
+    else
+    {
+        return &(allRoom->roomList[allRoom->firstFreeRoom]);
+    }
+}
 
-    // // send message to everyone in the room except the writer
-    // int serverRoomSpreadMessage(int writerSocket, struct messageServerRoom *room, char *packet)
-    // {
-    //     assert(packet);
-    //     assert(room);
-    //     assert(writerSocket >= 0);
-    //     for (int i = 0; i < room->peopleNum; ++i)
-    //     {
-    //         if ((room->socketList[i]) != writerSocket)
-    //         {
-    //             // TODO: Change this
-    //             assert(sendPacket(packet, room->socketList[i]) >= 0);
-    //         }
-    //     }
-    // }
+// mark the room as free when conversation is done
+void serverRoomReturn(serverChatRoom *room)
+{
+    assert(room);
+    room->isOccupied = 0;
+    for (int i = 0; i < room->peopleNum; ++i)
+    {
+        room->socketList[i] = -1;
+    }
+    room->peopleNum = 0;
+}
+
+// send message to everyone in the room except the writer
+int serverRoomSpreadMessage(struct messageServerRoom *room, char *serverPacket)
+{
+    assert(serverPacket);
+    assert(room);
+    int senderSocket = getSocketNum(serverPacket);
+    char nosocketPacket[PACKAGE_SIZE];
+    stringSlicer(serverPacket, nosocketPacket, SOCKET_NUM_CHAR, PACKAGE_SIZE - 1);
+    for (int i = 0; i < room->peopleNum; ++i)
+    {
+        if ((room->socketList[i]) != senderSocket)
+        {
+            // TODO: Change this
+            assert(sendPacket(nosocketPacket, room->socketList[i]) >= 0);
+        }
+    }
+}
+
+// put the user message onto the server room fifo
+int sendServerRoomMessage(int socketNum, struct messageServerRoom *room, char *userPacket)
+{
+    // TODO: not thread safe
+    char socketNumChar[SOCKET_NUM_CHAR + 1];
+    char tempserverPacket[PACKAGE_SIZE] = "";
+    sprintf(socketNumChar, "%d", socketNum);
+    strcat(tempserverPacket, socketNumChar);
+    strcat(tempserverPacket, userPacket);
+    writeBuffer(room->inMessage, tempserverPacket);
+    return 0;
+}
 
     // /*******************************USER STUFFS HERE**************************/
     // // create a list of online user

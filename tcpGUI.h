@@ -40,7 +40,6 @@ struct messageRoom
     int status;
     int offSet; //offset from local room number and server room
     struct FIFObuffer *inMessage;
-    struct FIFObuffer *outMessage;
 };
 
 // head of the linked list connecting all the rooms on the client
@@ -61,17 +60,35 @@ serverConnection *openConnection(void);
 
 int closeConnection(serverConnection *server);
 
-// will need to request a room number from the server
-int openRoom(chatRoom *room);
+inboxQueue *initInboxQueue(void);
 
-// make available the room number so that the server
-// can use it for other room
-int closeRoom(chatRoom *room, serverConnection *server);
+int delInboxQueue(inboxQueue *inbox);
 
-// return the next message in the FIFO
+int retrieveInboxMessage(char *message, inboxQueue *inbox);
+
+int writeInboxMessage(char *message, inboxQueue *inbox);
+
+int requestRoom(roomList *allRoom, fifo *outputFIFO);
+
+// when receiving the confirmation of room from a server, mark the room as ready
+int receiveRoom(roomList *allRoom, int serverroomNum);
+
+// close the room and let the server know that the room number is free to be used by others
+int closeRoom(chatRoom *room, fifo *outputFIFIO);
+
+roomList *roomsetInit(void);
+
+int roomsetDel(roomList *allRoom);
+
+// return a pointer to the room specified by the server room number
+chatRoom *retrieveRoom(roomList *allRoom, int roomNum);
+
+// find a room that has been synchronized with the server
+chatRoom *findReadyRoom(roomList *allRoom);
+
+// copy the received message to the buffer
 int fetchMessage(chatRoom *room, char *buffer);
 
-// package and send the message both to the input FIFO of the room
-// as well as to the output FIFO of the client
-int sendMessage(chatRoom *room, char *message, serverConnection *server);
+// copy the user message to the output queue of the program
+int sendMessage(chatRoom *room, fifo *outputFIFO, char *message);
 #endif

@@ -59,7 +59,7 @@ serverConnection *openConnection(void)
     if (count == 5)
     {
         // return SOCKET_CANT_CONNECT;
-        return NULL;
+        return -1;
     }
 
     freeaddrinfo(serverInfo);
@@ -73,23 +73,16 @@ int closeConnection(serverConnection *server)
     return 0;
 }
 
-inboxQueue *initializeInboxQueue(void)
+inboxQueue *initInboxQueue(void)
 {
     inboxQueue *inbox = malloc(sizeof(inboxQueue));
-
-    for (int i = 0; i < MAX_REQUEST; ++i)
-    {
-        inbox->messageQueue = initBuffer(MAX_REQUEST);
-    }
+    inbox->messageQueue = initBuffer(MAX_REQUEST);
     return inbox;
 }
 
 int delInboxQueue(inboxQueue *inbox)
 {
-    for (int i = 0; i < MAX_REQUEST; ++i)
-    {
-        closeBuffer(inbox->messageQueue);
-    }
+    closeBuffer(inbox->messageQueue);
     free(inbox);
     return 0;
 }
@@ -131,7 +124,7 @@ int receiveRoom(roomList *allRoom, int serverroomNum)
         if ((allRoom->roomList)[i].status == ROOM_WAITING)
         {
             (allRoom->roomList)[i].roomNum = serverroomNum;
-            (allRoom->roomList)[i].status == ROOM_READY;
+            (allRoom->roomList)[i].status = ROOM_READY;
             break;
         }
     }
@@ -159,6 +152,7 @@ roomList *roomsetInit(void)
     for (int i = 0; i < temproomSet->totalRoom; ++i)
     {
         temproomSet->roomList[i].status = ROOM_UNALLOCATED;
+        temproomSet->roomList[i].inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
     }
     return temproomSet;
 }
@@ -182,7 +176,7 @@ chatRoom *retrieveRoom(roomList *allRoom, int roomNum)
     }
     if (i == allRoom->totalRoom)
     {
-        return NO_SUCH_ROOM_EXIST;
+        return NULL;
     }
 }
 
@@ -207,7 +201,7 @@ chatRoom *findReadyRoom(roomList *allRoom)
 int fetchMessage(chatRoom *room, char *buffer)
 {
     // TODO: implement muxtex if using multithreaded
-    readBuffer(&(room->inMessage), buffer);
+    readBuffer(room->inMessage, buffer);
     return 0;
 }
 
