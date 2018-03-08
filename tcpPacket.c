@@ -40,8 +40,7 @@ int sendPacket(char *packet, int socket)
 
 int fetchPacket(char *packet, int socket)
 {
-
-    int temp = recv(socket, packet, sizeof(char) * PACKAGE_SIZE, MSG_DONTWAIT);
+    int temp = recv(socket, packet, sizeof(char) * PACKAGE_SIZE, MSG_DONTWAIT | MSG_PEEK);
     if (temp == -1)
     {
         if (errno == EWOULDBLOCK)
@@ -54,7 +53,14 @@ int fetchPacket(char *packet, int socket)
     {
         return SOCKET_CLOSED;
     }
-
+    else if (temp != sizeof(char)* PACKAGE_SIZE)
+    {
+        return SOCKET_NOT_ENOUGH_DATA; 
+    }
+    else
+    {
+        return recv(socket, packet, sizeof(char) * PACKAGE_SIZE, MSG_WAITALL);
+    }
     return 0;
 }
 
