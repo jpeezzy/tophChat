@@ -14,5 +14,5 @@ int charToInt(char character);
 
 char intToChar(int number);
 
-uniqueRandGen(int range, int *listPtr, int list_length);
+int uniqueRandGen(int range, int *listPtr, int list_length);
 #endif

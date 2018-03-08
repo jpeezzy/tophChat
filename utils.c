@@ -1,5 +1,7 @@
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "utils.h"
 #include "constants.h"
@@ -42,8 +44,9 @@ char intToChar(int number)
     return (char)number + 48;
 }
 
-uniqueRandGen(int range, int *listPtr, int list_length)
+int uniqueRandGen(int range, int *listPtr, int list_length)
 {
+    srand(time(NULL));
     for (int i = 0; i < list_length; ++i)
     {
     randGen_1:
@@ -57,4 +60,5 @@ uniqueRandGen(int range, int *listPtr, int list_length)
             }
         }
     }
+    return 0;
 }

@@ -7,6 +7,9 @@ extern "C" {
 #include "fifo.h"
 #include "protocol_const.h"
 #include "constants.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 }
 
 #define NO_SERVER
@@ -99,7 +102,7 @@ TEST(RoomSetTest, CreateDelTest)
 #define TEST_ROOM_TOTAL_CASES 15
 TEST(RoomSetTest, findTest)
 {
-
+    srand(time(NULL));
     roomList *testroomList = roomsetInit();
     int testRoomServerNum[TEST_ROOM_TOTAL_CASES];
     int testRoomNum[TEST_ROOM_TOTAL_CASES];
@@ -114,7 +117,6 @@ TEST(RoomSetTest, findTest)
         {
             if (testRoomNum[j] == testRoomNum[i])
             {
-
                 goto randGen_1;
             }
         }
@@ -133,24 +135,21 @@ TEST(RoomSetTest, findTest)
 
         testroomList->roomList[testRoomNum[i]].roomNum = testRoomServerNum[i];
         testroomList->roomList[testRoomNum[i]].status = ROOM_READY;
+    }
+    for (int i = 0; i < TEST_ROOM_TOTAL_CASES; ++i)
+    {
+        tempRoom = retrieveRoom(testroomList, testRoomServerNum[i]);
+        ASSERT_EQ(tempRoom->roomNum, testRoomServerNum[i]);
+        ASSERT_TRUE(tempRoom == &(testroomList->roomList[testRoomNum[i]]));
 
-        for (int i = 0; i < TEST_ROOM_TOTAL_CASES; ++i)
-        {
-            tempRoom = retrieveRoom(testroomList, testRoomServerNum[i]);
-            ASSERT_EQ(tempRoom->roomNum, testRoomServerNum[i]);
-            ASSERT_TRUE(tempRoom == &(testroomList->roomList[testRoomNum[i]]));
-
-            tempRoomReady = findReadyRoom(testroomList);
-            ASSERT_EQ(tempRoomReady->status, ROOM_READY);
-            ASSERT_TRUE(tempRoomReady == &(testroomList->roomList[testRoomNum[i]]));
-            tempRoomReady->status = ROOM_UNALLOCATED;
-        }
         tempRoomReady = findReadyRoom(testroomList);
         ASSERT_EQ(tempRoomReady->status, ROOM_READY);
-        ASSERT_TRUE(tempRoomReady == NULL);
-
-        roomsetDel(testroomList);
+        tempRoomReady->status = ROOM_UNALLOCATED;
     }
+    tempRoomReady = findReadyRoom(testroomList);
+    ASSERT_TRUE(tempRoomReady == NULL);
+
+    roomsetDel(testroomList);
 }
 int main(int argc, char **argv)
 {

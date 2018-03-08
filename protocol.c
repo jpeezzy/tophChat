@@ -138,5 +138,3 @@ int assembleMessage(int roomNum, char *message, char *outputPacket)
     strcat(outputPacket, message);
     return 0;
 }
-
-int messageDecode(int *roomNum, char *message);
