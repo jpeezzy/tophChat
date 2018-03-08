@@ -46,11 +46,13 @@ int main(void)
 
     int socketListener = listenSocketInit();
     int isFull = 0;
-    char packet[PACKAGE_SIZE];
+    char packet[PACKAGE_SIZE]="";
     FD_SET(socketListener, &setListener);
     int j = 0;
     for (;;)
     {
+        FD_ZERO(&setListener);
+        FD_SET(socketListener, &setListener);
         if (isFull || select(socketListener + 1, &setListener, NULL, NULL, NULL) > 0)
         {
             
@@ -62,15 +64,17 @@ int main(void)
             }
             else
             {
-                if (fetchPacket(packet, socketList[0]) == 0)
+                while (fetchPacket(packet, socketList[0]) > 0)
                 {
                     printf("\nreceived packet from 0\n");
+                    printf("\nthe packet is \n%s", packet);
                     sendPacket(packet, socketList[1]);
                 }
 
-                if (fetchPacket(packet, socketList[1]) == 0)
+                while (fetchPacket(packet, socketList[1]) > 0)
                 {
                     printf("\nreceived packet from 1\n");
+                    printf("\nthe packet is \n%s", packet);
                     sendPacket(packet, socketList[0]);
                 }
             }
