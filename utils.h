@@ -11,4 +11,6 @@ int max(int a, int b);
 int stringSlicer(char *original, char *result, int start_index, int stop_index);
 
 int charToInt(char character);
+
+char intToChar(int number);
 #endif

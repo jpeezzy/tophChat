@@ -20,6 +20,6 @@ int closeBuffer(fifo *buf);
 
 int readBuffer(fifo *buf_struct, char *buf_content);
 
-int writeBuffer(fifo *buffer, const char *writeData, int length);
+int writeBuffer(fifo *buffer, const char *writeData);
 
 #endif

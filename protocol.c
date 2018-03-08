@@ -1,5 +1,6 @@
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 
 #include "protocol.h"
 #include "server_back_end.h"
@@ -39,6 +40,7 @@ int processPacket(char *packet)
 
 int getpacketType(char *packet)
 {
+    assert(packet);
     char messageType[CHAT_ROOM_CHARACTER + 1];
     stringSlicer(packet, messageType, CHAT_ROOM_CHARACTER, CHAT_ROOM_CHARACTER + ID_LENGTH - 1);
     if (strcmp(messageType, ID_MESS) == 0)
@@ -57,6 +59,7 @@ int getpacketType(char *packet)
 
 int getroomNumber(char *packet)
 {
+    assert(packet);
     char roomNum[CHAT_ROOM_CHARACTER + 1];
     int roomNumInt = 0;
     stringSlicer(packet, roomNum, 0, CHAT_ROOM_CHARACTER - 1);
@@ -89,6 +92,41 @@ char getCommandType(char *packet)
 int getUserName(char *packet, char *userName)
 {
     stringSlicer(packet, userName, CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH, PACKAGE_SIZE - 1);
+}
+
+// assemble a command from a list of details like room number, type of command and which command of the type it is
+// additional info can be parameter like the friend name, put NULL if there is nothing
+int assembleCommand(int roomNum, char COM_ID, int COM_NUM, char *additionInfo, char *outputCom)
+{
+    assert(outputCom);
+    outputCom[0] = '\0';
+    char roomNumChar[CHAT_ROOM_CHARACTER + 1];
+    snprintf(roomNumChar, (CHAT_ROOM_CHARACTER + 1) * sizeof(char), "%d", roomNum);
+    strcat(outputCom, roomNumChar);
+    strcat(outputCom, ID_COMM);
+    outputCom[CHAT_ROOM_CHARACTER + COM_LENGTH] = COM_ID;
+    outputCom[CHAT_ROOM_CHARACTER + COM_LENGTH + 1] = intToChar(COM_ID);
+    if (additionInfo != NULL)
+    {
+        strcat(outputCom, additionInfo);
+    }
+    else
+    {
+        outputCom[CHAT_ROOM_CHARACTER + COM_LENGTH + 2] = '\0';
+    }
+    return 0;
+}
+
+int assembleMessage(int roomNum, char *message, char *outputPacket)
+{
+    assert(message);
+    char tempPacket[PACKAGE_SIZE] = "";
+    char roomNumChar[CHAT_ROOM_CHARACTER + 1];
+    snprintf(roomNumChar, (CHAT_ROOM_CHARACTER + 1) * sizeof(char), "%d", roomNum);
+    strcat(tempPacket, roomNumChar);
+    strcat(tempPacket, ID_MESS);
+    strcat(tempPacket, message);
+    return 0;
 }
 
 int messageDecode(int *roomNum, char *message);

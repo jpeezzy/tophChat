@@ -3,7 +3,7 @@
 
 // NETWORK CONNECTION CONSTANT START HERE
 #define CHAT_SERVER_ADDR "zuma.eecs.uci.edu"
-#define RECONNECT_NUM 5 //how many times server try to reconnect 
+#define RECONNECT_NUM 5 //how many times server try to reconnect
 #define CHAT_SERVER_PORT "5000"
 
 #define MAX_USER_NAME 20 // 20 character maximum
@@ -47,7 +47,7 @@
 #define SERVER_FULL -1
 
 //ROOM STATUS GO HERE FOR CLIENTS
-#define ROOM_FREE 2        // synchronized with server
+#define ROOM_READY 2       // synchronized with server
 #define ROOM_WAITING 1     // waiting for server
 #define ROOM_UNALLOCATED 0 // haven't talked to server
 

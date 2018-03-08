@@ -34,27 +34,28 @@ struct sConnection
     int pubKeyLength;
 };
 
-// TODO: implement offset from room in user to room in server
-// struct messageRoom
-// {
-//     int roomNum;
-//     int status;
-//     int offSet; //offset from local room number and server room
-//     struct FIFObuffer inMessage;
-//     struct FIFObuffer outMessage;
-// };
+struct messageRoom
+{
+    int roomNum; // this is the room number from the server
+    int status;
+    int offSet; //offset from local room number and server room
+    struct FIFObuffer *inMessage;
+    struct FIFObuffer *outMessage;
+};
 
-// // head of the linked list connecting all the rooms on the client
-// struct allRoom
-// {
-//     int totalRoom;
-//     struct messageRoom roomList[CHAT_ROOM_LIMIT];
-// };
+// head of the linked list connecting all the rooms on the client
+struct allRoom
+{
+    int totalRoom;
+    int totalAllocatedRoom; // room that has been confirmed with the server
+    struct messageRoom roomList[CHAT_ROOM_LIMIT];
+};
 
-// struct requestStorage
-// {
-//     char MessageList[MAX_REQUEST];
-// };
+// list carrying special messages like friend request
+struct requestStorage
+{
+    fifo *messageQueue;
+};
 
 serverConnection *openConnection(void);
 

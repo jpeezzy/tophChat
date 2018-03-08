@@ -16,17 +16,17 @@ int stringSlicer(char *original, char *result, int start_index, int stop_index)
     unsigned int i = 0;
 
     // handle copy till the end cases
-    if(strlen(original)==(unsigned int)stop_index)
+    if (strlen(original) == (unsigned int)stop_index)
     {
-        strcpy(result, original+start_index);
+        strcpy(result, original + start_index);
     }
     else
     {
-    for (i = 0; i < length; ++i)
-    {
-        result[i] = original[start_index + i];
-    }
-    result[i] = '\0';
+        for (i = 0; i < length; ++i)
+        {
+            result[i] = original[start_index + i];
+        }
+        result[i] = '\0';
     }
     return 0;
 }
@@ -35,4 +35,9 @@ int charToInt(char character)
 {
     // values based on ASCII tables
     return (int)(character - 48);
+}
+
+char intToChar(int number)
+{
+    return (char)number + 48;
 }

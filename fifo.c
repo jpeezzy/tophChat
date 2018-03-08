@@ -58,7 +58,8 @@ int readBuffer(fifo *buf_struct, char *buf_content)
 
 // write to the first free position (prioritize larger index)
 // will malloc new data to copy the writeData to
-int writeBuffer(fifo *buf, const char *writeData, int length)
+// assume all things are in string form
+int writeBuffer(fifo *buf, const char *writeData)
 {
     assert(buf);
     assert(buf->bufLength);
@@ -67,7 +68,7 @@ int writeBuffer(fifo *buf, const char *writeData, int length)
     // will only write if there is no data there
     if ((buf->buffer)[buf->writePos] == NULL)
     {
-        char *temp = (char *)malloc(sizeof(char) * (length + 1));
+        char *temp = (char *)malloc(sizeof(char) * PACKAGE_SIZE);
         strcpy(temp, writeData);
         (buf->buffer)[buf->writePos] = temp;
         buf->writePos = (buf->writePos + 1) % (buf->bufLength);
