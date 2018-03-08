@@ -17,12 +17,9 @@
 #define SERVER_CHAT_ROOM_INPUT_FIFO_MAX 100
 #define MAX_SERVER_USERS 20 // maximum number of user the server can support
 
-// for alpha make it 20
-#define MAX_SERVER_CHATROOMS 20
-
 // maximum inbox request the user can ahve
 #define MAX_REQUEST 10
-//#define MAX_SERVER_CHATROOMS 400 // equal to max user * max room per user
+#define MAX_SERVER_CHATROOMS 400 // equal to max user * max room per user
 
 #define MAX_USER_PER_ROOM 5
 

@@ -79,6 +79,79 @@ TEST(InboxTest, ReadWriteTest)
     }
 }
 
+TEST(RoomSetTest, CreateDelTest)
+{
+    roomList *testroomList = roomsetInit();
+    ASSERT_TRUE(testroomList != NULL);
+    fifo *tempBuffer;
+    for (int i = 0; i < testroomList->totalRoom; ++i)
+    {
+        ASSERT_EQ((testroomList->roomList[i]).status, ROOM_UNALLOCATED);
+        tempBuffer = testroomList->roomList[i].inMessage;
+        ASSERT_TRUE(tempBuffer != NULL);
+        ASSERT_EQ(tempBuffer->bufLength, CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
+        ASSERT_EQ(tempBuffer->readPos, 0);
+        ASSERT_EQ(tempBuffer->writePos, 0);
+    }
+    roomsetDel(testroomList);
+}
+
+#define TEST_ROOM_TOTAL_CASES 15
+TEST(RoomSetTest, findTest)
+{
+
+    roomList *testroomList = roomsetInit();
+    int testRoomServerNum[TEST_ROOM_TOTAL_CASES];
+    int testRoomNum[TEST_ROOM_TOTAL_CASES];
+    chatRoom *tempRoom;
+    chatRoom *tempRoomReady;
+    for (int i = 0; i < TEST_ROOM_TOTAL_CASES; ++i)
+    {
+    randGen_1:
+        testRoomServerNum[i] = rand() % MAX_SERVER_CHATROOMS;
+
+        for (int j = 0; j < i; ++j)
+        {
+            if (testRoomNum[j] == testRoomNum[i])
+            {
+
+                goto randGen_1;
+            }
+        }
+
+    randGen_2:
+        testRoomNum[i] = rand() % CHAT_ROOM_LIMIT;
+
+        for (int j = 0; j < i; ++j)
+        {
+            if (testRoomNum[j] == testRoomNum[i])
+            {
+
+                goto randGen_2;
+            }
+        }
+
+        testroomList->roomList[testRoomNum[i]].roomNum = testRoomServerNum[i];
+        testroomList->roomList[testRoomNum[i]].status = ROOM_READY;
+
+        for (int i = 0; i < TEST_ROOM_TOTAL_CASES; ++i)
+        {
+            tempRoom = retrieveRoom(testroomList, testRoomServerNum[i]);
+            ASSERT_EQ(tempRoom->roomNum, testRoomServerNum[i]);
+            ASSERT_TRUE(tempRoom == &(testroomList->roomList[testRoomNum[i]]));
+
+            tempRoomReady = findReadyRoom(testroomList);
+            ASSERT_EQ(tempRoomReady->status, ROOM_READY);
+            ASSERT_TRUE(tempRoomReady == &(testroomList->roomList[testRoomNum[i]]));
+            tempRoomReady->status = ROOM_UNALLOCATED;
+        }
+        tempRoomReady = findReadyRoom(testroomList);
+        ASSERT_EQ(tempRoomReady->status, ROOM_READY);
+        ASSERT_TRUE(tempRoomReady == NULL);
+
+        roomsetDel(testroomList);
+    }
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

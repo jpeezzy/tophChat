@@ -41,3 +41,20 @@ char intToChar(int number)
 {
     return (char)number + 48;
 }
+
+uniqueRandGen(int range, int *listPtr, int list_length)
+{
+    for (int i = 0; i < list_length; ++i)
+    {
+    randGen_1:
+        listPtr[i] = rand() % (range + 1);
+
+        for (int j = 0; j < i; ++j)
+        {
+            if (listPtr[j] == listPtr[i])
+            {
+                goto randGen_1;
+            }
+        }
+    }
+}

@@ -141,6 +141,8 @@ int closeRoom(chatRoom *room, fifo *outputFIFIO)
     char tempPacket[PACKAGE_SIZE] = "";
     room->status = 0; // freed
     assembleCommand(room->roomNum, ROID, RODEL, NULL, tempPacket);
+    closeBuffer(room->inMessage);
+    room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
     writeBuffer(outputFIFIO, tempPacket);
     return 0;
 }
@@ -151,14 +153,18 @@ roomList *roomsetInit(void)
     temproomSet->totalRoom = CHAT_ROOM_LIMIT;
     for (int i = 0; i < temproomSet->totalRoom; ++i)
     {
-        temproomSet->roomList[i].status = ROOM_UNALLOCATED;
-        temproomSet->roomList[i].inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
+        (temproomSet->roomList[i]).status = ROOM_UNALLOCATED;
+        (temproomSet->roomList[i]).inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
     }
     return temproomSet;
 }
 
 int roomsetDel(roomList *allRoom)
 {
+    for (int i = 0; i < allRoom->totalRoom; ++i)
+    {
+        closeBuffer(allRoom->roomList[i].inMessage);
+    }
     free(allRoom);
     return 0;
 }
