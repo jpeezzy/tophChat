@@ -3,9 +3,12 @@
 #define ui unsigned int
 #define cp char*
 #define MAX_FRIENDS 50
+#define MAX_USERS 100
 typedef struct tophChatUser TUSER;
 typedef struct database TINFO;
-static int numOfUsers = 0;
+
+/*For our data structure, we will use a 
+ * graph and represent the users as nodes*/
 struct tophChatUser
 {
 	cp userName;
@@ -14,18 +17,24 @@ struct tophChatUser
 	ui  hashID;
 	cp email;
 	cp phone;
-	TUSER *friends[MAX_FRIENDS];
+	TUSER *friends[MAX_FRIENDS]; //Edges to graph
 	ui friendCount;
-	TUSER *next;
-	TUSER *prev;
-	TUSER *first;
-	TUSER *last;
-
+	int socket;
 };
 
+struct database{
+	ui numOfUsers; 
+	TUSER *Users[MAX_USERS];
+};
 
-TUSER *addUser(cp _userName, cp _name, ui _hashedPassword);
+/*Creates a dataBase for data collecting  */
+TINFO *createTINFO();
 
+TUSER *addUser(cp _userName, cp _name, 
+		ui _hashedPassword, TINFO* userBase);
+
+//Deletes the user
+int deleteUser(TUSER *user);
 
 ui hashID(cp userName);
 
@@ -33,7 +42,7 @@ ui hashID(cp userName);
 //sends in both userName of the person who the inidivudal
 //wants added, as well as the address of the person making
 //the request
-int addFriend(cp userName, TUSER* user);
+int addFriend(cp userName, TUSER *user, TINFO *userbase);
 
 //Check if user exists in the database
 //traverses through linked list to check 
@@ -41,8 +50,6 @@ int addFriend(cp userName, TUSER* user);
 //else null
 TUSER *checkUser(cp userName, TUSER* user);
 
-//Deltes user;
-void deleteUser(TUSER *user);
 
 //List friends
 void showFriends(TUSER *user);

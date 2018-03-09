@@ -102,14 +102,14 @@ int requestRoom(roomList *allRoom, fifo *outputFIFO)
 {
     // TODO: thread sensitive
     int i = 0;
-    char tempMessage[PACKAGE_SIZE]="";
+    char tempMessage[PACKAGE_SIZE] = "";
     for (i = 0; i < allRoom->totalRoom; ++i)
     {
         if ((allRoom->roomList[i]).status == ROOM_UNALLOCATED)
         {
             assembleCommand(i, ROID, ROCREATE, NULL, tempMessage);
             writeBuffer(outputFIFO, tempMessage);
-            allRoom->roomList[i].status=ROOM_WAITING;
+            allRoom->roomList[i].status = ROOM_WAITING;
             return 0;
         }
     }
@@ -182,7 +182,7 @@ chatRoom *retrieveRoom(roomList *allRoom, int roomNum)
     {
         if ((allRoom->roomList)[i].roomNum == roomNum)
         {
-            break;    
+            break;
         }
     }
     if (i == allRoom->totalRoom)
@@ -219,14 +219,16 @@ chatRoom *findReadyRoom(roomList *allRoom)
 // copy the received message to the buffer
 int fetchMessage(chatRoom *room, char *buffer)
 {
+    assert(room);
+    assert(buffer);
     // TODO: implement muxtex if using multithreaded
-    if(readBuffer(room->inMessage, buffer)==FIFO_NO_DATA)
+    if (readBuffer(room->inMessage, buffer) == FIFO_NO_DATA)
     {
         return -1;
     }
     else
     {
-    return 0;
+        return 0;
     }
 }
 
@@ -237,13 +239,13 @@ int sendMessage(chatRoom *room, fifo *outputFIFO, char *message)
     char tempPacket[PACKAGE_SIZE];
     // TODO: multithreaded mutex
     assembleMessage(room->roomNum, message, tempPacket);
-    if(writeBuffer(outputFIFO, tempPacket)==FIFO_FULL)
+    if (writeBuffer(outputFIFO, tempPacket) == FIFO_FULL)
     {
         return -1;
     }
     else
     {
-    return 0;
+        return 0;
     }
 }
 
