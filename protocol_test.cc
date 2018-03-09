@@ -132,7 +132,22 @@ TEST(AssembleCommand, AssembleTest)
 
 TEST(AssembleMessage, AssembleTest)
 {
-
+    char testPacket[PACKAGE_SIZE]="";
+    char messageBody[MESS_LIMIT]="";
+    char *testMessage[] = {"This is nice", "That's not right", "fjldshvjdsnkjwehg;ke", "9283741892uioUoi@fds", "dfsfdsq1@!##$!",
+                           "fjdslfjew", "sjdklfjdslkgndsv,mnklwje", "123451fdsfdsa", "@!!@}{FL:ASL<><AD", "#PHFGJSBH(*@!P(*"
+                           , "fdshjfjjdslkfjwdsjlnvkls", "2", "3", "~#@!3ewdflkna;", "nc,mxvns/.,/", "1", "2", "546", "142423"
+                           , "fi2jwrwe", "12412fdsa", "bcnxz., flkawej", "/,/.3,12/lkaf", "fsdlj912pfa", "`13124ujrklj"};
+    int testMessageNum = sizeof(testMessage) / sizeof(char *);
+    
+    for(int i=0; i<testMessageNum; ++i)
+    {
+    assembleMessage(i,testMessage[i], testPacket);
+    getMessageBody(testPacket, messageBody);
+    ASSERT_EQ(strcmp(messageBody, testMessage[i]),0);
+    ASSERT_EQ(getroomNumber(testPacket),i);
+    ASSERT_EQ(getpacketType(testPacket), ISMESSAGE);
+    }
 }
 
 int main(int argc, char **argv)
