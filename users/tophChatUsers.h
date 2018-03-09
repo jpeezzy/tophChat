@@ -48,8 +48,28 @@ int addFriend(cp userName, TUSER *user, TINFO *userbase);
 //traverses through linked list to check 
 //if user is found, return address, 
 //else null
-TUSER *checkUser(cp userName, TUSER* user);
+TUSER *checkUserByName(cp userName, TUSER* user);
 
 
 //List friends
 void showFriends(TUSER *user);
+
+//Authentification gets the actual user struct 
+//and checks if the password is correct
+int authentifyUser(cp username, ui hashpassword, TUSER *actualUser, TINFI* userbase);
+
+int checkIfFriends(TUSER *user1, TUSER*user2);
+
+//Find a user based off username
+TUSER *findUserByName(cp username, TINFO *userbase);
+
+//Remove friend
+int deleteFriend(cp username);
+
+//chek if user is online,
+int checkSocket(TUSER *user);
+
+//Change socket based off if they are online 
+int changeSocket(TUSER *user, int socket);
+
+
