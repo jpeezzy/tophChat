@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <stdint.h>
 
 //This is an implementation of Suu Encrpytion
 void encrypt(char input[500], unsigned long int key)
@@ -9,18 +9,15 @@ void encrypt(char input[500], unsigned long int key)
     unsigned long int tempkey = key;
     unsigned long int subkey= tempkey%16;
 
-    //15 rounds of encryption
-    for(i = 0; i<15; ++i)
+    //7 rounds of encryption
+    for(i = 0; i<1; ++i)
     {
-        for(j=0; j<500; j++)
+        for(j=0; j<499; j++)
         {
-            //NOT
-            if(subkey % 2 == 1)
-            {
-                input[j] = ~input[j];
-            }
             //XOR
             input[j] = input[j]^subkey;
+            //NOT
+            input[j] = ~input[j];
         }
         tempkey = tempkey/16;
         subkey = tempkey%16;
@@ -35,27 +32,24 @@ void decrypt(char input[500], unsigned long int key)
     unsigned long int tempkey = key;
     unsigned long int subkey;
 
-    //15 rounds of decryption
-    for(i = 0; i<15; ++i)
+    //7 rounds of decryption
+    for(i = 0; i<1; ++i)
     {   
-        if(i == 14)
+        if(i == 6)
         {
             tempkey = key;
         }
         else
         {
-            tempkey = key/(16*(14-i));
+            tempkey = key/(16*(6-i));
         }
-        subkey = tempkey%16;
-        for(j=0; j<500; j++)
+        subkey = key%16;
+        for(j=0; j<499; j++)
         {
-            //Undo XOR 
+            //NOT
+            input[j] = ~input[j];
+            //XOR
             input[j] = input[j]^subkey;
-            //Undo NOT
-            if(subkey % 2 == 1)
-            {
-                input[j] = ~input[j];
-            }
         }
     }
 
@@ -81,7 +75,8 @@ int main()
     test[8] = 't';
     test[9] = 'h';
     test[10] = 'e';
-    unsigned long int testkey = 64782395;
+    test[499] = '\0';
+    unsigned long int testkey = 0x1111111ff;
     printf(" %s \n", test);
     encrypt(test, testkey);
     printf(" %s\n",test);
