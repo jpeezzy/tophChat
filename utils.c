@@ -2,9 +2,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "utils.h"
 #include "constants.h"
+
 
 int max(int a, int b)
 {
@@ -41,7 +43,7 @@ int charToInt(char character)
 
 char intToChar(int number)
 {
-    return (char)number + 48;
+    return (char)(number + 48);
 }
 
 int uniqueRandGen(int range, int *listPtr, int list_length)

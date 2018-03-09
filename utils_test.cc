@@ -78,6 +78,29 @@ TEST(charInt, characterToInteger)
     EXPECT_EQ(charToInt('4'), 4);
 }
 
+TEST(IntChar, IntToChar)
+{
+    EXPECT_EQ(intToChar(9),'9');
+    EXPECT_EQ(intToChar(8),'8');
+    EXPECT_EQ(intToChar(7),'7');
+    EXPECT_EQ(intToChar(6),'6');
+    EXPECT_EQ(intToChar(5),'5');
+    EXPECT_EQ(intToChar(4),'4');
+}
+
+TEST(uniqueRandgen, UniqueGen)
+{
+    int randList[1000];
+    uniqueRandGen(10000, randList, 1000);
+    for(int i=0; i<1000;++i)
+    {
+        for(int j=0; j<i; ++j)
+        {
+            ASSERT_TRUE(randList[j]!=randList[i]);
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

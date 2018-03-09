@@ -23,7 +23,6 @@
 #include "protocol_const.h"
 #include "tcpPacket.h"
 #include "utils.h"
-#define DEBUG
 
 serverConnection *openConnection(void)
 {
@@ -59,7 +58,7 @@ serverConnection *openConnection(void)
     if (count == 5)
     {
         // return SOCKET_CANT_CONNECT;
-        return -1;
+        return NULL;
     }
 
     freeaddrinfo(serverInfo);
@@ -108,7 +107,7 @@ int requestRoom(roomList *allRoom, fifo *outputFIFO)
     {
         if ((allRoom->roomList[i]).status == ROOM_UNALLOCATED)
         {
-            assembleCommand(111, ROID, ROCREATE, NULL, tempMessage);
+            assembleCommand(i, ROID, ROCREATE, NULL, tempMessage);
             writeBuffer(outputFIFO, tempMessage);
             allRoom->roomList[i].status=ROOM_WAITING;
             return 0;
@@ -135,13 +134,17 @@ int receiveRoom(roomList *allRoom, int serverroomNum)
     {
         return NO_WAITING_ROOM;
     }
+    else
+    {
+        return 0;
+    }
 }
 
 // close the room and let the server know that the room number is free to be used by others
 int closeRoom(chatRoom *room, fifo *outputFIFIO)
 {
     char tempPacket[PACKAGE_SIZE] = "";
-    room->status = 0; // freed
+    room->status = ROOM_UNALLOCATED; // freed
     assembleCommand(room->roomNum, ROID, RODEL, NULL, tempPacket);
     closeBuffer(room->inMessage);
     room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
@@ -179,12 +182,16 @@ chatRoom *retrieveRoom(roomList *allRoom, int roomNum)
     {
         if ((allRoom->roomList)[i].roomNum == roomNum)
         {
-            return &((allRoom->roomList)[i]);
+            break;    
         }
     }
     if (i == allRoom->totalRoom)
     {
         return NULL;
+    }
+    else
+    {
+        return &((allRoom->roomList)[i]);
     }
 }
 
@@ -196,12 +203,16 @@ chatRoom *findReadyRoom(roomList *allRoom)
     {
         if ((allRoom->roomList[i]).status == ROOM_READY)
         {
-            return &(allRoom->roomList[i]);
+            break;
         }
     }
     if (i == allRoom->totalRoom)
     {
         return NULL;
+    }
+    else
+    {
+        return &(allRoom->roomList[i]);
     }
 }
 

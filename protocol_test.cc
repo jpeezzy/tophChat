@@ -110,6 +110,31 @@ TEST(getComType, protocolTest)
     ASSERT_EQ(getCommandType(testPacket7), 'R');
 }
 
+TEST(AssembleCommand, AssembleTest)
+{
+    char testPacket[PACKAGE_SIZE];
+    assembleCommand(111, ROID, RODEL, NULL, testPacket);
+    EXPECT_EQ(strcmp("1111TPC{}HR2", testPacket),0);
+    printf("\n%s\n", testPacket);
+
+    assembleCommand(10, COMID, CLOSECOM, "Test Command", testPacket);
+    EXPECT_EQ(strcmp("0101TPC{}HC1Test Command", testPacket),0);
+    printf("\n%s\n", testPacket);
+
+    assembleCommand(931, FRIENDID, DEFRIEND, NULL, testPacket);
+    EXPECT_EQ(strcmp("9311TPC{}HF3", testPacket),0);
+    printf("\n%s\n", testPacket);
+
+    assembleCommand(312, ROID, RODEL, "!JFLAHS", testPacket);
+    EXPECT_EQ(strcmp("3121TPC{}HR2!JFLAHS", testPacket),0);
+    printf("\n%s\n", testPacket);
+}
+
+TEST(AssembleMessage, AssembleTest)
+{
+
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

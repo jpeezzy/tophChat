@@ -96,7 +96,7 @@ TEST(RoomSetTest, CreateDelTest)
 }
 
 #define TEST_ROOM_TOTAL_CASES 15
-TEST(RoomSetTest, findTest)
+TEST(RoomSetTest, RetrieveFindTest)
 {
     srand(time(NULL));
     roomList *testroomList = roomsetInit();
@@ -111,7 +111,7 @@ TEST(RoomSetTest, findTest)
 
         for (int j = 0; j < i; ++j)
         {
-            if (testRoomNum[j] == testRoomNum[i])
+            if (testRoomServerNum[j] == testRoomServerNum[i])
             {
                 goto randGen_1;
             }
@@ -136,7 +136,6 @@ TEST(RoomSetTest, findTest)
     {
         tempRoom = retrieveRoom(testroomList, testRoomServerNum[i]);
         ASSERT_EQ(tempRoom->roomNum, testRoomServerNum[i]);
-        ASSERT_TRUE(tempRoom == &(testroomList->roomList[testRoomNum[i]]));
 
         tempRoomReady = findReadyRoom(testroomList);
         ASSERT_EQ(tempRoomReady->status, ROOM_READY);
@@ -154,11 +153,6 @@ TEST(roomTest, CreateCloseTest)
     roomList *testroomList = roomsetInit();
     int firstUnAllocatedRoom;
     char tempPacket[PACKAGE_SIZE]="";
-    char *testMessage[] = {"This is nice", "That's not right", "fjldshvjdsnkjwehg;ke", "9283741892uioUoi@fds", "dfsfdsq1@!##$!",
-                           "fjdslfjew", "sjdklfjdslkgndsv,mnklwje", "123451fdsfdsa", "@!!@}{FL:ASL<><AD", "#PHFGJSBH(*@!P(*"
-                           , "fdshjfjjdslkfjwdsjlnvkls", "2", "3", "~#@!3ewdflkna;", "nc,mxvns/.,/", "1", "2", "546", "142423"
-                           , "fi2jwrwe", "12412fdsa", "bcnxz., flkawej", "/,/.3,12/lkaf", "fsdlj912pfa", "`13124ujrklj"};
-    char commandType[10];
     char messageBody[MESS_LIMIT];
     for(int i=0; i<testroomList->totalRoom;++i)
     {
@@ -168,18 +162,30 @@ TEST(roomTest, CreateCloseTest)
     ASSERT_EQ(getroomNumber(tempPacket), i);
     ASSERT_EQ(getCommandType(tempPacket), ROID);
     ASSERT_EQ(getCommandID(tempPacket), ROCREATE);
-    getMessageBody(tempPacket, messageBody);
-    ASSERT_EQ(0, strcmp(messageBody, testMessage[i]));
     }
     
     for(int i=0; i<testroomList->totalRoom;++i)
     {
-        testroomList->roomList[i].status=ROOM_TAKEN;
+        testroomList->roomList[i].status=ROOM_WAITING;
     }       
     ASSERT_EQ(-1, requestRoom(testroomList, outputFIFO));
-
-
+    
+    for(int i=0; i<testroomList->totalRoom;++i)
+    {
+    receiveRoom(testroomList, i+2);
+    ASSERT_EQ(testroomList->roomList[i].roomNum, i+2);
+    ASSERT_EQ(testroomList->roomList[i].status, ROOM_READY);
+    closeRoom(&(testroomList->roomList[i]), outputFIFO);
+    readBuffer(outputFIFO, tempPacket);
+    
+    ASSERT_EQ(testroomList->roomList[i].status, ROOM_UNALLOCATED);
+    ASSERT_EQ(getroomNumber(tempPacket), i+2);
+    ASSERT_EQ(getCommandType(tempPacket), ROID);
+    ASSERT_EQ(getCommandID(tempPacket), RODEL);
+    }
 }
+
+
 
 int main(int argc, char **argv)
 {

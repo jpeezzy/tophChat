@@ -110,19 +110,20 @@ int assembleCommand(int roomNum, char COM_ID, int COM_NUM, char *additionInfo, c
 {
     assert(outputCom);
     outputCom[0] = '\0';
-    char roomNumChar[CHAT_ROOM_CHARACTER + 1];
-    snprintf(roomNumChar, (CHAT_ROOM_CHARACTER + 1) * sizeof(char), "%d", roomNum);
-    strcat(outputCom, roomNumChar);
+    
+    outputCom[2]=intToChar(roomNum%10);
+    roomNum/=10;
+    outputCom[1]=intToChar(roomNum%10);
+    roomNum/=10;
+    outputCom[0]=intToChar(roomNum%10);
+    outputCom[3]='\0';
     strcat(outputCom, ID_COMM);
-    outputCom[CHAT_ROOM_CHARACTER + COM_LENGTH] = COM_ID;
-    outputCom[CHAT_ROOM_CHARACTER + COM_LENGTH + 1] = intToChar(COM_NUM);
+    outputCom[CHAT_ROOM_CHARACTER + ID_LENGTH] = COM_ID;
+    outputCom[CHAT_ROOM_CHARACTER + ID_LENGTH + 1] = intToChar(COM_NUM);
+    outputCom[CHAT_ROOM_CHARACTER + ID_LENGTH+ COM_LENGTH ] = '\0';
     if (additionInfo != NULL)
     {
         strcat(outputCom, additionInfo);
-    }
-    else
-    {
-        outputCom[CHAT_ROOM_CHARACTER + COM_LENGTH + 2] = '\0';
     }
     return 0;
 }
