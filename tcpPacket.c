@@ -40,6 +40,7 @@ int sendPacket(char *packet, int socket)
 
 int fetchPacket(char *packet, int socket)
 {
+    // peek allow the socket to check how much data without removing data from the buffer
     int temp = recv(socket, packet, sizeof(char) * PACKAGE_SIZE, MSG_DONTWAIT | MSG_PEEK);
     if (temp == -1)
     {
@@ -53,9 +54,9 @@ int fetchPacket(char *packet, int socket)
     {
         return SOCKET_CLOSED;
     }
-    else if (temp != sizeof(char)* PACKAGE_SIZE)
+    else if (temp != sizeof(char) * PACKAGE_SIZE)
     {
-        return SOCKET_NOT_ENOUGH_DATA; 
+        return SOCKET_NOT_ENOUGH_DATA;
     }
     else
     {

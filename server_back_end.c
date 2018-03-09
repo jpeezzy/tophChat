@@ -20,8 +20,9 @@
 #include "constants.h"
 #include "testString.h"
 #include "tcpPacket.h"
-#include "tophChatUsers.h"
+#include "users/tophChatUsers.h"
 #include "protocol_const.h"
+#include "protocol.h"
 #include "utils.h"
 
 //#define TEST_SERVER
@@ -85,6 +86,10 @@ struct allServerRoom *serverRoomSetCreate(void)
         ((allRoom->roomList)[i]).roomNum = i;
         ((allRoom->roomList)[i]).peopleNum = 0;
         ((allRoom->roomList)[i]).inMessage = initBuffer(SERVER_CHAT_ROOM_INPUT_FIFO_MAX);
+        for (int j = 0; j < MAX_USER_PER_ROOM; ++j)
+        {
+            ((allRoom->roomList[i]).userList[j]) = NULL; // will be filled with pointer to the Justin database
+        }
     }
 }
 void serverRoomSetDel(struct allServerRoom *allRoom)
@@ -92,6 +97,10 @@ void serverRoomSetDel(struct allServerRoom *allRoom)
     for (int i = 0; i < allRoom->totalRoom; ++i)
     {
         closeBuffer(((allRoom->roomList)[i]).inMessage);
+        for (int j = 0; j < MAX_USER_PER_ROOM; ++j)
+        {
+            (allRoom->roomList[i]).userList[j] = NULL;
+        }
     }
     free(allRoom);
 }
@@ -173,86 +182,100 @@ int sendServerRoomMessage(int socketNum, struct messageServerRoom *room, char *u
     return 0;
 }
 
-    // /*******************************USER STUFFS HERE**************************/
-    // // create a list of online user
-    // onlineUserList *serverCreateOnlineList(void)
-    // {
-    //     onlineUserList *userList = malloc(sizeof(onlineUserList));
-    //     userList->totalUser = MAX_SERVER_USERS;
+void addUserToServerRoom(onlineUser *user, serverChatRoom *room)
+{
+    assert(user->userProfile->socket >= 0);
+    for (int i = 0; i < MAX_SERVER_USERS; ++i)
+    {
+        if (room->socketList[i] == -1)
+        {
+            room->socketList[i] = user->userProfile->socket;
+            break;
+        }
+    }
+}
 
-    //     for (int i = 0; i < userList->totalUser; ++i)
-    //     {
-    //         (userList->userList[i]).status = NOT_ONLINE;
-    //     }
-    // }
+// /*******************************USER STUFFS HERE**************************/
+// create a list of online user
+// TODO: link this with Justin database
+onlineUserList *serverCreateOnlineList(void)
+{
+    onlineUserList *userList = malloc(sizeof(onlineUserList));
+    userList->totalOnlineUser = 0;
+    for (int i = 0; i < MAX_SERVER_USERS; ++i)
+    {
+        userList->userList[i].slot_status = NOT_ONLINE;
+    }
+    return userList;
+}
 
-    // onlineUser *serverAddOnlineUser(char *userName, int userSocket, onlineUserList *allUser)
-    // {
-    //     int i = 0;
-    //     for (i = 0; i < allUser->totalUser; ++i)
-    //     {
-    //         if ((allUser->userList[i]).status == NOT_ONLINE)
-    //         {
-    //             (allUser->userList[i]).status = ONLINE;
-    //             (allUser->userList[i]).status = userSocket;
-    //             (allUser->userList[i]).userProfile.userName = userName;
-    //             return &(allUser->userList[i]);
-    //         }
-    //         if (i == allUser->totalUser)
-    //         {
-    //             // server full
-    //             return NULL;
-    //         }
-    //     }
-    // }
+void serverDelOnlineList(onlineUserList *allOnlineUser)
+{
+    free(allOnlineUser);
+}
 
-    // int sendRoomInvite(char *userName, chatRoom *room, onlineUserList *allUser)
-    // {
-    //     int i = 0;
-    //     char packet[PACKAGE_SIZE];
-    //     for (i = 0; i < allUser->totalUser; ++i)
-    //     {
-    //         if (allUser->userList[i].status == 1 && (strcmp(allUser->userList[i].userProfile.userName, userName) == 0))
-    //         {
-    //             strcat(packet, "000");
-    //             strcat(packet, ID_COMM);
-    //             strcat(packet, "R4");
-    //             sendPacket(packet, allUser->userList[i].socket);
-    //         }
-    //         else
-    //         {
-    //             return NOT_ONLINE;
-    //         }
-    //     }
-    // }
+// TODO: replace this with Justin's data structure
+// check if the user already exists
+onlineUser *serverAddOnlineUser(char *userName, int userSocket, onlineUserList *allUser)
+{
+    int i = 0;
+    TUSER *tempUser;
+    for (i = 0; i < MAX_SERVER_USERS; ++i)
+    {
 
-    // int serverLogOffUser(onlineUser *user)
-    // {
-    //     user->status = NOT_ONLINE;
-    //     close(user->socket);
-    //     return 0;
-    // }
+        if ((allUser->userList[i]).slot_status == NOT_ONLINE)
+        {
+        }
+        if (i == MAX_SERVER_USERS)
+        {
+            // server full
+            return NULL;
+        }
+    }
+}
 
-    // /********************************UTILITIES HERE*********************************/
-    // // TODO implement lookup
-    // int lookUpUser();
+int serverLogOffUser(onlineUser *user)
+{
+    // TODO: use Justin functions
+    close(user->userProfile->socket);
+    user->userProfile->socket = NOT_ONLINE;
+    return 0;
+}
 
-    // // return the pointer to the room based on room number
-    // serverChatRoom *lookUpRoom(struct allServerRoom *allRoom, int roomNum)
-    // {
-    //     int j = 0;
-    //     for (j = 0; j < allRoom->totalRoom; ++j)
-    //     {
-    //         if (allRoom->roomList[j].roomNum == roomNum)
-    //         {
-    //             return &(allRoom->roomList[j]);
-    //         }
-    //         else
-    //         {
-    //             return NULL;
-    //         }
-    //     }
-    // }
+int sendRoomInvite(char *userNameRequester, char *userNameTarget, chatRoom *room, onlineUserList *allUser)
+{
+    int i = 0;
+    char packet[PACKAGE_SIZE];
+
+    // use Justin function to check if a person is online and if they are friends
+    {
+        assembleCommand(room->roomNum, ROID, ROINVITE, NULL, packet);
+        sendPacket(packet, allUser->userList[i].userProfile->socket);
+        return 0;
+    }
+
+    {
+        return NOT_ONLINE;
+    }
+}
+
+// /********************************UTILITIES HERE*********************************/
+// // TODO implement lookup
+// int lookUpUser();
+
+// return the pointer to the room based on room number
+serverChatRoom *lookUpRoom(struct allServerRoom *allRoom, int roomNum)
+{
+    int j = 0;
+    for (j = 0; j < allRoom->totalRoom; ++j)
+    {
+        if (allRoom->roomList[j].roomNum == roomNum)
+        {
+            return &(allRoom->roomList[j]);
+        }
+    }
+    return NULL;
+}
 
     // // TODO: make this multithreaded
     // // do all administrative tasks to keep server running

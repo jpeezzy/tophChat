@@ -34,11 +34,13 @@
 #define COM_LENGTH 2 // length of a command
 
 // friend related request
-#define FRIENDID 'F' // initials for friend related command
-#define FREQUEST 1   // friend request
-#define DEREQUEST 2  // deny friend request
-#define DEFRIEND 3   // delete friends
-#define TOTAL_FRRQ 3 // how many friend related request we have
+#define FRIENDID 'F'   // initials for friend related command
+#define FREQUEST 1     // friend request
+#define DEREQUEST 2    // deny friend request
+#define DEFRIEND 3     // delete friends
+#define FRIEACCEPT 4   // accept friend request
+#define FRIEACCEPTED 5 //friend request accepted
+#define TOTAL_FRRQ 5   // how many friend related request we have
 
 // room related request
 #define ROID 'R'

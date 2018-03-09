@@ -21,21 +21,12 @@
 
 #include "constants.h"
 #include "fifo.h"
-#include "tophChatUsers.h"
+#include "users/tophChatUsers.h"
 typedef struct messageServerRoom serverChatRoom;
 typedef struct allServerRoom serverRoomList;
 typedef struct allOnlineUser onlineUserList;
 typedef struct onlUser onlineUser;
 // when a message is received by the server, it will be parsed to include the original, room and who sent them
-struct messageServerRoom
-{
-    int adminID;
-    int isOccupied; //0 for free 1 for occupied
-    int roomNum;
-    int peopleNum;
-    struct FIFObuffer *inMessage;
-    int socketList[MAX_USER_PER_ROOM];
-};
 
 // head of the linked list connecting all the rooms on the client
 struct allServerRoom
@@ -49,15 +40,14 @@ struct allServerRoom
 
 struct onlUser
 {
-    struct tophChatUser userProfile;
-    int status;
-    int socket;
+    struct tophChatUser *userProfile; //pointer to the main database
+    int slot_status;
 };
 
 struct allOnlineUser
 {
     struct onlUser userList[MAX_SERVER_USERS];
-    int totalUser;
+    int totalOnlineUser;
 };
 
 typedef int (*roomFunc)(struct messageServerRoom *room, int num, char *);
@@ -65,6 +55,17 @@ typedef int (*friendFunc)(char *name1, char *name2);
 typedef int (*comFunc)(int socket);
 
 int listenSocketInit(void);
+
+struct messageServerRoom
+{
+    int adminID;
+    int isOccupied; //0 for free 1 for occupied
+    int roomNum;
+    int peopleNum;
+    struct FIFObuffer *inMessage;
+    int socketList[MAX_USER_PER_ROOM];
+    struct onlUser *userList[MAX_USER_PER_ROOM];
+};
 
 struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom);
 
