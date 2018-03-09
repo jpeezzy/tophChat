@@ -1,7 +1,7 @@
-#pragma once 
+#pragma once
 
 #define ui unsigned int
-#define cp char*
+#define cp char *
 #define MAX_FRIENDS 50
 #define MAX_USERS 100
 typedef struct tophChatUser TUSER;
@@ -14,7 +14,7 @@ struct tophChatUser
 	cp userName;
 	ui hashedPassword;
 	cp name;
-	ui  hashID;
+	ui hashID;
 	cp email;
 	cp phone;
 	TUSER *friends[MAX_FRIENDS]; //Edges to graph
@@ -22,16 +22,17 @@ struct tophChatUser
 	int socket;
 };
 
-struct database{
-	ui numOfUsers; 
+struct database
+{
+	ui numOfUsers;
 	TUSER *Users[MAX_USERS];
 };
 
 /*Creates a dataBase for data collecting  */
 TINFO *createTINFO();
 
-TUSER *addUser(cp _userName, cp _name, 
-		ui _hashedPassword, TINFO* userBase);
+TUSER *addUser(cp _userName, cp _name,
+			   ui _hashedPassword, TINFO *userBase);
 
 //Deletes the user
 int deleteUser(TUSER *user);
@@ -45,20 +46,19 @@ ui hashID(cp userName);
 int addFriend(cp userName, TUSER *user, TINFO *userbase);
 
 //Check if user exists in the database
-//traverses through linked list to check 
-//if user is found, return address, 
+//traverses through linked list to check
+//if user is found, return address,
 //else null
-TUSER *checkUserByName(cp userName, TUSER* user);
-
+TUSER *checkUserByName(cp userName, TUSER *user);
 
 //List friends
 void showFriends(TUSER *user);
 
-//Authentification gets the actual user struct 
+//Authentification gets the actual user struct
 //and checks if the password is correct
-int authentifyUser(cp username, ui hashpassword, TUSER *actualUser, TINFI* userbase);
+int authentifyUser(cp username, ui hashpassword, TUSER *actualUser, TINFO *userbase);
 
-int checkIfFriends(TUSER *user1, TUSER*user2);
+int checkIfFriends(TUSER *user1, TUSER *user2);
 
 //Find a user based off username
 TUSER *findUserByName(cp username, TINFO *userbase);
@@ -69,7 +69,5 @@ int deleteFriend(cp username);
 //chek if user is online,
 int checkSocket(TUSER *user);
 
-//Change socket based off if they are online 
+//Change socket based off if they are online
 int changeSocket(TUSER *user, int socket);
-
-
