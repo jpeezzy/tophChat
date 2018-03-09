@@ -10,15 +10,15 @@
 #define MAX_USER_NAME 20  // 20 character maximum
 #define MESS_LIMIT 500    // how many char user can send
 // #define PACKAGE_SIZE 510 // 500 char, 7 word command/message ID and and 2 char for room ID, 1 for /0
-#define PACKAGE_SIZE 515                    // 5 additional char for socket number
-#define CHAT_ROOM_LIMIT 20                  // a user can have maximum of
-#define CHAT_ROOM_CHARACTER 3               // how many char needed to define the room number, doesn't have null terminator
+#define PACKAGE_SIZE 515      // 5 additional char for socket number
+#define CHAT_ROOM_LIMIT 20    // a user can have maximum of
+#define CHAT_ROOM_CHARACTER 3 // how many char needed to define the room number, doesn't have null terminator
 
 // Queue Limit Constant
 #define CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX 30 // can store 30 messages in the fifo
 #define SERVER_CHAT_ROOM_INPUT_FIFO_MAX 100
 #define CLIENT_OUTPUT_FIFO_MAX 100 // how many messages can output fifo store
-#define MAX_SERVER_USERS 20 // maximum number of user the server can support
+#define MAX_SERVER_USERS 20        // maximum number of user the server can support
 
 // maximum inbox request the user can ahve
 #define MAX_REQUEST 10
@@ -60,7 +60,7 @@
 #define ROOM_BUSY 1
 
 //USER PERSONAL STUFFS GO HERE
-#define NOT_ONLINE 0
+#define NOT_ONLINE -1
 #define ONLINE 1
 
 #endif
