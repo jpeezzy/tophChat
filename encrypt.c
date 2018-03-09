@@ -14,6 +14,12 @@ void encrypt(char input[500], unsigned long int key)
     {
         for(j=0; j<500; j++)
         {
+            //NOT
+            if(subkey % 2 == 1)
+            {
+                input[j] = ~input[j];
+            }
+            //XOR
             input[j] = input[j]^subkey;
         }
         tempkey = tempkey/16;
@@ -43,14 +49,19 @@ void decrypt(char input[500], unsigned long int key)
         subkey = tempkey%16;
         for(j=0; j<500; j++)
         {
+            //Undo XOR 
             input[j] = input[j]^subkey;
+            //Undo NOT
+            if(subkey % 2 == 1)
+            {
+                input[j] = ~input[j];
+            }
         }
     }
 
 }
 
 //for testing
-/*
 int main()
 {
     char test[500];
@@ -77,5 +88,5 @@ int main()
     decrypt(test, testkey);
     printf(" %s\n", test);
     return 0;
-}*/
+}
 
