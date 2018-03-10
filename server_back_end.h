@@ -29,6 +29,17 @@ typedef struct onlUser onlineUser;
 // when a message is received by the server, it will be parsed to include the original, room and who sent them
 
 // head of the linked list connecting all the rooms on the client
+struct messageServerRoom
+{
+    int adminID;
+    int isOccupied; //0 for free 1 for occupied
+    int roomNum;
+    int peopleNum;
+    struct FIFObuffer *inMessage;
+    int socketList[MAX_USER_PER_ROOM];
+    struct onlUser *userList[MAX_USER_PER_ROOM];
+};
+
 struct allServerRoom
 {
     int totalRoom;
@@ -55,17 +66,6 @@ typedef int (*friendFunc)(char *name1, char *name2);
 typedef int (*comFunc)(int socket);
 
 int listenSocketInit(void);
-
-struct messageServerRoom
-{
-    int adminID;
-    int isOccupied; //0 for free 1 for occupied
-    int roomNum;
-    int peopleNum;
-    struct FIFObuffer *inMessage;
-    int socketList[MAX_USER_PER_ROOM];
-    struct onlUser *userList[MAX_USER_PER_ROOM];
-};
 
 struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom);
 

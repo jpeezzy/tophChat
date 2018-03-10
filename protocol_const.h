@@ -4,7 +4,7 @@
 /**
  * PROTOCOL EXPLAINED:
  * A packet will be a string and have the form:
- * "string_numIDstring_COMMAND_OR_MESSAGE"
+ * <ROOM_NUM><ID_STRING><MESSAGE OR COMMAND ID>
  * EXAMPLE:
  * define constants used in protocol, 
  * a message will have format:
@@ -14,14 +14,15 @@
  * after that is message
  * 
  * a command will have format
- * 1001TPC{}HF1
+ * 1001TPC{}HF1<SENDER_NAME>\<TARGET_NAME>
  * 100 is the target room of the command
  * 1TPC{}H is the id string of the command
  * F is the identifier for type of command F is for friend
  * 1 is the command ID, every command has an ID
- * 
- * once the message reached the server, it appended the sender socket list and then put that into FIFO
- * 
+ * <SENDER_NAME> is the name of the person sending this message
+ * <TARGET_NAME> is who the command is aimed at for example the userName of a friend
+ * USER MESSAGE FORMAT:
+ * 0011TPM{}H<USER_NAME>\<TEXT_MESSAGE_CONTENT> max user name length defined by the macro below
  */
 
 // define protocol command for communications
@@ -29,9 +30,9 @@
 #define ISMESSAGE 1
 #define ID_COMM "1TPC{}H" // idenfity that this is a command
 #define ISCOMM 2
-#define ID_LENGTH 7 // doesn't account for the null terminator
-
-#define COM_LENGTH 2 // length of a command
+#define ID_LENGTH 7      // doesn't account for the null terminator
+#define MAX_USER_NAME 20 // 20 character maximum
+#define COM_LENGTH 2     // length of a command
 
 // friend related request
 #define FRIENDID 'F'   // initials for friend related command

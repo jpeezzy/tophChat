@@ -112,15 +112,15 @@ void updateFreeRoom(struct allServerRoom *allRoom)
     int i;
     for (i = 0; i < allRoom->totalRoom; ++i)
     {
-        if (!(((allRoom->roomList)[i]).isOccupied))
+        if ((((allRoom->roomList)[i]).isOccupied) == ROOM_NOT_OCCUPIED)
         {
             allRoom->firstFreeRoom = i;
             break;
         }
-        if (i == allRoom->totalRoom)
-        {
-            allRoom->firstFreeRoom = -1;
-        }
+    }
+    if (i == allRoom->totalRoom)
+    {
+        allRoom->firstFreeRoom = -1;
     }
 }
 
@@ -135,6 +135,7 @@ struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom)
     }
     else
     {
+        allRoom->roomList[allRoom->firstFreeRoom].isOccupied = ROOM_BUSY;
         return &(allRoom->roomList[allRoom->firstFreeRoom]);
     }
 }
@@ -143,7 +144,7 @@ struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom)
 void serverRoomReturn(serverChatRoom *room)
 {
     assert(room);
-    room->isOccupied = 0;
+    room->isOccupied = ROOM_NOT_OCCUPIED;
     for (int i = 0; i < room->peopleNum; ++i)
     {
         room->socketList[i] = -1;
@@ -161,10 +162,13 @@ int serverRoomSpreadMessage(struct messageServerRoom *room, char *serverPacket)
     stringSlicer(serverPacket, nosocketPacket, SOCKET_NUM_CHAR, PACKAGE_SIZE - 1);
     for (int i = 0; i < room->peopleNum; ++i)
     {
-        if ((room->socketList[i]) != senderSocket)
+        if (room->socketList[i] >= 0)
         {
-            // TODO: Change this
-            assert(sendPacket(nosocketPacket, room->socketList[i]) >= 0);
+            if ((room->socketList[i]) != senderSocket)
+            {
+                // TODO: Change this
+                assert(sendPacket(nosocketPacket, room->socketList[i]) >= 0);
+            }
         }
     }
 }

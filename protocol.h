@@ -6,9 +6,9 @@
 
 int processPacket(char *packet);
 
-int assembleCommand(int roomNum, char COM_ID, int COM_NUM, char *additionInfo, char *outputCom);
+int assembleCommand(int roomNum, char COM_ID, int COM_NUM, char *senderName, char *targetName, char *additionInfo, char *outputCom);
 
-int assembleMessage(int roomNum, char *message, char *outputPacket);
+int assembleMessage(int roomNum, char *senderName, char *message, char *outputPacket);
 // divide special command into categories:
 // room related
 
@@ -28,6 +28,11 @@ int getCommandID(char *packet);
 // return the letter representing the category of the command
 char getCommandType(char *packet);
 
-int getSocketNum(char *serverPacket);
+void getCommandTarget(char *packet, char *userName);
+
+int getCommandSender(char *packet, char *userName);
+
+// get the name of the sender of a regular message
+void getSenderName(char *userName, char *packet);
 
 #endif

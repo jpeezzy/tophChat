@@ -7,7 +7,6 @@
 #include "utils.h"
 #include "constants.h"
 
-
 int max(int a, int b)
 {
     return a >= b ? a : b;
@@ -44,6 +43,18 @@ int charToInt(char character)
 char intToChar(int number)
 {
     return (char)(number + 48);
+}
+
+// assume that the supplied string has space for the number and the null terminator
+void intToString(int number, char *numberString, int numLength)
+{
+    int i = 0;
+    for (i = 0; i < numLength; ++i)
+    {
+        numberString[numLength - i - 1] = intToChar(number % 10);
+        number /= 10;
+    }
+    numberString[i] = '\0';
 }
 
 int uniqueRandGen(int range, int *listPtr, int list_length)
