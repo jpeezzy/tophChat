@@ -145,51 +145,59 @@ void serverRoomReturn(serverChatRoom *room)
 {
     assert(room);
     room->isOccupied = ROOM_NOT_OCCUPIED;
-    for (int i = 0; i < room->peopleNum; ++i)
+    for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
     {
         room->socketList[i] = -1;
+    }
+
+    for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
+    {
+        room->userList[i] = NULL;
     }
     room->peopleNum = 0;
 }
 
 // send message to everyone in the room except the writer
-int serverRoomSpreadMessage(struct messageServerRoom *room, char *serverPacket)
+int serverRoomSpreadMessage(struct messageServerRoom *room, char *serverPacket, TINFO *dataBase)
 {
     assert(serverPacket);
+    char userName[50];
+    TUSER *tempUser;
     assert(room);
-    int senderSocket = getSocketNum(serverPacket);
-    char nosocketPacket[PACKAGE_SIZE];
-    stringSlicer(serverPacket, nosocketPacket, SOCKET_NUM_CHAR, PACKAGE_SIZE - 1);
+    getSenderName(userName, serverPacket);
+    tempUser = findUserByName(userName, dataBase);
+    if (tempUser == NULL)
+    {
+        return -1;
+    }
     for (int i = 0; i < room->peopleNum; ++i)
     {
         if (room->socketList[i] >= 0)
         {
-            if ((room->socketList[i]) != senderSocket)
+            if ((room->socketList[i]) != tempUser->socket)
             {
                 // TODO: Change this
-                assert(sendPacket(nosocketPacket, room->socketList[i]) >= 0);
+                assert(sendPacket(serverPacket, room->socketList[i]) >= 0);
             }
         }
     }
 }
 
 // put the user message onto the server room fifo
-int sendServerRoomMessage(int socketNum, struct messageServerRoom *room, char *userPacket)
+int sendServerRoomMessage(struct messageServerRoom *room, char *userPacket)
 {
     // TODO: not thread safe
-    char socketNumChar[SOCKET_NUM_CHAR + 1];
-    char tempserverPacket[PACKAGE_SIZE] = "";
-    sprintf(socketNumChar, "%d", socketNum);
-    strcat(tempserverPacket, socketNumChar);
-    strcat(tempserverPacket, userPacket);
-    writeBuffer(room->inMessage, tempserverPacket);
-    return 0;
+    return writeBuffer(room->inMessage, userPacket);
 }
 
-void addUserToServerRoom(onlineUser *user, serverChatRoom *room)
+int addUserToServerRoom(onlineUser *user, serverChatRoom *room)
 {
     assert(user->userProfile->socket >= 0);
-    for (int i = 0; i < MAX_SERVER_USERS; ++i)
+    if (room->peopleNum == MAX_USER_PER_ROOM)
+    {
+        return ROOM_FULL;
+    }
+    for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
     {
         if (room->socketList[i] == -1)
         {
@@ -197,6 +205,15 @@ void addUserToServerRoom(onlineUser *user, serverChatRoom *room)
             break;
         }
     }
+
+    for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
+    {
+        if (room->userList[i] == NULL)
+        {
+            room->userList[i] = user;
+        }
+    }
+    ++(room->peopleNum);
 }
 
 // /*******************************USER STUFFS HERE**************************/
