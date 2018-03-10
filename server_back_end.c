@@ -218,7 +218,6 @@ int addUserToServerRoom(onlineUser *user, serverChatRoom *room)
 
 // /*******************************USER STUFFS HERE**************************/
 // create a list of online user
-// TODO: link this with Justin database
 onlineUserList *serverCreateOnlineList(void)
 {
     onlineUserList *userList = malloc(sizeof(onlineUserList));
@@ -237,20 +236,28 @@ void serverDelOnlineList(onlineUserList *allOnlineUser)
 
 // TODO: replace this with Justin's data structure
 // check if the user already exists
-onlineUser *serverAddOnlineUser(char *userName, int userSocket, onlineUserList *allUser)
+onlineUser *serverAddOnlineUser(char *userName, int userSocket, onlineUserList *allUser, TINFO *database)
 {
-    int i = 0;
-    TUSER *tempUser;
+    int i;
+    if (allUser->totalOnlineUser == MAX_SERVER_USERS)
+    {
+        // server full
+        return NULL;
+    }
+    TUSER *tempUser = findUserByName(userName, database);
+
+    // user already online
+    if (tempUser->socket != NOT_ONLINE)
+    {
+        return NULL;
+    }
     for (i = 0; i < MAX_SERVER_USERS; ++i)
     {
-
-        if ((allUser->userList[i]).slot_status == NOT_ONLINE)
+        if (allUser->userList[i].slot_status = NOT_ONLINE)
         {
-        }
-        if (i == MAX_SERVER_USERS)
-        {
-            // server full
-            return NULL;
+            allUser->userList[i].slot_status = ONLINE;
+            allUser->userList[i].userProfile = tempUser;
+            return &(allUser->userList[i]);
         }
     }
 }
@@ -259,25 +266,35 @@ int serverLogOffUser(onlineUser *user)
 {
     // TODO: use Justin functions
     close(user->userProfile->socket);
+    user->slot_status = NOT_ONLINE;
     user->userProfile->socket = NOT_ONLINE;
     return 0;
 }
 
-int sendRoomInvite(char *userNameRequester, char *userNameTarget, chatRoom *room, onlineUserList *allUser)
+int sendRoomInvite(char *userNameRequester, char *userNameTarget, chatRoom *room, onlineUserList *allUser, TINFO *database)
 {
     int i = 0;
     char packet[PACKAGE_SIZE];
-
-    // use Justin function to check if a person is online and if they are friends
+    TUSER *target = findUserByName(userNameTarget, database);
+    TUSER *sender = findUserByName(userNameRequester, database);
+    if (target == NULL || sender == NULL)
     {
-        assembleCommand(room->roomNum, ROID, ROINVITE, NULL, packet);
-        sendPacket(packet, allUser->userList[i].userProfile->socket);
-        return 0;
+        return USER_NOT_EXIST;
     }
 
+    if (!checkIfFriends(target, sender))
     {
-        return NOT_ONLINE;
+        return USER_NOT_FRIEND;
     }
+
+    if (target->socket == NOT_ONLINE)
+    {
+        return USER_NOT_ONLINE;
+    }
+
+    assembleCommand(room->roomNum, ROID, ROINVITE, NULL, packet);
+    sendPacket(packet, allUser->userList[i].userProfile->socket);
+    return 0;
 }
 
 // /********************************UTILITIES HERE*********************************/

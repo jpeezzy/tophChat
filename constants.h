@@ -48,6 +48,10 @@
 
 #define SERVER_FULL -1
 
+#define USER_NOT_EXIST -1
+#define USER_NOT_ONLINE -2
+#define USER_NOT_FRIEND -3
+
 //ROOM STATUS GO HERE FOR CLIENTS
 #define ROOM_TAKEN 3
 #define ROOM_READY 2       // synchronized with server
