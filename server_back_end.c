@@ -297,6 +297,7 @@ int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataB
         ++(room->peopleNum);
         for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
         {
+            // check if the current socket slot in the room is free
             if (room->socketList[i] == -1)
             {
                 room->socketList[i] = tempUser->socket;
@@ -307,6 +308,7 @@ int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataB
                 }
                 else
                 {
+                    // add this room to user list of room
                     for (int j = 0; j < CHAT_ROOM_LIMIT; ++j)
                     {
                         if (tempUser->listOfRooms[i] == -1)
