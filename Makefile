@@ -99,7 +99,7 @@ test_emoji.o: testEmoji.c emoji.h
 #Test Executables
 
 test_emoji: test_emoji.o emoji.o
-	$(CC) $(CFLAGS) $(DEBUG) $(GTKLIBS) $(^) -o $(@)
+	$(CC) $(LFLAGS) $(DEBUG) $(GTKLIBS) $(^) -o $(@)
 
 test_RSA: rsa_DEBUG.o 
 	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) $(^) -o $(@)
