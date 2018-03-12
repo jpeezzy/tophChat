@@ -9,6 +9,7 @@
 #include "tcpGUI.h"
 #include "utils.h"
 #include "protocol.h"
+#include "tcpPacket.h"
 
 gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
@@ -25,8 +26,25 @@ gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data)
     return FALSE;
 }
 
-void Login(GtkWidget *widget, GtkWidget *vBox[])
+void Login(GtkWidget *widget, gpointer messageStructArray[])
 {
+/*    GtkWidget *loginArray[3];
+    loginArray[0] = loginVBox;
+    loginArray[1] = loginScreen;
+    loginArray[2] = window;
+*/
+    GtkWidget *vBox[3];
+
+    MESSAGE_STRUCT *messageStruct1;
+    MESSAGE_STRUCT *messageStruct2;
+
+    messageStruct1 = (MESSAGE_STRUCT *) messageStructArray[0]; 
+    messageStruct2 = (MESSAGE_STRUCT *) messageStructArray[1];
+
+    vBox[0] = messageStruct2->widget;
+    vBox[1] = messageStruct2->window;
+    vBox[2] = messageStruct1->window;
+
     GList *vBoxList;
     GtkWidget *usernameEntry;
     GtkWidget *passwordEntry;
@@ -41,8 +59,9 @@ void Login(GtkWidget *widget, GtkWidget *vBox[])
     username = gtk_entry_get_text(GTK_ENTRY(usernameEntry));
     password = gtk_entry_get_text(GTK_ENTRY(passwordEntry));
 
-    printf("here is username %s \n", username);
-    printf("here is password %s \n", password);
+//    printf("here is username %s \n", username);
+//    printf("here is password %s \n", password);
+    messageStruct1->username = username;
 
     gtk_widget_destroy(vBox[1]);
     gtk_widget_show(vBox[2]);
@@ -239,7 +258,6 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
     GList *list;
     GList *list2;
     MESSAGE_STRUCT *messageData;
-    packet[PACKAGE_SIZE];
     messageData = (MESSAGE_STRUCT *)messageStruct;
     vBox = messageData->widget;
 
@@ -275,7 +293,7 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
         gtk_entry_set_text(GTK_ENTRY(list2->data), ""); /* replaces textBox with empty text again */
     }
 
-    sendMessage(0, messageStruct.outputFIFO, userName, message);
+    sendMessage(0, messageData->outputFIFO, messageData->username, messageData->message); /* send message to fifo */
 }
 
 void OptionsPopup(GtkWidget *button, GtkWidget *options[])

@@ -12,10 +12,13 @@ typedef struct MessageStruct MESSAGE_STRUCT;
 struct MessageStruct
 {
     GtkWidget *widget;
+    GtkWidget *window;
     serverConnection *server;
     struct allRoom *Allroom;
     fifo *outputFIFO;
     inboxQueue *inbox;
+    char *username;
+    char *message;
 };
 
 gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data);        /* Exits out of the window and the program */
@@ -29,7 +32,7 @@ void MessageUser(GtkWidget *widget, GtkWidget *tabCreation[]);                  
 void BlockUser(GtkWidget *widget, GtkWidget *tabCreation[]);                                                                           /* blocks the user selected */
 void SetMessageScreen(GtkWidget *tabs, GtkWidget *tabLabel, GtkWidget *scrollWindow, GtkWidget *messageScreen);                        /* setting up message screens */
 void SetWelcomeScreen(GtkWidget *tabs, GtkWidget *tabLabel, GtkWidget *scrollWindow, GtkWidget *messageScreen, GtkTextBuffer *buffer); /* setting up welcome screens */
-void Login(GtkWidget *widget, GtkWidget *vBox[]);                                                                                      /* logs the user into the hat application */
+void Login(GtkWidget *widget, gpointer messageStructArray[]);                                                                                      /* logs the user into the hat application */
 int CheckNotebook(GtkWidget *tabs, GtkWidget *tabLabel);                                                                               /* checks through the notebook's tabs for matching tab names */
 gboolean HideCharacters(GtkWidget *widget, GdkEvent *event, GtkWidget *button);                                                        /* turns on character hiding for password typing */
 gboolean Overwrite(GtkWidget *username, GtkWidget *entry);                                                                             /* overwrites the entry buffer in username box */

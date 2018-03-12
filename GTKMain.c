@@ -682,6 +682,40 @@ int main(int argc, char *argv[])
     loginArray[1] = loginScreen;
     loginArray[2] = window;
 
+    /* CLIENT SERVER INITIALIZATION */
+    serverConnection *server = openConnection();
+    assert(server);
+    char packet[PACKAGE_SIZE] = "";
+    char message[MESS_LIMIT] = "";
+    roomList *AllRoom = roomsetInit();
+    fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
+    inboxQueue *inbox = initInboxQueue();
+    /* Message Struct Initialization */
+    MESSAGE_STRUCT messageStruct;
+    messageStruct.widget = vBox;
+    messageStruct.window = window;
+    messageStruct.server = server;
+    messageStruct.Allroom = AllRoom;
+    messageStruct.outputFIFO = outputBuffer;
+    messageStruct.inbox = inbox;
+    messageStruct.username = "";
+    messageStruct.message = "";
+
+    /* Login Struct */
+    MESSAGE_STRUCT loginStruct;
+    loginStruct.widget = loginVBox;
+    loginStruct.window = loginScreen;
+    loginStruct.server = server;
+    loginStruct.Allroom = AllRoom;
+    loginStruct.outputFIFO = outputBuffer;
+    messageStruct.inbox = inbox;
+    messageStruct.username = "";
+    messageStruct.message = "";
+
+    /* MessageStruct Array */
+    MESSAGE_STRUCT messageStructArray[2];
+    messageStructArray[0] = messageStruct;
+    messageStructArray[1] = loginStruct;
 
     /**** SIGNALS ********/
     g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
@@ -690,20 +724,21 @@ int main(int argc, char *argv[])
     g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
     g_signal_connect(loginScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name);           /* deletes window */
 
+        /* Create Account Signals */
     g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);
     g_signal_connect(newPassword, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
     g_signal_connect(newPasswordConfirm, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
     g_signal_connect(showPasswordCheckBox, "toggled", G_CALLBACK(ShowCharacters), accountCreationVBox);
     g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
 
-    /* have to change these signals */
+        /* Messaging Signals */
     g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer) &messageStruct); /* to send message with enter key */
     g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), (gpointer) &messageStruct);                 /* to send message with "Send" button */
 
 //        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
 //        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
 
-    /* option clicks for all of friends on list */
+        /* option clicks for all of friends on list */
     g_signal_connect(friends[0], "clicked", G_CALLBACK(OptionsPopup), optionsArray0); /* opens up options popup */
     g_signal_connect(friends[1], "clicked", G_CALLBACK(OptionsPopup), optionsArray1);
     g_signal_connect(friends[2], "clicked", G_CALLBACK(OptionsPopup), optionsArray2);
@@ -718,7 +753,7 @@ int main(int argc, char *argv[])
     /* login signals */
     g_signal_connect(quitButton, "clicked", G_CALLBACK(LoginExit), NULL); /* if the user quits */
     g_signal_connect(createAccount, "clicked", G_CALLBACK(CreateAccount), accountCreationScreen);
-    g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), loginArray); /* if the user wants to log in */
+    g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), (gpointer) messageStructArray); /* if the user wants to log in */
 
     /* message signals */
     //    g_signal_connect(
@@ -746,25 +781,6 @@ int main(int argc, char *argv[])
     //    gtk_widget_show(window);
     gtk_widget_show(loginScreen);
 
-
-
-
-
-    /* CLIENT SERVER INITIALIZATION */
-    serverConnection *server = openConnection();
-    assert(server);
-    char packet[PACKAGE_SIZE] = "";
-    char message[MESS_LIMIT] = "";
-    roomList *AllRoom = roomsetInit();
-    fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
-    inboxQueue *inbox = initInboxQueue();
-    /* Message Struct Initialization */
-    MESSAGE_STRUCT messageStruct;
-    messageStruct.widget = vBox;
-    messageStruct.server = server;
-    messageStruct.Allroom = AllRoom;
-    messageStruct.outputFIFO = outputBuffer;
-    messageStruct.inbox = inbox;
 
     for (;;)
     {
