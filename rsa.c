@@ -55,15 +55,15 @@ void deleteRSA_pub(RSA_PUB *rsaPub)
     free(rsaPub);
 }
 
-/* generate a 1024 bit prime number p for rsa encryption 
+/* generate a 31 bit prime number p for rsa encryption 
  * where p must satisfy the condition (p mod e) != 1 */
 unsigned long generateRSA_prime(unsigned long e)
 {
     unsigned long num32, rand32, prime;
     int test, n;
     
-    n = RSA_BITS/2;
-    num32 = power(2, n);
+    n = (RSA_BITS/2);
+    num32 = power(2, n - 1);
     
     /*generate a random 32 bit integer */
     rand32 = rand() % (num32 + 1);
@@ -96,6 +96,7 @@ unsigned long generateRSA_prime(unsigned long e)
     #ifdef DEBUG
         printf("Found a prime number!\n");
     #endif
+    assert( prime < power(2, n+1) );
     return prime;         
 }
 
@@ -272,7 +273,7 @@ void generateRSA_Keys(RSA_PRIV *rsaPriv, RSA_PUB *rsaPub)
     #ifdef DEBUG
         printf("q = %lu\n", q);
     #endif
-    while(p == q)
+    while(p == q || p * q < power(2, 61) || p * q > power(2, 62))
     {
         #ifdef DEBUG
             printf("\np = q, so regenerating q...\n");
@@ -318,25 +319,45 @@ int main()
     RSA_PRIV *rsaPriv = NULL;
     RSA_PUB *rsaPub = NULL;
     srand(time(0));
-    /* printf("Test testPrime function\n");
-    unsigned long p;
-    printf("Enter p: ");
-    scanf("%lu", &p);
-    printf("p = %lu \n", p);
-    int test = testPrime(p);
-    printf("test = %d\n", test); 
-    unsigned long e, mod, d;
-    long temp1 = -367, temp2 = 780;
-    printf("-367 mod 780 = %ld\n", temp1%temp2);
-    printf("Test mod_inv function\n");
+    printf("\nTesting generateRSA_prime\n");
+    unsigned long RSAprime = generateRSA_prime(PUBLIC_e_VALUE);
+    printf("generated RSA prime = %lu\n", RSAprime);
+    printf("\nTesting testPrime function\n");
+    printf("Enter a prime number: ");
+    unsigned long prime;
+    scanf("%lu", &prime);
+    int primetest = testPrime(prime);
+    if (primetest == 0)
+    {
+        printf("The number %lu is not a prime\n", prime);
+    }
+    else
+    {
+        printf("The number %lu is a prime\n", prime);
+    }
+    unsigned long e, mod, d;    
+    printf("\nTesting mod_inv function\n");
+    printf("d = inverse e mod mod\n");
     printf("Enter e: ");
     scanf("%lu", &e);
     printf("Enter mod: ");
     scanf("%lu", &mod);
     d = mod_inv(e, mod);
-    printf("d = %lu\n", d); */
-    unsigned long x= 0;
-    printf("x = %lu\n", x);
+    printf("d = %lu\n", d); 
+    
+    printf("\nTesting mod_exp function\n");
+    unsigned long base, exp, n, result;
+    printf("base ^ exp mod n\n");
+    printf("Enter base: ");
+    scanf("%lu", &base);
+    printf("Enter exp: ");
+    scanf("%lu", &exp);
+    printf("Enter mod: ");
+    scanf("%lu", &n);
+    result = mod_exp(base, exp, n);
+    printf("result = %lu\n", result); 
+   
+    printf("\nTesting RSA encryption...\n");
     rsaPriv = createRSA_priv(0, 0);
     rsaPub = createRSA_pub(0, 0);
     generateRSA_Keys(rsaPriv, rsaPub);
@@ -352,7 +373,7 @@ int main()
     printf("decrypt = %lu\n", decrypt);
     if (decrypt == message)
     {
-        printf("RSA works!\n");
+        printf("decrypt = message, RSA works!\n");
     }
     return 0;
 }
