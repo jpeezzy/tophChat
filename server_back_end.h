@@ -53,8 +53,6 @@ struct onlUser
 {
     struct tophChatUser *userProfile; //pointer to the main database
     int slot_status;
-    int roomList[CHAT_ROOM_LIMIT];
-    int totalRoomIn;
 };
 
 struct allOnlineUser

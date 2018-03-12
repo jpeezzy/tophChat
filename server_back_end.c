@@ -226,12 +226,6 @@ onlineUserList *serverCreateOnlineList(void)
     for (int i = 0; i < MAX_SERVER_USERS; ++i)
     {
         userList->userList[i].slot_status = NOT_ONLINE;
-        userList->userList[i].totalRoomIn = 0;
-
-        for (int j = 0; j < CHAT_ROOM_LIMIT; ++j)
-        {
-            userList->userList[i].roomList[j] = -1;
-        }
     }
     return userList;
 }
@@ -277,13 +271,13 @@ int serverLogOffUser(onlineUser *user)
 
     for (int j = 0; j < CHAT_ROOM_LIMIT; ++j)
     {
-        user->roomList[j] = -1;
+        user->userProfile->listOfRooms[j] = -1;
     }
-    user->totalRoomIn = 0;
+    user->userProfile->numOfRoomUserIn = 0;
     return 0;
 }
 
-int sendRoomInvite(char *userNameRequester, char *userNameTarget, chatRoom *room, onlineUserList *allUser, TINFO *database)
+int sendRoomInvite(char *userNameRequester, char *userNameTarget, serverChatRoom *room, onlineUserList *allUser, TINFO *database)
 {
     int i = 0;
     char packet[PACKAGE_SIZE];
@@ -303,18 +297,79 @@ int sendRoomInvite(char *userNameRequester, char *userNameTarget, chatRoom *room
     {
         return USER_NOT_ONLINE;
     }
-
     assembleCommand(room->roomNum, ROID, ROINVITE, userNameRequester, userNameTarget, packet);
-    sendPacket(packet, allUser->userList[i].userProfile->socket);
+    sendPacket(packet, target->socket);
     return 0;
 }
 
-int addUserToServerRoom(chatRoom *room, char *userNameTarget)
+int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataBase)
 {
+    TUSER *tempUser = findUserByName(userNameTarget, dataBase);
+    if (room->peopleNum == MAX_USER_PER_ROOM)
+    {
+        return ROOM_FULL;
+    }
+    else
+    {
+        ++(room->peopleNum);
+        for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
+        {
+            if (room->socketList[i] == -1)
+            {
+                room->socketList[i] = tempUser->socket;
+
+                if (tempUser->numOfRoomUserIn == CHAT_ROOM_LIMIT)
+                {
+                    return USER_OCCUPIED_MAX_ROOM;
+                }
+                else
+                {
+                    for (int j = 0; j < CHAT_ROOM_LIMIT; ++j)
+                    {
+                        if (tempUser->listOfRooms[i] == -1)
+                        {
+                            tempUser->listOfRooms[i] = room->roomNum;
+                            ++(tempUser->numOfRoomUserIn);
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
 }
 
-int removeUserFromServerRoom(chatRoom *room, char *userNameTarget)
+int removeUserFromServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataBase)
 {
+    TUSER *tempUser = findUserByName(userNameTarget, dataBase);
+    if (tempUser != NULL)
+    {
+        --(tempUser->numOfRoomUserIn);
+        --(room->peopleNum);
+        for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
+        {
+            if (room->socketList[i] == tempUser->socket)
+            {
+                room->socketList[i] = -1;
+                break;
+            }
+        }
+
+        for (int i = 0; i < CHAT_ROOM_LIMIT; ++i)
+        {
+            if (tempUser->listOfRooms[i] == room->roomNum)
+            {
+                tempUser->listOfRooms[i] = -1;
+                break;
+            }
+        }
+        return 0;
+    }
+    else
+    {
+        return USER_NOT_EXIST;
+    }
 }
 
 int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO *dataBase, char *packet)
@@ -380,6 +435,7 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
             }
         }
     }
+    return 0;
 }
 
     // /********************************UTILITIES HERE*********************************/

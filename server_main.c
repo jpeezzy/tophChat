@@ -94,8 +94,6 @@ int main_loop(void)
     socklen_t socklenDummy;
     struct timeval timeout;
     timeout.tv_sec = 2;
-    // fd_set *setClient;
-    // FD_ZERO(setClient);
     fd_set setListener;
     FD_ZERO(&setListener);
 
