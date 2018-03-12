@@ -46,7 +46,7 @@ server_main_debug.o: server_main.c constants.h tcpGUI.h tcpPacket.h
 
 #TOPH CHAT STUFFS
 tophChatUsers.o: ./users/tophChatUsers.c ./users/tophChatUsers.h
-	$(CC) $(CFLAGS) $(GTKINC) $(<) -o $(@)
+	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
 DEBUG: tophChatUsers.c tophChatUsers.h
 	$(CC) $(CFLAGS) -DDEBUG $(GTKINC) $(<) -o $(@)
@@ -66,9 +66,9 @@ tcpPacket_test.o: tcpPacket_test.cc tcpPacket.c
 tcpPacket_debug.o: tcpPacket.c tcpPacket.h fifo.h tcpGUI.h constants.h 
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
-tdd_server_back_end: server_back_end_test.o server_back_end_debug.o tcpPacket_debug.o utils.o protocol.o tophChatUsers.o 
+tdd_server_back_end: server_back_end_test.o server_back_end_debug.o tcpPacket_debug.o utils.o protocol.o tophChatUsers.o  fifo_debug.o
 	$(CXX) $(^) -o $(@) $(LKP)
-server_back_end_test.o: server_back_end_test.cc server_back_end.c 
+server_back_end_test.o: server_back_end_test.cc server_back_end.h 
 	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
 server_back_end_debug.o: server_back_end.c server_back_end.h constants.h 
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
