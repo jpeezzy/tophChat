@@ -65,8 +65,11 @@ int main(void)
         }
         if (j == 2)
         {
-            triagePacket(userList, roomList, dataBase, packet);
-            serverRoomSpreadMessage(testRoom, dataBase);
+            if (triagePacket(userList, roomList, dataBase, packet) == 2)
+            {
+                printf("received message: %s\n", packet);
+                serverRoomSpreadMessage(testRoom, dataBase);
+            }
         }
     }
     return 0;

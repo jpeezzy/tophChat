@@ -405,6 +405,7 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                 if (getpacketType(packet) == ISMESSAGE)
                 {
                     sendServerRoomMessage(findServerRoomByNumber(allRoom, getroomNumber(packet)), packet);
+                    return 2;
                 }
                 else if (getpacketType(packet) == ISCOMM)
                 {
