@@ -239,6 +239,7 @@ int sendMessage(chatRoom *room, fifo *outputFIFO, char *userName, char *message)
     char tempPacket[PACKAGE_SIZE];
     // TODO: multithreaded mutex
     assembleMessage(room->roomNum, userName, message, tempPacket);
+    writeBuffer(room->inMessage, message);
     if (writeBuffer(outputFIFO, tempPacket) == FIFO_FULL)
     {
         return -1;
