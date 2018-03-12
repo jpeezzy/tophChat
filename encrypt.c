@@ -55,7 +55,7 @@ void decrypt(char input[500], unsigned long int key)
 
 }
 
-//for testing
+#ifdef MAIN
 int main()
 {
     char test[500];
@@ -85,3 +85,4 @@ int main()
     return 0;
 }
 
+#endif
