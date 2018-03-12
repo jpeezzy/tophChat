@@ -271,7 +271,6 @@ int loadUser(cp textFile, TINFO *userBase)
 	}
 	fclose(file2);
 	return 0;
-
 }
 
 #ifdef DEBUG
