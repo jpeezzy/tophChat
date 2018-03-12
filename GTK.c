@@ -11,12 +11,11 @@
 #include "protocol.h"
 #include "tcpPacket.h"
 
-
 MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, serverConnection *server, struct allRoom *Allroom, fifo *outputFIFO, inboxQueue *inbox, char *username, char *message)
 {
     MESSAGE_STRUCT *messageStruct = NULL;
-    messageStruct = malloc (sizeof (MESSAGE_STRUCT));
-    if (messageStruct ==NULL)
+    messageStruct = malloc(sizeof(MESSAGE_STRUCT));
+    if (messageStruct == NULL)
     {
         perror("Out of memory...");
         exit(10);
@@ -30,7 +29,7 @@ MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, server
     messageStruct->inbox = inbox;
     messageStruct->username = username;
     messageStruct->message = message;
- }
+}
 
 gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
@@ -49,7 +48,7 @@ gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 void Login(GtkWidget *widget, gpointer messageStructArray[])
 {
-/*    GtkWidget *loginArray[3];
+    /*    GtkWidget *loginArray[3];
     loginArray[0] = loginVBox;
     loginArray[1] = loginScreen;
     loginArray[2] = window;
@@ -60,10 +59,10 @@ void Login(GtkWidget *widget, gpointer messageStructArray[])
     MESSAGE_STRUCT *messageStruct1;
     MESSAGE_STRUCT *messageStruct2;
 
-    messageStruct1 = (MESSAGE_STRUCT *) messageStructArray[0]; 
-    messageStruct2 = (MESSAGE_STRUCT *) messageStructArray[1];
+    messageStruct1 = (MESSAGE_STRUCT *)messageStructArray[0];
+    messageStruct2 = (MESSAGE_STRUCT *)messageStructArray[1];
 
-    printf("this is your username: %s \n", messageStruct1->username);     
+    printf("this is your username: %s \n", messageStruct1->username);
 
     vBox[0] = messageStruct2->widget;
     vBox[1] = messageStruct2->window;
@@ -83,11 +82,10 @@ void Login(GtkWidget *widget, gpointer messageStructArray[])
     username = gtk_entry_get_text(GTK_ENTRY(usernameEntry));
     password = gtk_entry_get_text(GTK_ENTRY(passwordEntry));
 
-
     printf("here is username %s \n", username);
     printf("here is password %s \n", password);
 
-//    strcpy(messageStruct1->username, username);    
+    //    strcpy(messageStruct1->username, username);
     messageStruct1->username = username;
 
     gtk_widget_destroy(vBox[1]);
@@ -312,10 +310,10 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
         gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at the end */
 
         gtk_text_buffer_insert(buffer, &iter, "\n\n", -1); /* insert new lines */
-    
-        gtk_text_buffer_insert(buffer, &iter, messageData->username, -1);   /* adds "username: " */
-    
-        gtk_text_buffer_insert(buffer, &iter, ": ", 2);  /* adds ": " */
+
+        gtk_text_buffer_insert(buffer, &iter, messageData->username, -1); /* adds "username: " */
+
+        gtk_text_buffer_insert(buffer, &iter, ": ", 2); /* adds ": " */
 
         gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at end again */
 
@@ -323,9 +321,8 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
 
         gtk_entry_set_text(GTK_ENTRY(list2->data), ""); /* replaces textBox with empty text again */
 
-        sendMessage(0, messageData->outputFIFO, messageData->username, messageData->message); /* send message to fifo */
+        sendMessage(&(Allroom->roomList[0]), messageData->outputFIFO, messageData->username, messageData->message); /* send message to fifo */
     }
-
 }
 
 void OptionsPopup(GtkWidget *button, GtkWidget *options[])
@@ -442,5 +439,3 @@ void SetMessageScreen(GtkWidget *tabs, GtkWidget *tabLabel, GtkWidget *scrollWin
     gtk_widget_show(scrollWindow);
     gtk_widget_show(messageScreen);
 }
-
-
