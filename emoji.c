@@ -10,7 +10,7 @@
 
 #define EMOJI_NAME_LEN 8
 
-EMOJI_STRUCT* create_emoji_struct(char* filename, GtkTextView *view)
+EMOJI_STRUCT* create_emoji_struct(char* filename, GtkEntry *entry)
 {
     EMOJI_STRUCT* emoji_struct = NULL;
     emoji_struct = malloc(sizeof(EMOJI_STRUCT));
@@ -19,8 +19,9 @@ EMOJI_STRUCT* create_emoji_struct(char* filename, GtkTextView *view)
         perror("Out of memory aborting...");
         exit(10);
     }
-    emoji_struct->filename = filename;
-    emoji_struct->view = view;
+    strncpy(emoji_struct->filename, filename, 10);
+    emoji_struct->filename[10] = '\0';
+    emoji_struct->entry = entry;
     return emoji_struct;
 }
 
@@ -45,19 +46,19 @@ static gboolean emoji_button_press_callback (GtkWidget *button,
     assert(user_data);
     GtkTextBuffer *buffer;
     GtkTextMark *selection_bound;
-    GtkTextView *view;
+    GtkEntry *textBox;
     EMOJI_STRUCT *emoji_struct = (EMOJI_STRUCT*) user_data;
     
     char emoji_name[10] = ":";
     strncat(emoji_name, emoji_struct->filename, 8);
     strcat(emoji_name, ":");
-    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(emoji_struct->view));
+    buffer = gtk_entry_get_buffer(GTK_ENTRY(emoji_struct->entry));
     /* checks if text is selected */
-    if (gtk_text_buffer_get_has_selection(buffer) == TRUE)
+    /* if (gtk_text_buffer_get_has_selection(buffer) == TRUE)
     {
         gtk_text_buffer_delete_selection(buffer, TRUE, TRUE);   
-    }
-    gtk_text_buffer_insert_at_cursor(buffer, emoji_name, 10);
+    } */
+    gtk_entry_buffer_insert_text(buffer, "cursor-position", emoji_name, 10);
 
     return TRUE;
 }
@@ -82,7 +83,7 @@ static void emoji_popup_callback(GtkWidget *button,
                    gtk_get_current_event_time());
 }
 
-GtkWidget* emoji_popup(GtkTextView *view)
+GtkWidget* emoji_popup(GtkEntry *textBox)
 {
     GtkWidget *emoji_popup_button, *emoji_popup_menu;
     GtkImage *thumbnail;    
@@ -95,7 +96,6 @@ GtkWidget* emoji_popup(GtkTextView *view)
     GtkWidget *emoji7_item, *emoji8_item, *emoji9_item;
 
     EMOJI_STRUCT *emoji_struct;
-    char* filename;
 
     emoji_popup_button = gtk_button_new();
     thumbnail = GTK_IMAGE(gtk_image_new_from_file("thumbnail.gif"));
@@ -103,120 +103,111 @@ GtkWidget* emoji_popup(GtkTextView *view)
     gtk_button_set_image(GTK_BUTTON(emoji_popup_button), GTK_WIDGET(thumbnail));
     gtk_button_set_relief(GTK_BUTTON(emoji_popup_button), GTK_RELIEF_NONE);
     
-    filename = "PogChamp.gif";
-    emoji1 = createEmojiButton(filename);
+    emoji_struct = create_emoji_struct("PogChamp.gif", textBox);
+    emoji1 = createEmojiButton("PogChamp.gif");
     emoji1_item = gtk_menu_item_new();
     gtk_container_add(GTK_CONTAINER(emoji1_item), emoji1);
  
     gtk_widget_show(emoji1);
     gtk_widget_show(emoji1_item);
    
-    emoji_struct = create_emoji_struct(filename, view);
     g_signal_connect(emoji1_item, "activate",
                      G_CALLBACK (emoji_button_press_callback), 
                      (gpointer)emoji_struct);    
     
-    filename = "OMEGALUL.gif";
-    emoji2 = createEmojiButton(filename);
+    emoji_struct = create_emoji_struct("OMEGALUL.gif", textBox);
+    emoji2 = createEmojiButton("OMEGALUL.gif");
     emoji2_item = gtk_menu_item_new();
     gtk_container_add(GTK_CONTAINER(emoji2_item), emoji2);
     
     gtk_widget_show(emoji2);
     gtk_widget_show(emoji2_item);
    
-    emoji_struct = create_emoji_struct(filename, view);
     g_signal_connect(emoji2_item, "activate",
                      G_CALLBACK (emoji_button_press_callback), 
                      (gpointer)emoji_struct);    
     
-    filename = "Kappa___.gif";
-    emoji3 = createEmojiButton(filename);
+    emoji_struct = create_emoji_struct("Kappa___.gif", textBox);
+    emoji3 = createEmojiButton("Kappa___.gif");
     emoji3_item = gtk_menu_item_new();
     gtk_container_add(GTK_CONTAINER(emoji3_item), emoji3);
     
     gtk_widget_show(emoji3);
     gtk_widget_show(emoji3_item);
    
-    emoji_struct = create_emoji_struct(filename, view);
     g_signal_connect(emoji3_item, "activate",
                      G_CALLBACK (emoji_button_press_callback), 
                      (gpointer)emoji_struct);    
 
-    filename = "KapPride.gif";
-    emoji4 = createEmojiButton(filename);
+    emoji_struct = create_emoji_struct("KapPride.gif", textBox);
+    emoji4 = createEmojiButton("KapPride.gif");
     emoji4_item = gtk_menu_item_new();
     gtk_container_add(GTK_CONTAINER(emoji4_item), emoji4);
     
     gtk_widget_show(emoji4);
     gtk_widget_show(emoji4_item);
    
-    emoji_struct = create_emoji_struct(filename, view);
     g_signal_connect(emoji4_item, "activate",
                      G_CALLBACK (emoji_button_press_callback), 
                      (gpointer)emoji_struct);    
 
-    filename = "pepShrug.gif";
-    emoji5 = createEmojiButton(filename);
+    emoji_struct = create_emoji_struct("pepShrug.gif", textBox);
+    emoji5 = createEmojiButton("pepShrug.gif");
     emoji5_item = gtk_menu_item_new();
     gtk_container_add(GTK_CONTAINER(emoji5_item), emoji5);
     
     gtk_widget_show(emoji5);
     gtk_widget_show(emoji5_item);
    
-    emoji_struct = create_emoji_struct(filename, view);
     g_signal_connect(emoji5_item, "activate",
                      G_CALLBACK (emoji_button_press_callback), 
                      (gpointer)emoji_struct);    
 
-    filename = "rareDan_.gif";
-    emoji6 = createEmojiButton(filename);
+    emoji_struct = create_emoji_struct("rareDan_.gif", textBox);
+    emoji6 = createEmojiButton("rareDan_.gif");
     emoji6_item = gtk_menu_item_new();
     gtk_container_add(GTK_CONTAINER(emoji6_item), emoji6);
     
     gtk_widget_show(emoji6);
     gtk_widget_show(emoji6_item);
    
-    emoji_struct = create_emoji_struct(filename, view);
     g_signal_connect(emoji6_item, "activate",
                      G_CALLBACK (emoji_button_press_callback), 
                      (gpointer)emoji_struct);    
     
-    filename = "monkaS__.gif";
-    emoji7 = createEmojiButton(filename);
+    emoji_struct = create_emoji_struct("monkaS__.gif", textBox);
+    emoji7 = createEmojiButton("monkaS__.gif");
     emoji7_item = gtk_menu_item_new();
     gtk_container_add(GTK_CONTAINER(emoji7_item), emoji7);
     
     gtk_widget_show(emoji7);
     gtk_widget_show(emoji7_item);
    
-    emoji_struct = create_emoji_struct(filename, view);
-    g_signal_connect(emoji6_item, "activate",
+    g_signal_connect(emoji7_item, "activate",
                      G_CALLBACK (emoji_button_press_callback), 
                      (gpointer)emoji_struct);    
     
-    filename = "POGGERS_.gif";
-    emoji8 = createEmojiButton(filename);
+    emoji_struct = create_emoji_struct("POGGERS_.gif", textBox);
+    emoji8 = createEmojiButton("POGGERS_.gif");
     emoji8_item = gtk_menu_item_new();
     gtk_container_add(GTK_CONTAINER(emoji8_item), emoji8);
     
     gtk_widget_show(emoji8);
     gtk_widget_show(emoji8_item);
    
-    emoji_struct = create_emoji_struct(filename, view);
     g_signal_connect(emoji8_item, "activate",
                      G_CALLBACK (emoji_button_press_callback), 
                      (gpointer)emoji_struct);    
 
-    filename = "ClapClap.gif";
-    emoji9 = createEmojiButton(filename);
+    emoji_struct = create_emoji_struct("ClapClap.gif", textBox);
+    emoji9 = createEmojiButton("ClapClap.gif");
     emoji9_item = gtk_menu_item_new();
     gtk_container_add(GTK_CONTAINER(emoji9_item), emoji9);
     
     gtk_widget_show(emoji9);
     gtk_widget_show(emoji9_item);
    
-    emoji_struct = create_emoji_struct(filename, view);
-    g_signal_connect(emoji6_item, "activate",
+    g_signal_connect(emoji9_item, "activate",
                      G_CALLBACK (emoji_button_press_callback), 
                      (gpointer)emoji_struct);    
 
@@ -230,7 +221,6 @@ GtkWidget* emoji_popup(GtkTextView *view)
     gtk_menu_attach(GTK_MENU(emoji_popup_menu), emoji7_item, 0, 1, 2, 3);
     gtk_menu_attach(GTK_MENU(emoji_popup_menu), emoji8_item, 1, 2, 2, 3);
     gtk_menu_attach(GTK_MENU(emoji_popup_menu), emoji9_item, 2, 3, 2, 3);
-
 
     gtk_widget_show(emoji_popup_menu);
     g_signal_connect(emoji_popup_button, "clicked", G_CALLBACK(emoji_popup_callback), emoji_popup_menu);
