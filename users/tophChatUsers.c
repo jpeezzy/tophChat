@@ -70,7 +70,6 @@ TINFO *createTINFO()
 	temp->numOfUsers = 0;
 	return temp;
 }
-
 int deleteTINFO(TINFO *userBase)
 {
 	free(userBase);
@@ -116,14 +115,30 @@ void showFriends(TUSER *user)
 	return;
 }
 
-
+//Function: findUserByName()
+//iterates through the user database array and compares the username
+//in each struct
+//returns the user if true, returns null if false
+TUSER *findUserByName(cp username, TINFO *userbase)
+{
+	for(ui i = 0; i<userbase->numOfUsers; i++)
+	{
+		if (strcmp(username, userbase->Users[i]->userName) == 0) 
+			return userbase->Users[i];
+	}
+	return NULL;
+}
+#ifdef DEBUG
 int main()
 {
 	/*creating a user */
-
 	TINFO *dataBase = createTINFO();
 	addUser("Justindlee","Justin", 1234, dataBase);
+	findUserByName("Justindlee", dataBase);
 	deleteUser(dataBase->Users[0]);
 	free(dataBase);
+
+	printf("Finished running!\n");
 	return 0;
 }
+#endif

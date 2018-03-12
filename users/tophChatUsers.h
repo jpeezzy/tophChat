@@ -1,9 +1,12 @@
 #pragma once
 
+#include "../constants.h"
+
 #define ui unsigned int
 #define cp char *
 #define MAX_FRIENDS 50
 #define MAX_USERS 100
+
 typedef struct tophChatUser TUSER;
 typedef struct database TINFO;
 
@@ -19,6 +22,8 @@ struct tophChatUser
 	cp phone;
 	TUSER *friends[MAX_FRIENDS]; //Edges to graph
 	ui friendCount;
+	int numOfRoomUserIn;
+	int listOfRooms[CHAT_ROOM_LIMIT];
 	int socket;
 };
 

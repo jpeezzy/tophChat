@@ -6,5 +6,8 @@ LFLAGS := -Wall -lm
 tophChatUsers.o: tophChatUsers.c tophChatUsers.h
 	$(CC) $(CFLAGS) $(GTKINC) $(<) -o $(@)
 
+DEBUG: tophChatUsers.c tophChatUsers.h
+	$(CC) $(CFLAGS) -DDEBUG $(GTKINC) $(<) -o $(@)
+
 clean: 
-	rm tophChatUsers.o
+	rm tophChatUsers.o DEBUG
