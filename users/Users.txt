@@ -1,2 +1,2 @@
-Justindlee | 1234 | 1 |  BoostedGorilla |
-Justindlee | 1234 | 1 |  BoostedGorilla |
+ADMIN|admin|1234|1|USER|
+USER|user|12345|1|ADMIN|
