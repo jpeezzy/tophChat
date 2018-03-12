@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
     gtk_window_set_resizable(GTK_WINDOW (window), FALSE);
 
-    g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), (gpointer) name);  /* deletes window */
+
     /**************************************************************************************************/ 
     /**********************************************/
     /***********     LOGIN SCREEN    *************/
@@ -46,7 +46,6 @@ int main(int argc, char *argv[])
     gtk_widget_set_size_request(loginScreen, 400, 300);
     gtk_container_set_border_width(GTK_CONTAINER (loginScreen), 10);
     gtk_window_set_resizable(GTK_WINDOW (loginScreen), FALSE);
-    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer) name);/* deletes window */
 
     /* frame */
     GtkWidget *loginFrame;
@@ -192,7 +191,6 @@ int main(int argc, char *argv[])
     gtk_widget_set_size_request(accountCreationScreen, 600, 300);
     gtk_container_set_border_width(GTK_CONTAINER (accountCreationScreen), 10);
     gtk_window_set_resizable(GTK_WINDOW (accountCreationScreen), FALSE);
-    g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer) name);/* deletes window */
 
     /* frame */
     GtkWidget *accountFrame;
@@ -290,11 +288,6 @@ int main(int argc, char *argv[])
     gtk_container_add(GTK_CONTAINER(accountCreationScreen), accountFrame);
 
     /**** SIGNALS ****/
-    g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);
-    g_signal_connect(newPassword, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
-    g_signal_connect(newPasswordConfirm, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
-    g_signal_connect(showPasswordCheckBox, "toggled", G_CALLBACK(ShowCharacters), accountCreationVBox); 
-    g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
 
     /* showing widgets */
     gtk_widget_show(showPasswordCheckBox);
@@ -328,7 +321,7 @@ int main(int argc, char *argv[])
     gtk_widget_set_size_request(messagePopupScreen, 270, 100);
     gtk_container_set_border_width(GTK_CONTAINER (messagePopupScreen), 10);
     gtk_window_set_resizable(GTK_WINDOW (messagePopupScreen), FALSE);
-    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer) name);/* deletes window */
+
 
     /* labels */
     GtkWidget *newMessage;
@@ -361,7 +354,6 @@ int main(int argc, char *argv[])
     gtk_container_add(GTK_CONTAINER (messagePopupScreen), newMessageVBox);
 
     /* SIGNALS */
-    g_signal_connect(accept, "clicked", G_CALLBACK (AcceptMessage), messagePopupScreen); 
 
 
     /* Show widgets */
@@ -701,6 +693,22 @@ int main(int argc, char *argv[])
     loginArray[2] = window;
 
     /**** SIGNALS ********/
+    g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), (gpointer) name);  /* deletes window */
+    g_signal_connect(accept, "clicked", G_CALLBACK (AcceptMessage), messagePopupScreen); 
+    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer) name);/* deletes window */
+    g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer) name);/* deletes window */
+    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer) name);/* deletes window */
+
+
+
+    g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);
+    g_signal_connect(newPassword, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
+    g_signal_connect(newPasswordConfirm, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
+    g_signal_connect(showPasswordCheckBox, "toggled", G_CALLBACK(ShowCharacters), accountCreationVBox); 
+    g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
+
+
+
     g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);              /* to send message with enter key */
     g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox);          /* to send message with "Send" button */
  
