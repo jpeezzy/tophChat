@@ -174,7 +174,7 @@ int serverRoomSpreadMessage(struct messageServerRoom *room, TINFO *dataBase)
         {
             return USER_NOT_EXIST;
         }
-        for (int i = 0; i < room->peopleNum; ++i)
+        for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
         {
             if (room->socketList[i] >= 0)
             {
@@ -295,6 +295,10 @@ int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataB
     }
     else
     {
+        if (tempUser->numOfRoomUserIn == CHAT_ROOM_LIMIT)
+        {
+            return USER_OCCUPIED_MAX_ROOM;
+        }
         ++(room->peopleNum);
         for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
         {
@@ -303,23 +307,17 @@ int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataB
             {
                 room->socketList[i] = tempUser->socket;
 
-                if (tempUser->numOfRoomUserIn == CHAT_ROOM_LIMIT)
+                // add this room to user list of room
+                for (int j = 0; j < CHAT_ROOM_LIMIT; ++j)
                 {
-                    return USER_OCCUPIED_MAX_ROOM;
-                }
-                else
-                {
-                    // add this room to user list of room
-                    for (int j = 0; j < CHAT_ROOM_LIMIT; ++j)
+                    if (tempUser->listOfRooms[i] == -1)
                     {
-                        if (tempUser->listOfRooms[i] == -1)
-                        {
-                            tempUser->listOfRooms[i] = room->roomNum;
-                            ++(tempUser->numOfRoomUserIn);
-                            break;
-                        }
+                        tempUser->listOfRooms[i] = room->roomNum;
+                        ++(tempUser->numOfRoomUserIn);
+                        break;
                     }
                 }
+
                 break;
             }
         }
@@ -407,6 +405,7 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                 if (getpacketType(packet) == ISMESSAGE)
                 {
                     sendServerRoomMessage(findServerRoomByNumber(allRoom, getroomNumber(packet)), packet);
+                    return 2;
                 }
                 else if (getpacketType(packet) == ISCOMM)
                 {
@@ -467,54 +466,106 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
     return 0;
 }
 
-#ifdef TEST_SERVER
-int main(int argc, char *argv[])
-{
-    struct sockaddr *addr;
-    socklen_t len;
-    char dummyPacket[PACKAGE_SIZE];
-    char receivedPacket[PACKAGE_SIZE];
-    int socket = listenSocketInit();
-    int newsocket = accept(socket, addr, &len);
-    assert(newsocket >= 0);
-    if (strcmp(argv[1], "TestClientSend") == 0)
-    {
-        recv(newsocket, receivedPacket, PACKAGE_SIZE, 0);
-        printf("the comparision result is %d\n", strcmp(receivedPacket, testString1));
-    }
-    else if (strcmp(argv[1], "TestClientFetch") == 0)
-    {
-        assert(send(newsocket, testString1, PACKAGE_SIZE * sizeof(char), 0) >= 0);
-        printf("\nsent package\n");
-    }
-    close(socket);
-    close(newsocket);
-    return 0;
-}
-#endif
-
-// #ifdef TEST_SERVER
-// int main(int argc, char *argv[])
+// #ifdef MAIN
+// int main(void)
 // {
-//     struct sockaddr *addr;
-//     socklen_t len;
-//     char dummyPacket[PACKAGE_SIZE];
-//     char receivedPacket[PACKAGE_SIZE];
-//     int socket = listenSocketInit();
-//     int newsocket = accept(socket, addr, &len);
-//     assert(newsocket >= 0);
-//     if (strcmp(argv[1], "TestClientSend") == 0)
 //     {
-//         recv(newsocket, receivedPacket, PACKAGE_SIZE, 0);
-//         printf("the comparision result is %d\n", strcmp(receivedPacket, testString1));
+//         allServerRoom *allRoom = serverRoomSetCreate();
+//         assert(allRoom->firstFreeRoom == 0);
+//         assert(allRoom->totalRoom == 0);
+//         for (int i = 0; i < MAX_SERVER_CHATROOMS; ++i)
+//         {
+//             assert(allRoom->roomList[i].isOccupied == ROOM_NOT_OCCUPIED);
+//             assert(allRoom->roomList[i].peopleNum == 0);
+//             assert(allRoom->roomList[i].roomNum == i);
+//             EXPECT_TRUE(allRoom->roomList[i].inMessage != NULL);
+//             for (int j = 0; j < MAX_USER_PER_ROOM; ++j)
+//             {
+//                 assert(allRoom->roomList[i].socketList[j] == -1);
+//                 EXPECT_TRUE(allRoom->roomList[i].userList[j] == NULL);
+//             }
+//         }
 //     }
-//     else if (strcmp(argv[1], "TestClientFetch") == 0)
+
 //     {
-//         assert(send(newsocket, testString1, PACKAGE_SIZE * sizeof(char), 0) >= 0);
-//         printf("\nsent package\n");
+//         llServerRoom *allRoom = serverRoomSetCreate();
+//         struct messageServerRoom *testRoom;
+//         EXPECT_TRUE((testRoom = serverRoomCreate(allRoom)) == &(allRoom->roomList[0]));
+//         EXPECT_TRUE(allRoom->roomList[0].isOccupied == ROOM_BUSY);
+
+//         EXPECT_TRUE(serverRoomCreate(allRoom) == &(allRoom->roomList[1]));
+//         EXPECT_TRUE(allRoom->roomList[0].isOccupied == ROOM_BUSY);
+
+//         serverRoomReturn(testRoom);
+//         assert(allRoom->roomList[0].isOccupied == ROOM_NOT_OCCUPIED);
+//         assert(allRoom->roomList[0].peopleNum == 0);
+//         for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
+//         {
+//             EXPECT_TRUE(allRoom->roomList[0].userList[i] == NULL);
+//             EXPECT_TRUE(allRoom->roomList[0].socketList[i] == -1);
+//         }
 //     }
-//     close(socket);
-//     close(newsocket);
+
+//     {
+//         TINFO *database = createTINFO();
+//         allServerRoom *allRoom = serverRoomSetCreate();
+//         serverChatRoom *testRoom = &(allRoom->roomList[10]);
+//         char userName[] = "ADMIN";
+//         addUser(userName, userName, 1231123, database);
+//         struct tophChatUser *testUser = findUserByName(userName, database);
+
+//         addUserToServerRoom(testRoom, userName, database);
+//         assert(testRoom->socketList[0] == testUser->socket);
+//         assert(testUser->numOfRoomUserIn == 1);
+//         assert(testUser->listOfRooms[0] == 10);
+//         assert(testRoom->peopleNum == 1);
+
+//         removeUserFromServerRoom(testRoom, userName, database);
+//         assert(testRoom->socketList[0] == -1);
+//         assert(testUser->numOfRoomUserIn == 0);
+//         assert(testUser->listOfRooms[0] == -1);
+//         assert(testRoom->peopleNum == 0);
+//     }
+
+//     {
+//         onlineUserList *userList = serverCreateOnlineList();
+//         assert(userList != NULL);
+//         assert(userList->totalOnlineUser, 0);
+//         for (int i = 0; i < MAX_SERVER_USERS; ++i)
+//         {
+//             assert(userList->userList[i].slot_status == NOT_ONLINE);
+//         }
+//         serverDelOnlineList(userList);
+//     }
+
+//     {
+//         TINFO *database = createTINFO();
+//         allServerRoom *allRoom = serverRoomSetCreate();
+//         char userName[] = "ADMIN";
+//         addUser(userName, userName, 12312131, database);
+//         struct tophChatUser *testUser = findUserByName(userName, database);
+//         onlineUserList *userList = serverCreateOnlineList();
+//         onlineUser *testOnlUser;
+
+//         assert((testOnlUser = serverAddOnlineUser(userName, userList, 55, database)) != NULL);
+//         assert(&(userList->userList[0]) == testOnlUser);
+//         assert(userList->userList[0].slot_status == ONLINE);
+//         assert(userList->userList[0].userProfile == testUser);
+//         assert(userList->userList[0].userProfile->socket == 55);
+
+//         serverLogOffUser(testOnlUser);
+//         assert(testOnlUser->slot_status == NOT_ONLINE);
+//         assert(testOnlUser->userProfile->socket == NOT_ONLINE);
+//         for (int i = 0; i < CHAT_ROOM_LIMIT; ++i)
+//         {
+//             assert(testOnlUser->userProfile->listOfRooms[i] == -1);
+//         }
+//         assert(testOnlUser->userProfile->numOfRoomUserIn == 0);
+
+//         char buffer[100];
+//         EXPECT_LE(recv(testOnlUser->userProfile->socket, buffer, 100, 0), 0);
+//     }
+
 //     return 0;
 // }
 // #endif

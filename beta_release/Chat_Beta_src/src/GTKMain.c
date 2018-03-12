@@ -8,13 +8,501 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
 
-#include "GTK.h"
 #include "fifo.h"
 #include "constants.h"
 #include "protocol_const.h"
 #include "tcpGUI.h"
 #include "utils.h"
 #include "protocol.h"
+
+int client_shutdown = 0;
+
+typedef struct MessageStruct MESSAGE_STRUCT;
+
+/* message struct to hold server and GUI input stuff */
+struct MessageStruct
+{
+    GtkWidget *widget;
+    GtkWidget *window;
+    serverConnection *server;
+    struct allRoom *Allroom;
+    fifo *outputFIFO;
+    inboxQueue *inbox;
+    char *username;
+    char *message;
+};
+
+MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, serverConnection *server, struct allRoom *Allroom, fifo *outputFIFO, inboxQueue *inbox, char *username, char *message);
+gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data); /* Exits out of the window and the program */
+gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data);   /* Exits out of the window and the program */
+//void click(GtkWidget *widget, GdkEvent *event, gpointer data);
+//GtkWidget *CreateBox(GtkWidget *window, GtkWidget *button);
+void EnterKey(GtkWidget *entry, gpointer messageStruct);                                                                               /* when the user presses enter in the textBox */
+void SendButton(GtkWidget *widget, gpointer messageStruct);                                                                            /* when user presses send button */
+void OptionsPopup(GtkWidget *button, GtkWidget *options[]);                                                                            /* option box pops up when friend is clicked on */
+void MessageUser(GtkWidget *widget, GtkWidget *tabCreation[]);                                                                         /* when "message" button pressed. creates new tab for the friend" */
+void BlockUser(GtkWidget *widget, GtkWidget *tabCreation[]);                                                                           /* blocks the user selected */
+void SetMessageScreen(GtkWidget *tabs, GtkWidget *tabLabel, GtkWidget *scrollWindow, GtkWidget *messageScreen);                        /* setting up message screens */
+void SetWelcomeScreen(GtkWidget *tabs, GtkWidget *tabLabel, GtkWidget *scrollWindow, GtkWidget *messageScreen, GtkTextBuffer *buffer); /* setting up welcome screens */
+void Login(GtkWidget *widget, gpointer messageStructArray[]);                                                                          /* logs the user into the hat application */
+int CheckNotebook(GtkWidget *tabs, GtkWidget *tabLabel);                                                                               /* checks through the notebook's tabs for matching tab names */
+gboolean HideCharacters(GtkWidget *widget, GdkEvent *event, GtkWidget *button);                                                        /* turns on character hiding for password typing */
+gboolean Overwrite(GtkWidget *username, GtkWidget *entry);                                                                             /* overwrites the entry buffer in username box */
+void ShowCharacters(GtkWidget *button, GtkWidget *vBox);                                                                               /* shows password characters if button is toggled */
+void ClearForm(GtkWidget *button, GtkWidget *vBox);                                                                                    /* clears the forms */
+void CreateAccount(GtkWidget *button, GtkWidget *screen);                                                                              /* create a new account */
+void AcceptMessage(GtkWidget *button, GtkWidget *window);
+
+MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, serverConnection *server, struct allRoom *Allroom, fifo *outputFIFO, inboxQueue *inbox, char *username, char *message)
+{
+    MESSAGE_STRUCT *messageStruct = NULL;
+    messageStruct = malloc(sizeof(MESSAGE_STRUCT));
+    if (messageStruct == NULL)
+    {
+        perror("Out of memory...");
+        exit(10);
+    }
+
+    messageStruct->widget = widget;
+    messageStruct->window = window;
+    messageStruct->server = server;
+    messageStruct->Allroom = Allroom;
+    messageStruct->outputFIFO = outputFIFO;
+    messageStruct->inbox = inbox;
+    messageStruct->username = username;
+    messageStruct->message = message;
+}
+
+gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+    g_print("You exited out the window! \n");
+    g_print("See you later, %s!\n", (gchar *)data);
+    client_shutdown = 1; /* leaves event loop */
+    return FALSE;        /* return false to destroy window */
+}
+
+gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+    g_print("\nSee you later! \n");
+    client_shutdown = 1;
+    return FALSE;
+}
+
+void Login(GtkWidget *widget, gpointer messageStructArray[])
+{
+    /*    GtkWidget *loginArray[3];
+    loginArray[0] = loginVBox;
+    loginArray[1] = loginScreen;
+    loginArray[2] = window;
+*/
+
+    GtkWidget *vBox[3];
+
+    MESSAGE_STRUCT *messageStruct1;
+    MESSAGE_STRUCT *messageStruct2;
+
+    messageStruct1 = (MESSAGE_STRUCT *)messageStructArray[0];
+    messageStruct2 = (MESSAGE_STRUCT *)messageStructArray[1];
+
+    printf("this is your username: %s \n", messageStruct1->username);
+
+    vBox[0] = messageStruct2->widget;
+    vBox[1] = messageStruct2->window;
+    vBox[2] = messageStruct1->window;
+
+    GList *vBoxList;
+    GtkWidget *usernameEntry;
+    GtkWidget *passwordEntry;
+
+    const gchar *username;
+    const gchar *password;
+
+    vBoxList = gtk_container_get_children(GTK_CONTAINER(vBox[0]));                               /* getting list of vbox children */
+    usernameEntry = gtk_container_get_children(GTK_CONTAINER(vBoxList->data))->next->data;       /* assigning username */
+    passwordEntry = gtk_container_get_children(GTK_CONTAINER(vBoxList->next->data))->next->data; /* assigning password */
+
+    username = gtk_entry_get_text(GTK_ENTRY(usernameEntry));
+    password = gtk_entry_get_text(GTK_ENTRY(passwordEntry));
+
+    printf("here is username %s \n", username);
+    printf("here is password %s \n", password);
+
+    //    strcpy(messageStruct1->username, username);
+    messageStruct1->username = username;
+
+    gtk_widget_destroy(vBox[1]);
+    gtk_widget_show(vBox[2]);
+}
+
+void click(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+    g_print("You've clicked the button! \n");
+}
+
+GtkWidget *CreateBox(GtkWidget *window, GtkWidget *button)
+{
+    GtkWidget *box;
+
+    box = gtk_hbox_new(TRUE, 0);
+
+    button = gtk_button_new_with_label("hello");
+
+    gtk_box_pack_start(GTK_BOX(box), button, TRUE, TRUE, 0);
+
+    gtk_container_add(GTK_CONTAINER(window), box);
+
+    return box;
+}
+
+void CreateAccount(GtkWidget *button, GtkWidget *screen)
+{
+
+    gtk_widget_show(screen);
+}
+
+gboolean HideCharacters(GtkWidget *widget, GdkEvent *event, GtkWidget *button)
+{
+    GtkEntryBuffer *buffer;
+    const gchar *bufferText;
+    int test = 0;
+    int test2 = 0;
+    gboolean active;
+
+    assert(button);
+    active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+
+    buffer = gtk_entry_get_buffer(GTK_ENTRY(widget));
+    bufferText = gtk_entry_get_text(GTK_ENTRY(widget));
+
+    test = strcmp(bufferText, "Password is case-sensitive.");
+    test2 = strcmp(bufferText, "Re-type password to confirm.");
+
+    if (test == 0 || test2 == 0)
+    {
+        gtk_entry_set_text(GTK_ENTRY(widget), ""); /* deletes the text only if it's the starting text */
+    }
+
+    if (active == FALSE)
+    {
+        gtk_entry_set_visibility(GTK_ENTRY(widget), FALSE); /* hides password input if toggle isn't on */
+        gtk_entry_set_invisible_char(GTK_ENTRY(widget), '*');
+    }
+
+    return FALSE;
+}
+
+gboolean Overwrite(GtkWidget *username, GtkWidget *entry)
+{
+    GtkEntryBuffer *buffer;
+    const gchar *bufferText;
+    int test = 0;
+
+    buffer = gtk_entry_get_buffer(GTK_ENTRY(username));
+    bufferText = gtk_entry_get_text(GTK_ENTRY(username));
+
+    test = strcmp(bufferText, "Choose a name you'd like to go by.");
+
+    if (test == 0)
+    {
+        gtk_entry_set_text(GTK_ENTRY(username), ""); /* deletes the text only if it's the starting text */
+    }
+
+    return FALSE;
+}
+
+void ShowCharacters(GtkWidget *button, GtkWidget *vBox)
+{
+    GList *list;
+    GtkWidget *passConfirmBox;
+    GtkWidget *passBox;
+    GtkWidget *passConfirmEntry;
+    GtkWidget *passEntry;
+
+    list = gtk_container_get_children(GTK_CONTAINER(vBox)); /* gets children of vBox */
+
+    passConfirmBox = list->next->next->data; /* extracting widgets from the list */
+    passBox = list->next->data;
+
+    passConfirmEntry = gtk_container_get_children(GTK_CONTAINER(passConfirmBox))->next->data; /* gets username entry */
+    passEntry = gtk_container_get_children(GTK_CONTAINER(passBox))->next->data;               /* gets password entry */
+
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+    {
+        gtk_entry_set_visibility(GTK_ENTRY(passConfirmEntry), TRUE); /* turns on visibility for the passwords */
+        gtk_entry_set_visibility(GTK_ENTRY(passEntry), TRUE);
+    }
+    else
+    {
+        gtk_entry_set_visibility(GTK_ENTRY(passConfirmEntry), FALSE); /* hides password input */
+        gtk_entry_set_invisible_char(GTK_ENTRY(passConfirmEntry), '*');
+
+        gtk_entry_set_visibility(GTK_ENTRY(passEntry), FALSE); /* hides password input */
+        gtk_entry_set_invisible_char(GTK_ENTRY(passEntry), '*');
+    }
+
+    //    g_signal_connect(passConfirmEntry, "key-press-event", G_CALLBACK(ResetShowToggle), button);
+    //    g_signal_connect(passEntry, "key-press-event", G_CALLBACK(ResetShowToggle), button);
+}
+
+void ClearForm(GtkWidget *button, GtkWidget *vBox)
+{
+    GList *list;
+    GtkWidget *passConfirmBox;
+    GtkWidget *passBox;
+    GtkWidget *passConfirmEntry;
+    GtkWidget *passEntry;
+    GtkWidget *userBox;
+    GtkWidget *userEntry;
+
+    list = gtk_container_get_children(GTK_CONTAINER(vBox)); /* gets children of vBox */
+
+    passConfirmBox = list->next->next->data; /* extracting widgets from the list */
+    passBox = list->next->data;
+    userBox = list->data;
+
+    passConfirmEntry = gtk_container_get_children(GTK_CONTAINER(passConfirmBox))->next->data; /* gets username entry */
+    passEntry = gtk_container_get_children(GTK_CONTAINER(passBox))->next->data;               /* gets password entry */
+    userEntry = gtk_container_get_children(GTK_CONTAINER(userBox))->next->data;               /* gets username entry */
+
+    gtk_entry_set_visibility(GTK_ENTRY(passConfirmEntry), TRUE); /* turns on visibility for the passwords */
+    gtk_entry_set_visibility(GTK_ENTRY(passEntry), TRUE);
+
+    gtk_entry_set_text(GTK_ENTRY(userEntry), "Choose a name you'd like to go by.");
+    gtk_entry_set_text(GTK_ENTRY(passEntry), "Password is case-sensitive.");
+    gtk_entry_set_text(GTK_ENTRY(passConfirmEntry), "Re-type password to confirm.");
+}
+
+void EnterKey(GtkWidget *entry, gpointer messageStruct)
+{
+//    GtkWidget *tabs;
+//    GtkWidget *vBox;
+//    GList *conversion;
+//    MESSAGE_STRUCT *messageData;
+
+    /* converting from vBox to tabs */
+//    messageData = (MESSAGE_STRUCT *)messageStruct;
+//    conversion = gtk_container_get_children(GTK_CONTAINER(messageData->widget));
+//    tabs = conversion->data;
+
+//    GtkTextIter iter;
+//    guint16 check = 0;
+//    int currentPage = 0;
+//    GtkWidget *scrolledWindow;
+//    GList *child;
+
+//    check = gtk_entry_get_text_length(GTK_ENTRY(entry));                         /* checking length of text input */
+//    currentPage = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));             /* get current page */
+//    scrolledWindow = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), currentPage); /* notebook child */
+//    child = gtk_container_get_children(GTK_CONTAINER(scrolledWindow));
+
+//    if (check != 0) /* only run this if there is a text input */
+//    {
+//        GtkTextBuffer *buffer;
+
+//        buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(child->data)); /* gets the buffer for the current screen */
+//
+//        gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at the end */
+//
+//        gtk_text_buffer_insert(buffer, &iter, "\n\n", -1); /* insert new lines */
+//
+  //      gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at end again */
+
+    //    gtk_text_buffer_insert(buffer, &iter, gtk_entry_get_text(GTK_ENTRY(entry)), -1); /* inserts user text */
+
+      //  gtk_entry_set_text(GTK_ENTRY(entry), ""); /* replaces textBox with empty text again */
+  //  }
+}
+
+void SendButton(GtkWidget *widget, gpointer messageStruct)
+{
+    GtkWidget *vBox;
+    GtkTextIter iter;
+    GtkWidget *tabs;
+    GtkWidget *messageScreen;
+    GtkWidget *scrolledWindow;
+    GList *child;
+    int currentPage = 0;
+    GList *list;
+    GList *list2;
+    MESSAGE_STRUCT *messageData;
+    messageData = (MESSAGE_STRUCT *)messageStruct;
+    vBox = messageData->widget;
+    const gchar *actualMessage;
+
+    guint16 check = 0;
+
+    /* list->data = tabs, list->next->data = hbox*/
+    list = gtk_container_get_children(GTK_CONTAINER(vBox));              /* list of vBox: tabs, hBox */
+    list2 = gtk_container_get_children(GTK_CONTAINER(list->next->data)); /* list of hBox: textBox, sendButton */
+
+    tabs = list->data;
+    currentPage = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));             /* getting current page */
+    scrolledWindow = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), currentPage); /* getting scrolled view */
+    child = gtk_container_get_children(GTK_CONTAINER(scrolledWindow));           /* child->data is messageScreen */
+
+    messageScreen = child->data;
+
+    check = gtk_entry_get_text_length(GTK_ENTRY(list2->data));  /* checking length of text input */
+    actualMessage = gtk_entry_get_text(GTK_ENTRY(list2->data)); /* saving actual text */
+    
+    printf("This is what you said before: %s \n", actualMessage);
+        
+
+    if (check != 0) /* only run this if there is a text input */
+    {
+        GtkTextBuffer *buffer;
+
+        buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen)); /* gets the buffer for the current screen */
+
+        gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at the end */
+
+        gtk_text_buffer_insert(buffer, &iter, "\n\n", -1); /* insert new lines */
+
+        gtk_text_buffer_insert(buffer, &iter, messageData->username, -1); /* adds "username: " */
+
+        gtk_text_buffer_insert(buffer, &iter, ": ", 2); /* adds ": " */
+
+        gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at end again */
+
+        gtk_text_buffer_insert(buffer, &iter, gtk_entry_get_text(GTK_ENTRY(list2->data)), -1); /* inserts user text */
+
+
+        printf("This is what you said: %s \n", actualMessage);
+        sendMessage(&(messageData->Allroom->roomList[0]), messageData->outputFIFO, "ADMIN", actualMessage); /* send message to fifo */
+
+    
+        gtk_entry_set_text(GTK_ENTRY(list2->data), ""); /* replaces textBox with empty text again */
+    }
+}
+
+void OptionsPopup(GtkWidget *button, GtkWidget *options[])
+{
+    /*    GtkWidget *optionsArray0[7];
+    optionsArray0[0] = options;
+    optionsArray0[1] = messageButton;
+    optionsArray0[2] = tabs;
+    optionsArray0[3] = scrollWindow0;
+    optionsArray0[4] = messageScreen0;
+    optionsArray0[5] = tabLabel0;
+    optionsArray0[6] = blockButton;
+*/
+
+    gtk_menu_popup(GTK_MENU(options[0]), NULL, NULL, NULL, NULL, 1, gtk_get_current_event_time()); /* option menu pops up */
+
+    g_signal_connect(options[1], "activate", G_CALLBACK(MessageUser), options); /* messaging a new user */
+    g_signal_connect(options[6], "activate", G_CALLBACK(BlockUser), options);   /* blocking user */
+}
+
+void MessageUser(GtkWidget *widget, GtkWidget *tabCreation[])
+{
+    int check = 0;
+
+    check = CheckNotebook(tabCreation[2], tabCreation[5]);
+    if (check == 0)
+    {
+        SetMessageScreen(tabCreation[2], tabCreation[5], tabCreation[3], tabCreation[4]);
+    }
+}
+
+void BlockUser(GtkWidget *widget, GtkWidget *tabCreation[])
+{
+    int check = 0;
+
+    check = CheckNotebook(tabCreation[2], tabCreation[5]); /* checking if tab already exists */
+    if (check > 1)
+    {
+        printf("[Delete the tab] \n");
+        printf("[TO BE IMPLEMENTED] \n");
+    }
+    else if (check == 0)
+    {
+        printf("You blocked the user from contacting you. \n");
+        printf("[TO BE IMPLEMENTED]\n");
+    }
+}
+
+void AcceptMessage(GtkWidget *button, GtkWidget *window)
+{
+    gtk_widget_destroy(window);
+}
+
+void SetWelcomeScreen(GtkWidget *tabs, GtkWidget *tabLabel, GtkWidget *scrollWindow, GtkWidget *messageScreen, GtkTextBuffer *buffer)
+{
+    int success = 0;
+    gtk_widget_set_size_request(messageScreen, 500, 300);                  /* setting size */
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(messageScreen), FALSE);       /* turning of editability */
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(messageScreen), FALSE); /* turn off cursor */
+
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen));
+    gtk_text_buffer_set_text(buffer,
+                             "Hello! Welcome to Toph Chat! \n\nCurrent Version: Beta\n\nTo get started:\n  1. Click on your \"Friends List\" on the right.\n  2. Click on a friend you want to chat with.\n  3. Select \"Message\". \n  4. Get started chatting!\n", -1); /* Welcome message */
+
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS); /* settings for scroll bars */
+    gtk_container_add(GTK_CONTAINER(scrollWindow), messageScreen);                                              /* putting message screen into a scrolled window */
+
+    success = gtk_notebook_append_page(GTK_NOTEBOOK(tabs), scrollWindow, tabLabel); /* creating new notebook tab*/
+}
+
+int CheckNotebook(GtkWidget *tabs, GtkWidget *tabLabel)
+{
+    GtkWidget *currentTab;
+    GtkWidget *child;
+    gint totalTabs = 0;
+
+    int count = 0;
+
+    totalTabs = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs)); /* get total number of tabs open */
+    for (int i = 0; i < totalTabs; i++)
+    {
+        child = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), i); /* get child of notebook */
+        currentTab = gtk_notebook_get_tab_label(GTK_NOTEBOOK(tabs), child);
+
+        if (currentTab == tabLabel)
+        {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+void SetMessageScreen(GtkWidget *tabs, GtkWidget *tabLabel, GtkWidget *scrollWindow, GtkWidget *messageScreen) /* setting up message screens */
+{
+    int success = 0;
+    GtkTextBuffer *buffer;
+
+    assert(messageScreen);
+
+    gtk_widget_set_size_request(messageScreen, 500, 300);                  /* setting size */
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(messageScreen), FALSE);       /* turning of editability */
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(messageScreen), FALSE); /* turn off cursor */
+
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen));
+    gtk_text_buffer_set_text(buffer, "Welcome to the chat room. Say hello!", -1); /* Welcome message */
+
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS); /* settings for scroll bars */
+    gtk_container_add(GTK_CONTAINER(scrollWindow), messageScreen);                                              /* putting message screen into a scrolled window */
+
+    success = gtk_notebook_append_page(GTK_NOTEBOOK(tabs), scrollWindow, tabLabel); /* creating new notebook tab*/
+
+    gtk_widget_show(tabLabel);
+    gtk_widget_show(scrollWindow);
+    gtk_widget_show(messageScreen);
+}
+
+/* render the window on screen */
+void UpdateWindow(void)
+{
+    /* this server has it's own main loop for handling client connections;
+     * as such, it can't have the usual GUI main loop (gtk_main);
+     * instead, we call this UpdateWindow function on a regular basis
+     */
+    while (gtk_events_pending())
+    {
+        gtk_main_iteration();
+    }
+} /* end of UpdateWindow */
+
 int main(int argc, char *argv[])
 {
 
@@ -688,11 +1176,14 @@ int main(int argc, char *argv[])
     char packet[PACKAGE_SIZE] = "";
     char message[MESS_LIMIT] = "";
     roomList *AllRoom = roomsetInit();
+    (AllRoom->roomList[0]).status = ROOM_WAITING;
+    receiveRoom(AllRoom, 0);
     fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
     inboxQueue *inbox = initInboxQueue();
     /* Message Struct Initialization */
-    MESSAGE_STRUCT messageStruct;
-    messageStruct.widget = vBox;
+    MESSAGE_STRUCT *messageStruct;
+    messageStruct = CreateMessageStruct(vBox, window, server, AllRoom, outputBuffer, inbox, "", "");
+    /*    messageStruct.widget = vBox;
     messageStruct.window = window;
     messageStruct.server = server;
     messageStruct.Allroom = AllRoom;
@@ -700,10 +1191,11 @@ int main(int argc, char *argv[])
     messageStruct.inbox = inbox;
     messageStruct.username = "";
     messageStruct.message = "";
-
+*/
     /* Login Struct */
-    MESSAGE_STRUCT loginStruct;
-    loginStruct.widget = loginVBox;
+    MESSAGE_STRUCT *loginStruct;
+    loginStruct = CreateMessageStruct(loginVBox, loginScreen, server, AllRoom, outputBuffer, inbox, "", "");
+    /*    loginStruct.widget = loginVBox;
     loginStruct.window = loginScreen;
     loginStruct.server = server;
     loginStruct.Allroom = AllRoom;
@@ -711,9 +1203,9 @@ int main(int argc, char *argv[])
     messageStruct.inbox = inbox;
     messageStruct.username = "";
     messageStruct.message = "";
-
+*/
     /* MessageStruct Array */
-    MESSAGE_STRUCT messageStructArray[2];
+    MESSAGE_STRUCT *messageStructArray[2];
     messageStructArray[0] = messageStruct;
     messageStructArray[1] = loginStruct;
 
@@ -724,21 +1216,21 @@ int main(int argc, char *argv[])
     g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
     g_signal_connect(loginScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name);           /* deletes window */
 
-        /* Create Account Signals */
+    /* Create Account Signals */
     g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);
     g_signal_connect(newPassword, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
     g_signal_connect(newPasswordConfirm, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
     g_signal_connect(showPasswordCheckBox, "toggled", G_CALLBACK(ShowCharacters), accountCreationVBox);
     g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
 
-        /* Messaging Signals */
-    g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer) &messageStruct); /* to send message with enter key */
-    g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), (gpointer) &messageStruct);                 /* to send message with "Send" button */
+    /* Messaging Signals */
+    g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer)messageStruct);     /* to send message with enter key */
+    g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), (gpointer)messageStruct); /* to send message with "Send" button */
 
-//        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
-//        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
+    //        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
+    //        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
 
-        /* option clicks for all of friends on list */
+    /* option clicks for all of friends on list */
     g_signal_connect(friends[0], "clicked", G_CALLBACK(OptionsPopup), optionsArray0); /* opens up options popup */
     g_signal_connect(friends[1], "clicked", G_CALLBACK(OptionsPopup), optionsArray1);
     g_signal_connect(friends[2], "clicked", G_CALLBACK(OptionsPopup), optionsArray2);
@@ -753,7 +1245,7 @@ int main(int argc, char *argv[])
     /* login signals */
     g_signal_connect(quitButton, "clicked", G_CALLBACK(LoginExit), NULL); /* if the user quits */
     g_signal_connect(createAccount, "clicked", G_CALLBACK(CreateAccount), accountCreationScreen);
-    g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), (gpointer) messageStructArray); /* if the user wants to log in */
+    g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), (gpointer)messageStructArray); /* if the user wants to log in */
 
     /* message signals */
     //    g_signal_connect(
@@ -781,13 +1273,33 @@ int main(int argc, char *argv[])
     //    gtk_widget_show(window);
     gtk_widget_show(loginScreen);
 
+    GtkTextBuffer *updateBuffer;
+    GtkTextIter updateIter;
+    //char message[PACKAGE_SIZE];
 
-    for (;;)
+    while (!client_shutdown)
     {
         recvMessageFromServer(AllRoom, inbox, server);
         sendMessageToServer(outputBuffer, server);
 
-        gtk_main(); /* main event loop */
+        /*** update message ****/
+        if (fetchMessage(&(AllRoom->roomList[0]), message) >= 0)
+        {
+            
+            updateBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen)); /* gets the buffer for the current screen */
+
+            gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at the end */
+
+            gtk_text_buffer_insert(updateBuffer, &updateIter, "\n\n", -1); /* insert new lines */
+
+            gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at end again */
+
+            gtk_text_buffer_insert(updateBuffer, &updateIter, message, -1); /* inserts user text */
+        
+           // gtk_entry_set_text(GTK_ENTRY(textBox), ""); /* replaces textBox with empty text again */
+        }
+
+        UpdateWindow(); /* main event loop */
     }
     return 0;
 }
