@@ -57,8 +57,8 @@ TEST(SeverRoomUser, SERVER_ROOM_TEST)
     allServerRoom *allRoom = serverRoomSetCreate();
     serverChatRoom *testRoom = &(allRoom->roomList[10]);
     char userName[] = "ADMIN";
+    addUser(userName, userName, 1231123, database);
     struct tophChatUser *testUser = findUserByName(userName, database);
-    addUser(userName, userName, 1231, database);
 
     addUserToServerRoom(testRoom, userName, database);
     EXPECT_EQ(testRoom->socketList[0], testUser->socket);
@@ -91,10 +91,10 @@ TEST(AddRemoveUser, onlineList)
     TINFO *database = createTINFO();
     allServerRoom *allRoom = serverRoomSetCreate();
     char userName[] = "ADMIN";
+    addUser(userName, userName, 12312131, database);
     struct tophChatUser *testUser = findUserByName(userName, database);
     onlineUserList *userList = serverCreateOnlineList();
     onlineUser *testOnlUser;
-    addUser(userName, userName, 1231, database);
 
     ASSERT_TRUE((testOnlUser = serverAddOnlineUser(userName, userList, 55, database)) != NULL);
     EXPECT_EQ(&(userList->userList[0]), testOnlUser);
@@ -112,7 +112,7 @@ TEST(AddRemoveUser, onlineList)
     EXPECT_EQ(testOnlUser->userProfile->numOfRoomUserIn, 0);
 
     char buffer[100];
-    EXPECT_GE(recv(testOnlUser->userProfile->socket, buffer, 100, 0), 0);
+    EXPECT_LE(recv(testOnlUser->userProfile->socket, buffer, 100, 0), 0);
 }
 
 int main(int argc, char **argv)
