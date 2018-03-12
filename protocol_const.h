@@ -14,7 +14,7 @@
  * after that is message
  * 
  * a command will have format
- * 1001TPC{}HF1<SENDER_NAME>\<TARGET_NAME>
+ * 1001TPC{}HF1<SENDER_NAME>/<TARGET_NAME>
  * 100 is the target room of the command
  * 1TPC{}H is the id string of the command
  * F is the identifier for type of command F is for friend
@@ -22,7 +22,7 @@
  * <SENDER_NAME> is the name of the person sending this message
  * <TARGET_NAME> is who the command is aimed at for example the userName of a friend
  * USER MESSAGE FORMAT:
- * 0011TPM{}H<USER_NAME>\<TEXT_MESSAGE_CONTENT> max user name length defined by the macro below
+ * 0011TPM{}H<COM_CODE><USER_NAME>/<TEXT_MESSAGE_CONTENT> max user name length defined by the macro below
  */
 
 // define protocol command for communications
