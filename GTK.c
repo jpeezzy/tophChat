@@ -227,9 +227,9 @@ void EnterKey(GtkWidget *entry, gpointer messageStruct)
     }
 }
 
-void SendButton(GtkWidget *widget, GtkWidget *vBox)
+void SendButton(GtkWidget *widget, gpointer messageStruct)
 {
-//    GtkWidget *vBox;
+    GtkWidget *vBox;
     GtkTextIter iter;
     GtkWidget *tabs;
     GtkWidget *messageScreen;
@@ -238,6 +238,10 @@ void SendButton(GtkWidget *widget, GtkWidget *vBox)
     int currentPage = 0;
     GList *list;
     GList *list2;
+    MESSAGE_STRUCT *messageData;
+
+    messageData = (MESSAGE_STRUCT *) messageStruct;   
+    vBox = messageData->widget; 
 
     guint16 check = 0;
 
