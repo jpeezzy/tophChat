@@ -14,6 +14,7 @@
 #include "tcpGUI.h"
 #include "utils.h"
 #include "protocol.h"
+#include "emoji.h"
 
 int client_shutdown = 0;
 
@@ -351,6 +352,7 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
     if (check != 0) /* only run this if there is a text input */
     {
         GtkTextBuffer *buffer;
+        GtkTextMark *start;        
 
         buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen)); /* gets the buffer for the current screen */
 
@@ -363,14 +365,18 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
         gtk_text_buffer_insert(buffer, &iter, ": ", 2); /* adds ": " */
 
         gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at end again */
-
+        
+         /* get mark for emoji display at the point before user text is inserted */    
+        start = gtk_text_buffer_create_mark(buffer, NULL, &iter, TRUE);
+    
         gtk_text_buffer_insert(buffer, &iter, gtk_entry_get_text(GTK_ENTRY(list2->data)), -1); /* inserts user text */
-
 
         printf("This is what you said: %s \n", actualMessage);
         sendMessage(&(messageData->Allroom->roomList[0]), messageData->outputFIFO, "ADMIN", actualMessage); /* send message to fifo */
 
-    
+        /* display emoji on messageScreen */
+        insert_emoji (GTK_TEXT_VIEW(messageScreen), start);
+        
         gtk_entry_set_text(GTK_ENTRY(list2->data), ""); /* replaces textBox with empty text again */
     }
 }
@@ -967,6 +973,9 @@ int main(int argc, char *argv[])
     sendButton = gtk_button_new_with_label("SEND");
     gtk_widget_set_size_request(sendButton, 100, 50);
 
+    GtkWidget *emojiButton;
+    emojiButton = emoji_popup(GTK_ENTRY(textBox));
+
     GtkWidget *friends[10];
     for (int i = 0; i < 10; i++) /* creating new friend buttons */
     {
@@ -1037,8 +1046,9 @@ int main(int argc, char *argv[])
     /**********************************/
 
     gtk_box_pack_start(GTK_BOX(hBox), textBox, FALSE, TRUE, FALSE);  /* HBOX textBox */
-    gtk_box_pack_end(GTK_BOX(hBox), sendButton, FALSE, TRUE, FALSE); /* HBOX textBox, sendButton */
-
+    gtk_box_pack_start(GTK_BOX(hBox), emojiButton, FALSE,TRUE, FALSE); /* HBOX textBox, emojiButton */
+    gtk_box_pack_start(GTK_BOX(hBox), sendButton, FALSE, TRUE, FALSE); /* HBOX textBox, emojiButton, sendButton */
+    
     gtk_box_pack_start(GTK_BOX(vBox), tabs, TRUE, TRUE, FALSE);  /* VBOX tabs */
     gtk_box_pack_start(GTK_BOX(vBox), hBox, FALSE, TRUE, FALSE); /* VBOX tabs, HBOX */
 
@@ -1262,6 +1272,7 @@ int main(int argc, char *argv[])
     gtk_widget_show(friendsList);
     gtk_widget_show(vLine);
     gtk_widget_show(hBox2);
+    gtk_widget_show(emojiButton);
     gtk_widget_show(sendButton);
     gtk_widget_show(messageScreen);
     gtk_widget_show(textBox);
@@ -1275,6 +1286,7 @@ int main(int argc, char *argv[])
 
     GtkTextBuffer *updateBuffer;
     GtkTextIter updateIter;
+    GtkTextMark *updateStart;
     //char message[PACKAGE_SIZE];
 
     while (!client_shutdown)
@@ -1294,9 +1306,15 @@ int main(int argc, char *argv[])
 
             gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at end again */
 
+            /* get mark for emoji display at the point before user text is inserted */
+            updateStart = gtk_text_buffer_create_mark(updateBuffer, NULL, &updateIter, TRUE);
+
             gtk_text_buffer_insert(updateBuffer, &updateIter, message, -1); /* inserts user text */
         
-           // gtk_entry_set_text(GTK_ENTRY(textBox), ""); /* replaces textBox with empty text again */
+            /* display emoji on messageScreen */
+            insert_emoji (GTK_TEXT_VIEW(messageScreen), updateStart);        
+    
+            // gtk_entry_set_text(GTK_ENTRY(textBox), ""); /* replaces textBox with empty text again */
         }
 
         UpdateWindow(); /* main event loop */
