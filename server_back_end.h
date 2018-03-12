@@ -74,8 +74,7 @@ int serverRoomDel(struct messageServerRoom *room);
 // update which room is not occupied
 void updateFreeRoom(struct allServerRoom *allRoom);
 
-// return a free room
-struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom);
+struct allServerRoom *serverRoomSetCreate(void);
 
 // mark the room as free when conversation is done
 void serverRoomReturn(serverChatRoom *room);

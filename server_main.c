@@ -23,10 +23,10 @@
 #include "server_back_end.h"
 #include "protocol_const.h"
 
-int main_loop(void)
+int main(void)
 {
     int incomingSocket = -1;
-    struct sockaddr *addrDummy;
+    struct sockaddr addrDummy;
     socklen_t socklenDummy;
     struct timeval timeout;
     timeout.tv_sec = 2;
@@ -38,7 +38,7 @@ int main_loop(void)
     FD_SET(socketListener, &setListener);
     int j = 0;
 
-    TINFO *dataBase;
+    TINFO *dataBase = createTINFO();
     serverRoomList *roomList = serverRoomSetCreate();
     struct messageServerRoom *testRoom = serverRoomCreate(roomList);
     onlineUserList *userList = serverCreateOnlineList();
@@ -54,7 +54,7 @@ int main_loop(void)
         {
             if (select(socketListener + 1, &setListener, NULL, NULL, &timeout) > 0)
             {
-                incomingSocket = accept(socketListener, addrDummy, &socklenDummy);
+                incomingSocket = accept(socketListener, &addrDummy, &socklenDummy);
                 ++(userList->totalOnlineUser);
                 serverAddOnlineUser(userName[j], userList, incomingSocket, dataBase);
                 addUserToServerRoom(testRoom, userName[j], dataBase);

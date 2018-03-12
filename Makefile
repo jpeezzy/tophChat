@@ -17,7 +17,7 @@ all: utils.o protocol.o server_main.o client_main.o tcpGUI_debug.o tcpGUI.o tcpP
 
 #Executables
 
-server_main: tcpPacket_debug.o server_back_end_debug.o server_main.o
+server_main: tcpPacket_debug.o server_back_end_debug.o server_main.o utils.o protocol.o tophChatUsers.o constants.h 
 	$(CC)  $(^) -o $(@)	$(LFLAGS)
 client_main: tcpPacket_debug.o protocol.o tcpGUI_debug.o client_main.o utils.o
 	$(CC)  $(^) -o $(@)	$(LFLAGS)
@@ -64,7 +64,7 @@ server_back_end.o: server_back_end.c server_back_end.h constants.h
 
 
 
-tophChatUsers.o: tophChatUsers.c tophChatUsers.h
+tophChatUsers.o: ./users/tophChatUsers.c ./users/tophChatUsers.h
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
 GTK.o:  GTK.c GTK.h emoji.h
