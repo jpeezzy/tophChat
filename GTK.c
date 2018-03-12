@@ -239,9 +239,9 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
     GList *list;
     GList *list2;
     MESSAGE_STRUCT *messageData;
-
-    messageData = (MESSAGE_STRUCT *) messageStruct;   
-    vBox = messageData->widget; 
+    packet[PACKAGE_SIZE];
+    messageData = (MESSAGE_STRUCT *)messageStruct;
+    vBox = messageData->widget;
 
     guint16 check = 0;
 
@@ -274,6 +274,8 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
 
         gtk_entry_set_text(GTK_ENTRY(list2->data), ""); /* replaces textBox with empty text again */
     }
+
+    sendMessage(0, messageStruct.outputFIFO, userName, message);
 }
 
 void OptionsPopup(GtkWidget *button, GtkWidget *options[])
