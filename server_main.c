@@ -21,72 +21,8 @@
 #include "constants.h"
 #include "tcpPacket.h"
 #include "server_back_end.h"
+#include "protocol_const.h"
 
-// #define ALPLHA_RELEASE
-// TODO: implement multi-threaded
-
-#ifdef ALPLHA_RELEASE
-// alpha release will just have two machines connecting to each other
-
-#define MAX_USERS 2 // maximum number of user conversation
-int main(void)
-{
-    int socketList[2];
-    struct sockaddr *addrList[MAX_USERS];
-    for (int i = 0; i < MAX_USERS; ++i)
-    {
-        addrList[i] = malloc(sizeof(struct sockaddr));
-    }
-    socklen_t socklenList[MAX_USERS];
-
-    // fd_set *setClient;
-    // FD_ZERO(setClient);
-    fd_set setListener;
-    FD_ZERO(&setListener);
-
-    int socketListener = listenSocketInit();
-    int isFull = 0;
-    char packet[PACKAGE_SIZE] = "";
-    FD_SET(socketListener, &setListener);
-    int j = 0;
-    for (;;)
-    {
-        FD_ZERO(&setListener);
-        FD_SET(socketListener, &setListener);
-        if (isFull || select(socketListener + 1, &setListener, NULL, NULL, NULL) > 0)
-        {
-
-            if (isFull != 1)
-            {
-                socketList[j] = accept(socketListener, addrList[j], &socklenList[j]);
-                printf("\nreceived connection\n");
-                ++j;
-            }
-            else
-            {
-                while (fetchPacket(packet, socketList[0]) > 0)
-                {
-                    printf("\nreceived packet from 0\n");
-                    printf("\nthe packet is \n%s", packet);
-                    sendPacket(packet, socketList[1]);
-                }
-
-                while (fetchPacket(packet, socketList[1]) > 0)
-                {
-                    printf("\nreceived packet from 1\n");
-                    printf("\nthe packet is \n%s", packet);
-                    sendPacket(packet, socketList[0]);
-                }
-            }
-            if (j == 2)
-            {
-                isFull = 1;
-            }
-        }
-    }
-    return 0;
-}
-#else
 int main_loop(void)
 {
     int incomingSocket = -1;
@@ -101,15 +37,34 @@ int main_loop(void)
     char packet[PACKAGE_SIZE] = "";
     FD_SET(socketListener, &setListener);
     int j = 0;
+
+    TINFO *dataBase;
+    serverRoomList *roomList = serverRoomSetCreate();
+    struct messageServerRoom *testRoom = serverRoomCreate(roomList);
+    onlineUserList *userList = serverCreateOnlineList();
+
+    char *userName[] = {"ADMIN", "USER"};
+
+    // limit to two users
     for (;;)
     {
         FD_ZERO(&setListener);
         FD_SET(socketListener, &setListener);
-        select(socketListener + 1, &setListener, NULL, NULL, &timeout);
-        incomingSocket = accept(socketListener, addrDummy, &socklenDummy);
-        printf("\nreceived connection\n");
-        ++j;
+        if (j < 2)
+        {
+            if (select(socketListener + 1, &setListener, NULL, NULL, &timeout) > 0)
+            {
+                incomingSocket = accept(socketListener, addrDummy, &socklenDummy);
+                ++(userList->totalOnlineUser);
+                serverAddOnlineUser(userName[j], userList, dataBase);
+                addUserToServerRoom(testRoom, userName[j], dataBase);
+                ++j;
+            }
+        }
+        if (j == 2)
+        {
+            triagePacket(userList, roomList, dataBase, packet);
+        }
     }
     return 0;
 }
-#endif
