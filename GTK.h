@@ -21,6 +21,7 @@ struct MessageStruct
     char *message;
 };
 
+MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, serverConnection *server, struct allRoom *Allroom, fifo *outputFIFO, inboxQueue *inbox, char *username, char *message);
 gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data);        /* Exits out of the window and the program */
 gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data); /* Exits out of the window and the program */
 //void click(GtkWidget *widget, GdkEvent *event, gpointer data);
