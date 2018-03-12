@@ -6,8 +6,8 @@
 #include <assert.h>
 
 GtkWidget *view;
-GtkTextBuffer *buffer;
 
+/*
 static gboolean button_press_callback (GtkWidget *event_box,
                                        GdkEventButton *event,
                                        char* filename)
@@ -16,7 +16,9 @@ static gboolean button_press_callback (GtkWidget *event_box,
     GtkTextIter iter;
     GtkImage *image;
     GtkTextChildAnchor *anchor;
-    
+    GtkTextBuffer *buffer;
+   
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
     cursor_pos = gtk_text_buffer_get_insert(buffer);
     gtk_text_buffer_get_iter_at_mark(buffer, &iter, cursor_pos);
     image = gtk_image_new_from_file(filename);
@@ -26,20 +28,43 @@ static gboolean button_press_callback (GtkWidget *event_box,
     
     return TRUE;
 }
+*/
+
+static gboolean button_press_callback (GtkWidget *event_box,
+                                       GdkEventButton *event,
+                                       char* filename)
+{   
+    GtkTextBuffer *buffer;
+    GtkTextMark *selection_bound;
+
+    char emoji_name[10] = ":";
+    strncat(emoji_name, filename, 8);
+    strcat(emoji_name, ":");
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+    /* checks if text is selected */
+    if (gtk_text_buffer_get_has_selection(buffer) == TRUE)
+    {
+        gtk_text_buffer_delete_selection(buffer, TRUE, TRUE);   
+    }
+    gtk_text_buffer_insert_at_cursor(buffer, emoji_name, 10);
+
+    return TRUE;
+}
+
 
 GtkWidget* createClickableImage(char* filename)
 {
     GtkImage *image;
-    GtkWidget *eventBox;
+    GtkWidget *emojiButton;
     
     image = gtk_image_new_from_file(filename);   
-    eventBox = gtk_event_box_new();
+    emojiButton = gtk_button_new();
     
-    gtk_container_add(GTK_CONTAINER(eventBox), GTK_WIDGET(image));
-    
-    g_signal_connect(G_OBJECT(eventBox), "button_press_event",
+    gtk_button_set_image(emojiButton, image);
+    gtk_button_set_relief(GTK_BUTTON(emojiButton), GTK_RELIEF_NONE);
+    g_signal_connect(G_OBJECT(emojiButton), "button_press_event",
                      G_CALLBACK (button_press_callback), filename);
-    return eventBox;
+    return emojiButton;
 }
 
 int main( int argc, char *argv[] )
@@ -48,6 +73,7 @@ int main( int argc, char *argv[] )
     GtkWidget *VBox, *Label, *HBox;
     GtkWidget *emoji1, *emoji2, *emoji3;    
     GtkWidget *scrolled_window;    
+    GtkTextBuffer *buffer;
 
     gtk_init(&argc, &argv);
 
@@ -73,9 +99,9 @@ int main( int argc, char *argv[] )
     HBox = gtk_hbox_new(TRUE, 10);
     gtk_box_pack_start(GTK_BOX(VBox), HBox, FALSE, FALSE, 0);
        
-    emoji1 = createClickableImage("icon_smile.gif");
-    emoji2 = createClickableImage("icon_lol.gif");
-    emoji3 = createClickableImage("icon_cool.gif");
+    emoji1 = createClickableImage("smile___.gif");
+    emoji2 = createClickableImage("lol_____.gif");
+    emoji3 = createClickableImage("cool____.gif");
     gtk_box_pack_start(GTK_BOX(HBox), emoji1, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(HBox), emoji2, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(HBox), emoji3, FALSE, FALSE, 0);
