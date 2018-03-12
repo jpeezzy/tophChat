@@ -71,7 +71,7 @@ server_back_end.o: server_back_end.c server_back_end.h constants.h
 
 
 
-tophChatUsers.o: ./users/tophChatUsers.c ./users/tophChatUsers.h
+tophChatUsers.o: tophChatUsers.c tophChatUsers.h
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
 GTK.o:  GTK.c GTK.h emoji.h
