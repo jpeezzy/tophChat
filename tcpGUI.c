@@ -156,7 +156,7 @@ roomList *roomsetInit(void)
 {
     roomList *temproomSet = malloc(sizeof(struct allRoom));
     temproomSet->totalRoom = CHAT_ROOM_LIMIT;
-    for (int i = 0; i < temproomSet->totalRoom; ++i)
+    for (int i = 0; i < CHAT_ROOM_LIMIT; ++i)
     {
         (temproomSet->roomList[i]).status = ROOM_UNALLOCATED;
         (temproomSet->roomList[i]).inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
