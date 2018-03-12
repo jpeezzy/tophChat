@@ -51,25 +51,27 @@ TEST(ServerRoomCreate, SERVER_ROOM_TEST)
 }
 
 // TODO: test edge cases
-// TEST(SeverRoomUser, SERVER_ROOM_TEST)
-// {
-//     TINFO *database = createTINFO();
-//     allServerRoom *allRoom = serverRoomSetCreate();
-//     serverChatRoom *testRoom = &(allRoom->roomList[10]);
-//     char userName[] = "ADMIN";
-//     struct tophChatUser *testUser = findUserByName(userName, database);
-//     addUserToServerRoom(testRoom, userName, database);
-//     EXPECT_EQ(testRoom->socketList[0], testUser->socket);
-//     EXPECT_EQ(testUser->numOfRoomUserIn, 1);
-//     EXPECT_EQ(testUser->listOfRooms[0], 10);
-//     EXPECT_EQ(testRoom->peopleNum, 1);
+TEST(SeverRoomUser, SERVER_ROOM_TEST)
+{
+    TINFO *database = createTINFO();
+    allServerRoom *allRoom = serverRoomSetCreate();
+    serverChatRoom *testRoom = &(allRoom->roomList[10]);
+    char userName[] = "ADMIN";
+    struct tophChatUser *testUser = findUserByName(userName, database);
+    addUser(userName, userName, 1231, database);
 
-//     removeUserFromServerRoom(testRoom, userName, database);
-//     EXPECT_EQ(testRoom->socketList[0], -1);
-//     EXPECT_EQ(testUser->numOfRoomUserIn, 0);
-//     EXPECT_EQ(testUser->listOfRooms[0], -1);
-//     EXPECT_EQ(testRoom->peopleNum, 0);
-// }
+    addUserToServerRoom(testRoom, userName, database);
+    EXPECT_EQ(testRoom->socketList[0], testUser->socket);
+    EXPECT_EQ(testUser->numOfRoomUserIn, 1);
+    EXPECT_EQ(testUser->listOfRooms[0], 10);
+    EXPECT_EQ(testRoom->peopleNum, 1);
+
+    removeUserFromServerRoom(testRoom, userName, database);
+    EXPECT_EQ(testRoom->socketList[0], -1);
+    EXPECT_EQ(testUser->numOfRoomUserIn, 0);
+    EXPECT_EQ(testUser->listOfRooms[0], -1);
+    EXPECT_EQ(testRoom->peopleNum, 0);
+}
 
 TEST(OnlineListGenerate, onlineList)
 {
@@ -84,33 +86,34 @@ TEST(OnlineListGenerate, onlineList)
 }
 
 // TODO: test edge cases
-// TEST(AddRemoveUser, onlineList)
-// {
-//     TINFO *database = createTINFO();
-//     allServerRoom *allRoom = serverRoomSetCreate();
-//     char userName[] = "ADMIN";
-//     struct tophChatUser *testUser = findUserByName(userName, database);
-//     onlineUserList *userList = serverCreateOnlineList();
-//     onlineUser *testOnlUser;
+TEST(AddRemoveUser, onlineList)
+{
+    TINFO *database = createTINFO();
+    allServerRoom *allRoom = serverRoomSetCreate();
+    char userName[] = "ADMIN";
+    struct tophChatUser *testUser = findUserByName(userName, database);
+    onlineUserList *userList = serverCreateOnlineList();
+    onlineUser *testOnlUser;
+    addUser(userName, userName, 1231, database);
 
-//     ASSERT_TRUE((testOnlUser = serverAddOnlineUser(userName, userList, 55, database)) != NULL);
-//     EXPECT_EQ(&(userList->userList[0]), testOnlUser);
-//     EXPECT_EQ(userList->userList[0].slot_status, ONLINE);
-//     EXPECT_EQ(userList->userList[0].userProfile, testUser);
-//     EXPECT_EQ(userList->userList[0].userProfile->socket, 55);
+    ASSERT_TRUE((testOnlUser = serverAddOnlineUser(userName, userList, 55, database)) != NULL);
+    EXPECT_EQ(&(userList->userList[0]), testOnlUser);
+    EXPECT_EQ(userList->userList[0].slot_status, ONLINE);
+    EXPECT_EQ(userList->userList[0].userProfile, testUser);
+    EXPECT_EQ(userList->userList[0].userProfile->socket, 55);
 
-//     serverLogOffUser(testOnlUser);
-//     EXPECT_EQ(testOnlUser->slot_status, NOT_ONLINE);
-//     EXPECT_EQ(testOnlUser->userProfile->socket, NOT_ONLINE);
-//     for (int i = 0; i < CHAT_ROOM_LIMIT; ++i)
-//     {
-//         EXPECT_EQ(testOnlUser->userProfile->listOfRooms[i], -1);
-//     }
-//     EXPECT_EQ(testOnlUser->userProfile->numOfRoomUserIn, 0);
+    serverLogOffUser(testOnlUser);
+    EXPECT_EQ(testOnlUser->slot_status, NOT_ONLINE);
+    EXPECT_EQ(testOnlUser->userProfile->socket, NOT_ONLINE);
+    for (int i = 0; i < CHAT_ROOM_LIMIT; ++i)
+    {
+        EXPECT_EQ(testOnlUser->userProfile->listOfRooms[i], -1);
+    }
+    EXPECT_EQ(testOnlUser->userProfile->numOfRoomUserIn, 0);
 
-//     char buffer[100];
-//     EXPECT_GE(recv(testOnlUser->userProfile->socket, buffer, 100, 0), 0);
-// }
+    char buffer[100];
+    EXPECT_GE(recv(testOnlUser->userProfile->socket, buffer, 100, 0), 0);
+}
 
 int main(int argc, char **argv)
 {
