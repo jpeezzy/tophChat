@@ -62,7 +62,7 @@ int main( int argc, char *argv[] )
     HBox = gtk_hbox_new(TRUE, 10);
     gtk_box_pack_start(GTK_BOX(VBox), HBox, FALSE, FALSE, 0);
        
-    emoji_popup_button = emoji_popup(view);
+    emoji_popup_button = emoji_popup(GTK_TEXT_VIEW(view));
     gtk_box_pack_start(GTK_BOX(HBox), emoji_popup_button, FALSE, FALSE, 0);
     
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);

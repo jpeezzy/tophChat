@@ -67,10 +67,10 @@ static GtkWidget* createEmojiButton(char* filename)
     GtkImage *image;
     GtkWidget *emojiButton;
     
-    image = gtk_image_new_from_file(filename);   
+    image = GTK_IMAGE(gtk_image_new_from_file(filename));   
     emojiButton = gtk_button_new();
        
-    gtk_button_set_image(GTK_BUTTON(emojiButton), image);
+    gtk_button_set_image(GTK_BUTTON(emojiButton), GTK_WIDGET(image));
     gtk_button_set_relief(GTK_BUTTON(emojiButton), GTK_RELIEF_NONE);
     return emojiButton;
 }
@@ -98,9 +98,9 @@ GtkWidget* emoji_popup(GtkTextView *view)
     char* filename;
 
     emoji_popup_button = gtk_button_new();
-    thumbnail = gtk_image_new_from_file("thumbnail.gif");
+    thumbnail = GTK_IMAGE(gtk_image_new_from_file("thumbnail.gif"));
 
-    gtk_button_set_image(emoji_popup_button, thumbnail);
+    gtk_button_set_image(GTK_BUTTON(emoji_popup_button), GTK_WIDGET(thumbnail));
     gtk_button_set_relief(GTK_BUTTON(emoji_popup_button), GTK_RELIEF_NONE);
     
     filename = "PogChamp.gif";
@@ -280,7 +280,7 @@ void insert_emoji (GtkTextView *view, GtkTextMark *start)
                     gtk_text_iter_backward_char(&start_tag);
                     gtk_text_iter_forward_char(&end_tag);
                     gtk_text_buffer_delete (buffer, &start_tag, &end_tag); 
-                    emoji = gtk_image_new_from_file(emoji_name);
+                    emoji = GTK_IMAGE(gtk_image_new_from_file(emoji_name));
                     anchor = gtk_text_buffer_create_child_anchor(buffer, &start_tag);
                     gtk_text_view_add_child_at_anchor(GTK_TEXT_VIEW(view),
                                                       GTK_WIDGET(emoji),
