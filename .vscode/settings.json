@@ -20,6 +20,7 @@
         "typeinfo": "cpp",
         "tcppacket.h": "c",
         "protocol_const.h": "c",
-        "tcpgui.h": "c"
+        "tcpgui.h": "c",
+        "types.h": "c"
     }
 }

@@ -68,13 +68,13 @@ int retrieveInboxMessage(char *message, inboxQueue *inbox);
 
 int writeInboxMessage(char *message, inboxQueue *inbox);
 
-int requestRoom(roomList *allRoom, fifo *outputFIFO);
+int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName);
 
 // when receiving the confirmation of room from a server, mark the room as ready
 int receiveRoom(roomList *allRoom, int serverroomNum);
 
 // close the room and let the server know that the room number is free to be used by others
-int closeRoom(chatRoom *room, fifo *outputFIFIO);
+int closeRoom(chatRoom *room, fifo *outputFIFIO, char *userName);
 
 roomList *roomsetInit(void);
 
@@ -90,5 +90,13 @@ chatRoom *findReadyRoom(roomList *allRoom);
 int fetchMessage(chatRoom *room, char *buffer);
 
 // copy the user message to the output queue of the program
-int sendMessage(chatRoom *room, fifo *outputFIFO, char *message);
+int sendMessage(chatRoom *room, fifo *outputFIFO, char *userName, char *message);
+
+int sendMessageToServer(fifo *outputFIFO, serverConnection *server);
+
+// get a message from a server and put it in the correct fifo
+int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection *server);
+
+int parseCommand(inboxQueue *inbox);
+
 #endif

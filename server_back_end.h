@@ -71,6 +71,44 @@ struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom);
 
 int serverRoomDel(struct messageServerRoom *room);
 
-int serverRoomFIFOWrite(struct messageServerRoom *room);
+// update which room is not occupied
+void updateFreeRoom(struct allServerRoom *allRoom);
 
+// return a free room
+struct messageServerRoom *serverRoomCreate(struct allServerRoom *allRoom);
+
+// mark the room as free when conversation is done
+void serverRoomReturn(serverChatRoom *room);
+
+// send message to everyone in the room except the writer
+int serverRoomSpreadMessage(struct messageServerRoom *room, char *serverPacket, TINFO *dataBase);
+
+// put the user message onto the server room fifo
+int sendServerRoomMessage(struct messageServerRoom *room, char *userPacket);
+
+// /*******************************USER STUFFS HERE**************************/
+// create a list of online user
+onlineUserList *serverCreateOnlineList(void);
+
+void serverDelOnlineList(onlineUserList *allOnlineUser);
+
+// add user to the list of online user
+onlineUser *serverAddOnlineUser(char *userName, onlineUserList *allUser, TINFO *database);
+
+int serverLogOffUser(onlineUser *user);
+
+int sendRoomInvite(char *userNameRequester, char *userNameTarget, serverChatRoom *room, TINFO *database);
+
+int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataBase);
+
+int removeUserFromServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataBase);
+
+serverChatRoom *findServerRoomByNumber(struct allServerRoom *allRoom, int roomNum);
+
+int getFriendList(TUSER *user);
+
+// get a list of online user separated by '/'
+int getOnlineUser(onlineUserList *allUsers, char *onlineList);
+
+int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO *dataBase, char *packet);
 #endif

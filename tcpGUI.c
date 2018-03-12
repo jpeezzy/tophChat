@@ -288,6 +288,7 @@ int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection
     {
         return errCode;
     }
+    return 0;
 }
 
 int parseCommand(inboxQueue *inbox)
@@ -333,4 +334,5 @@ int parseCommand(inboxQueue *inbox)
     {
         return FIFO_NO_DATA;
     }
+    return 0;
 }
