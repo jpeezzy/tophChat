@@ -1267,11 +1267,34 @@ int main(int argc, char *argv[])
     //    gtk_widget_show(window);
     gtk_widget_show(loginScreen);
 
+    
+    GtkTextBuffer *updateBuffer;
+
     while(!client_shutdown)
     {
         recvMessageFromServer(AllRoom, inbox, server);
         sendMessageToServer(outputBuffer, server);
+        
+        /*** update message ****/
 
+        updateBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen)); /* gets the buffer for the current screen */
+
+        gtk_text_buffer_get_iter_at_offset(updateBuffer, &iter, -1); /* get mark at the end */
+
+        gtk_text_buffer_insert(updateBuffer, &iter, "\n\n", -1); /* insert new lines */
+
+        gtk_text_buffer_insert(updateBuffer, &iter, messageData->username, -1); /* adds "username: " */
+
+        gtk_text_buffer_insert(updateBuffer, &iter, ": ", 2); /* adds ": " */
+
+        gtk_text_buffer_get_iter_at_offset(updateBuffer, &iter, -1); /* get mark at end again */
+
+        gtk_text_buffer_insert(updateBuffer, &iter, "[buffer]", -1); /* inserts user text */
+
+        gtk_entry_set_text(GTK_ENTRY("entry"), ""); /* replaces textBox with empty text again */
+
+        
+        
         UpdateWindow();/* main event loop */
     }
     return 0;
