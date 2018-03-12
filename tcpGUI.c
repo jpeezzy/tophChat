@@ -337,3 +337,130 @@ int parseCommand(inboxQueue *inbox)
     }
     return 0;
 }
+
+#ifdef MAIN
+int main(void)
+{
+    {
+        inboxQueue *tempInboxQueue = initInboxQueue();
+        fifo *tempBuffer = tempInboxQueue->messageQueue;
+        char buffer[500] = "";
+        char *testMessage[] = {"This is nice", "That's not right", "fjldshvjdsnkjwehg;ke", "9283741892uioUoi@fds", "dfsfdsq1@!##$!",
+                               "fjdslfjew", "sjdklfjdslkgndsv,mnklwje", "123451fdsfdsa", "@!!@}{FL:ASL<><AD", "#PHFGJSBH(*@!P(*", "fdshjfjjdslkfjwdsjlnvkls", "2", "3", "~#@!3ewdflkna;", "nc,mxvns/.,/", "1", "2", "546", "142423", "fi2jwrwe", "12412fdsa", "bcnxz., flkawej", "/,/.3,12/lkaf", "fsdlj912pfa", "`13124ujrklj"};
+        int testMessageNum = sizeof(testMessage) / sizeof(char *);
+        for (int i = 0; i < testMessageNum; ++i)
+        {
+            writeInboxMessage(testMessage[i], tempInboxQueue);
+            retrieveInboxMessage(buffer, tempInboxQueue);
+
+            printf("\ntesting %s\n", testMessage[i]);
+            assert(strcmp(buffer, testMessage[i]) == 0);
+        }
+    }
+
+    {
+        roomList *testroomList = roomsetInit();
+        assert(testroomList != NULL);
+        fifo *tempBuffer;
+        for (int i = 0; i < testroomList->totalRoom; ++i)
+        {
+            assert((testroomList->roomList[i]).status == ROOM_UNALLOCATED);
+            tempBuffer = testroomList->roomList[i].inMessage;
+            assert(tempBuffer != NULL);
+            assert(tempBuffer->bufLength == CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
+            assert(tempBuffer->readPos == 0);
+            assert(tempBuffer->writePos == 0);
+        }
+        roomsetDel(testroomList);
+    }
+
+    {
+        srand(time(NULL));
+        roomList *testroomList = roomsetInit();
+        int testRoomServerNum[TEST_ROOM_TOTAL_CASES];
+        int testRoomNum[TEST_ROOM_TOTAL_CASES];
+        chatRoom *tempRoom;
+        chatRoom *tempRoomReady;
+        for (int i = 0; i < TEST_ROOM_TOTAL_CASES; ++i)
+        {
+        randGen_1:
+            testRoomServerNum[i] = rand() % MAX_SERVER_CHATROOMS;
+
+            for (int j = 0; j < i; ++j)
+            {
+                if (testRoomServerNum[j] == testRoomServerNum[i])
+                {
+                    goto randGen_1;
+                }
+            }
+
+        randGen_2:
+            testRoomNum[i] = rand() % CHAT_ROOM_LIMIT;
+
+            for (int j = 0; j < i; ++j)
+            {
+                if (testRoomNum[j] == testRoomNum[i])
+                {
+
+                    goto randGen_2;
+                }
+            }
+
+            testroomList->roomList[testRoomNum[i]].roomNum = testRoomServerNum[i];
+            testroomList->roomList[testRoomNum[i]].status = ROOM_READY;
+        }
+        for (int i = 0; i < TEST_ROOM_TOTAL_CASES; ++i)
+        {
+            tempRoom = retrieveRoom(testroomList, testRoomServerNum[i]);
+            assert(tempRoom->roomNum == testRoomServerNum[i]);
+
+            tempRoomReady = findReadyRoom(testroomList);
+            assert(tempRoomReady->status == ROOM_READY);
+            tempRoomReady->status = ROOM_UNALLOCATED;
+        }
+        tempRoomReady = findReadyRoom(testroomList);
+        assert(tempRoomReady == NULL);
+
+        roomsetDel(testroomList);
+    }
+
+    {
+        fifo *outputFIFO = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
+        roomList *testroomList = roomsetInit();
+        int firstUnAllocatedRoom;
+        char tempPacket[PACKAGE_SIZE] = "";
+        char messageBody[MESS_LIMIT];
+        char userName[MAX_USER_NAME] = "khoitd";
+        for (int i = 0; i < testroomList->totalRoom; ++i)
+        {
+            requestRoom(testroomList, outputFIFO, userName);
+            readBuffer(outputFIFO, tempPacket);
+
+            assert(getroomNumber(tempPacket) == i);
+            assert(getCommandType(tempPacket) == ROID);
+            assert(getCommandID(tempPacket) == ROCREATE);
+        }
+
+        for (int i = 0; i < testroomList->totalRoom; ++i)
+        {
+            testroomList->roomList[i].status = ROOM_WAITING;
+        }
+        assert(-1 == requestRoom(testroomList, outputFIFO, userName));
+
+        for (int i = 0; i < testroomList->totalRoom; ++i)
+        {
+            receiveRoom(testroomList, i + 2);
+            assert(testroomList->roomList[i].roomNum == i + 2);
+            assert(testroomList->roomList[i].status, == ROOM_READY);
+            closeRoom(&(testroomList->roomList[i]), outputFIFO, userName);
+            readBuffer(outputFIFO, tempPacket);
+
+            assert(testroomList->roomList[i].status == ROOM_UNALLOCATED);
+            assert(getroomNumber(tempPacket) == i + 2);
+            assert(getCommandType(tempPacket) == ROID);
+            assert(getCommandID(tempPacket) == RODEL);
+        }
+    }
+    return 0;
+}
+#endif
