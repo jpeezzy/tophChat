@@ -5,7 +5,7 @@
 #include <gtk/gtk.h>
 #include <assert.h>
 
-GtkWidget *view;
+#include "emoji.h"
 
 /*
 static gboolean button_press_callback (GtkWidget *event_box,
@@ -30,48 +30,11 @@ static gboolean button_press_callback (GtkWidget *event_box,
 }
 */
 
-static gboolean button_press_callback (GtkWidget *event_box,
-                                       GdkEventButton *event,
-                                       char* filename)
-{   
-    GtkTextBuffer *buffer;
-    GtkTextMark *selection_bound;
-
-    char emoji_name[10] = ":";
-    strncat(emoji_name, filename, 8);
-    strcat(emoji_name, ":");
-    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
-    /* checks if text is selected */
-    if (gtk_text_buffer_get_has_selection(buffer) == TRUE)
-    {
-        gtk_text_buffer_delete_selection(buffer, TRUE, TRUE);   
-    }
-    gtk_text_buffer_insert_at_cursor(buffer, emoji_name, 10);
-
-    return TRUE;
-}
-
-
-GtkWidget* createClickableImage(char* filename)
-{
-    GtkImage *image;
-    GtkWidget *emojiButton;
-    
-    image = gtk_image_new_from_file(filename);   
-    emojiButton = gtk_button_new();
-    
-    gtk_button_set_image(emojiButton, image);
-    gtk_button_set_relief(GTK_BUTTON(emojiButton), GTK_RELIEF_NONE);
-    g_signal_connect(G_OBJECT(emojiButton), "button_press_event",
-                     G_CALLBACK (button_press_callback), filename);
-    return emojiButton;
-}
-
 int main( int argc, char *argv[] )
 {
-    GtkWidget *window;
+    GtkWidget *window, *view;
     GtkWidget *VBox, *Label, *HBox;
-    GtkWidget *emoji1, *emoji2, *emoji3;    
+    GtkWidget *emoji_popup_button;    
     GtkWidget *scrolled_window;    
     GtkTextBuffer *buffer;
 
@@ -99,13 +62,9 @@ int main( int argc, char *argv[] )
     HBox = gtk_hbox_new(TRUE, 10);
     gtk_box_pack_start(GTK_BOX(VBox), HBox, FALSE, FALSE, 0);
        
-    emoji1 = createClickableImage("smile___.gif");
-    emoji2 = createClickableImage("lol_____.gif");
-    emoji3 = createClickableImage("cool____.gif");
-    gtk_box_pack_start(GTK_BOX(HBox), emoji1, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(HBox), emoji2, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(HBox), emoji3, FALSE, FALSE, 0);
-
+    emoji_popup_button = emoji_popup(view);
+    gtk_box_pack_start(GTK_BOX(HBox), emoji_popup_button, FALSE, FALSE, 0);
+    
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(VBox), scrolled_window, TRUE, TRUE, 0);
     gtk_container_add(GTK_CONTAINER(scrolled_window), view);
