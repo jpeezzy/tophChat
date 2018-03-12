@@ -181,8 +181,18 @@ void ClearForm(GtkWidget *button, GtkWidget *vBox)
     gtk_entry_set_text(GTK_ENTRY(passConfirmEntry), "Re-type password to confirm.");
 }
 
-void EnterKey(GtkWidget *entry, GtkWidget *tabs)
+void EnterKey(GtkWidget *entry, gpointer messageStruct)
 {
+    GtkWidget *tabs;
+    GtkWidget *vBox;
+    GList *conversion;
+    MESSAGE_STRUCT *messageData;
+
+    /* converting from vBox to tabs */
+    messageData = (MESSAGE_STRUCT *) messageStruct;
+    conversion = gtk_container_get_children(GTK_CONTAINER(messageData->widget));
+    tabs = conversion->data;
+
     GtkTextIter iter;
     guint16 check = 0;
     int currentPage = 0;

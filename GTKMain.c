@@ -689,12 +689,12 @@ int main(int argc, char *argv[])
     fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
     inboxQueue *inbox = initInboxQueue();
     /* Message Struct Initialization */
-    MESSAGE_STRUCT MessageStruct;
-    MessageStruct.widget = vBox;
-    MessageStruct.server = server;
-    MessageStruct.Allroom = AllRoom;
-    MessageStruct.outputFIFO = outputBuffer;
-    MessageStruct.inbox = inbox;
+    MESSAGE_STRUCT messageStruct;
+    messageStruct.widget = vBox;
+    messageStruct.server = server;
+    messageStruct.Allroom = AllRoom;
+    messageStruct.outputFIFO = outputBuffer;
+    messageStruct.inbox = inbox;
 
     for (;;)
     {
@@ -713,8 +713,13 @@ int main(int argc, char *argv[])
         g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
 
         /* have to change these signals */
-        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
+        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer) &messageStruct);     /* to send message with enter key */
         g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
+
+//        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
+//        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
+
+
 
         /* option clicks for all of friends on list */
         g_signal_connect(friends[0], "clicked", G_CALLBACK(OptionsPopup), optionsArray0); /* opens up options popup */

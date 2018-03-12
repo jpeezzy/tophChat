@@ -16,14 +16,13 @@ struct MessageStruct
     struct allRoom *Allroom;
     fifo *outputFIFO;
     inboxQueue *inbox;
-}
+};
 
-gboolean
-CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data);        /* Exits out of the window and the program */
+gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data);        /* Exits out of the window and the program */
 gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data); /* Exits out of the window and the program */
 //void click(GtkWidget *widget, GdkEvent *event, gpointer data);
 //GtkWidget *CreateBox(GtkWidget *window, GtkWidget *button);
-void EnterKey(GtkWidget *entry, GtkWidget *tabs);                                                                                      /* when the user presses enter in the textBox */
+void EnterKey(GtkWidget *entry, gpointer messageStruct);                                                                                      /* when the user presses enter in the textBox */
 void SendButton(GtkWidget *widget, GtkWidget *vBox);                                                                                   /* when user presses send button */
 void OptionsPopup(GtkWidget *button, GtkWidget *options[]);                                                                            /* option box pops up when friend is clicked on */
 void MessageUser(GtkWidget *widget, GtkWidget *tabCreation[]);                                                                         /* when "message" button pressed. creates new tab for the friend" */
