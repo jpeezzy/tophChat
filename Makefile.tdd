@@ -66,7 +66,7 @@ tcpPacket_test.o: tcpPacket_test.cc tcpPacket.c
 tcpPacket_debug.o: tcpPacket.c tcpPacket.h fifo.h tcpGUI.h constants.h 
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
-tdd_server_back_end: server_back_end_test.o server_back_end_debug.o
+tdd_server_back_end: server_back_end_test.o server_back_end_debug.o tcpPacket_debug.o utils.o protocol.o tophChatUsers.o 
 	$(CXX) $(^) -o $(@) $(LKP)
 server_back_end_test.o: server_back_end_test.cc server_back_end.c 
 	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
