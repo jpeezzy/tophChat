@@ -78,9 +78,9 @@ struct allServerRoom *serverRoomSetCreate(void)
 {
     struct allServerRoom *allRoom = malloc(sizeof(struct allServerRoom));
     allRoom->firstFreeRoom = 0;
-    allRoom->totalRoom = MAX_SERVER_CHATROOMS;
+    allRoom->totalRoom = 0;
 
-    for (int i = 0; i < allRoom->totalRoom; ++i)
+    for (int i = 0; i < MAX_SERVER_CHATROOMS; ++i)
     {
         ((allRoom->roomList)[i]).isOccupied = ROOM_NOT_OCCUPIED;
         ((allRoom->roomList)[i]).roomNum = i;
@@ -96,7 +96,7 @@ struct allServerRoom *serverRoomSetCreate(void)
 }
 void serverRoomSetDel(struct allServerRoom *allRoom)
 {
-    for (int i = 0; i < allRoom->totalRoom; ++i)
+    for (int i = 0; i < MAX_SERVER_CHATROOMS; ++i)
     {
         closeBuffer(((allRoom->roomList)[i]).inMessage);
         for (int j = 0; j < MAX_USER_PER_ROOM; ++j)
@@ -112,7 +112,7 @@ void updateFreeRoom(struct allServerRoom *allRoom)
 {
     assert(allRoom);
     int i;
-    for (i = 0; i < allRoom->totalRoom; ++i)
+    for (i = 0; i < MAX_SERVER_CHATROOMS; ++i)
     {
         if ((((allRoom->roomList)[i]).isOccupied) == ROOM_NOT_OCCUPIED)
         {
@@ -120,7 +120,7 @@ void updateFreeRoom(struct allServerRoom *allRoom)
             break;
         }
     }
-    if (i == allRoom->totalRoom)
+    if (i == MAX_SERVER_CHATROOMS)
     {
         allRoom->firstFreeRoom = -1;
     }
@@ -204,6 +204,7 @@ int sendServerRoomMessage(struct messageServerRoom *room, char *userPacket)
 onlineUserList *serverCreateOnlineList(void)
 {
     onlineUserList *userList = malloc(sizeof(onlineUserList));
+    assert(userList);
     userList->totalOnlineUser = 0;
     for (int i = 0; i < MAX_SERVER_USERS; ++i)
     {
