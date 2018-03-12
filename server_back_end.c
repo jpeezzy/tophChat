@@ -20,7 +20,7 @@
 #include "constants.h"
 #include "testString.h"
 #include "tcpPacket.h"
-#include "users/tophChatUsers.h"
+#include "tophChatUsers.h"
 #include "protocol_const.h"
 #include "protocol.h"
 #include "utils.h"

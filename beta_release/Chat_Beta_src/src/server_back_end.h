@@ -21,7 +21,7 @@
 
 #include "constants.h"
 #include "fifo.h"
-#include "users/tophChatUsers.h"
+#include "tophChatUsers.h"
 typedef struct messageServerRoom serverChatRoom;
 typedef struct allServerRoom serverRoomList;
 typedef struct allOnlineUser onlineUserList;

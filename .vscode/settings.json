@@ -21,6 +21,7 @@
         "tcppacket.h": "c",
         "protocol_const.h": "c",
         "tcpgui.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "tophchatusers.h": "c"
     }
 }
