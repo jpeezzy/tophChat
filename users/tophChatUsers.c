@@ -23,6 +23,8 @@ TUSER *addUser(cp _userName, cp _name,
 	temp->hashedPassword = _hashedPassword;
 	temp->friendCount = 0;
 	temp->hashID = hashID(_userName);
+	temp->numOfRoomUserIn = 0;
+	temp->socket = 0; 
 
 	/*Null everythin gwe don't know */
 	temp->email = NULL;
@@ -32,6 +34,16 @@ TUSER *addUser(cp _userName, cp _name,
 	//Increment Total user count
 	userBase->numOfUsers++;
 	
+	//Settin the chat rooms to negative
+	for(int i = 0; i < CHAT_ROOM_LIMIT; i++)
+	{
+		temp->listOfRooms[i] = -1;
+	}
+	
+	for(int i = 0; i < MAX_FRIENDS; i++)
+	{
+		temp->friends[i] = NULL;
+	}
 	return temp;
 }
 
@@ -86,9 +98,14 @@ int addFriend(cp userName, TUSER *user, TINFO *userBase)
 	{
 		if(strcmp(userName, userBase->Users[i]->userName) == 0)
 		{
+			TUSER *potentialFriend = userBase->Users[i];
 			//add user to friendList
-			user->friends[user->friendCount] = userBase->Users[i];
+			user->friends[user->friendCount] = potentialFriend;
 			user->friendCount++;
+
+			//add friend from the other end
+			potentialFriend->friends[potentialFriend->friendCount] = user;
+			potentialFriend->friendCount++;
 		}
 		else
 			printf("User does not exist!\n");
@@ -128,16 +145,56 @@ TUSER *findUserByName(cp username, TINFO *userbase)
 	}
 	return NULL;
 }
+
+//Returns 0 if the user matches, 1 if it doesn't
+int authentifyUser(cp username, ui hashpassword, TINFO *userbase)
+{
+	TUSER *actualUser = findUserByName(username, userbase);
+	return (strcmp(username, actualUser->userName) == 0 && 
+			hashpassword == actualUser->hashedPassword) ? 0: 1;
+}
+
+int checkIfFriends(TUSER *user1, TUSER *user2)
+{
+	int user1friend = 0;
+	int user2friend = 0;
+	for(int i = 0; i < MAX_FRIENDS; i++)
+	{
+		if(user1->friends[i] == user2)
+		{
+			user1friend = 1;
+		}
+		if(user2->friends[i] == user1)
+		{
+			user2friend = 1;
+		}
+	}
+	return user2friend && user1friend;
+}
+//Check Sockets, -1 offline, returns1 online 
+int checkSocket(TUSER *user)
+{
+	return (user->socket == -1) ? -1: 1;
+}
+//returns 0 if sucessful
+int changeSocket(TUSER *user, int socket)
+{
+	user->socket = socket;
+	return 0;
+}
 #ifdef DEBUG
 int main()
 {
 	/*creating a user */
 	TINFO *dataBase = createTINFO();
 	addUser("Justindlee","Justin", 1234, dataBase);
-	findUserByName("Justindlee", dataBase);
+	addUser("BoostedGorilla","asdf", 1234, dataBase);
+	//printf("I was able to find %s \n", findUserByName("Justindlee", dataBase)->userName);
+	//printf("We authentify the user with the password 123, result is %d \n", authentifyUser("Justindlee", 1234, dataBase));
+	addFriend("BoostedGorilla", findUserByName("Justindlee", dataBase), dataBase);
+	printf("%d\n", checkIfFriends(findUserByName("Justindlee", dataBase), findUserByName("BoostedGorilla", dataBase)));
 	deleteUser(dataBase->Users[0]);
-	free(dataBase);
-
+	deleteTINFO(dataBase);
 	printf("Finished running!\n");
 	return 0;
 }
