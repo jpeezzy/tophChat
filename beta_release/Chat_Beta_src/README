@@ -1,38 +1,39 @@
 /*************** Toph Chat README ******************/
-Authors: Khoi Trinh
-	 Justin Lee
-	 Abel Jimenez 
-	 Aung Thu 
-	 Jason Duong
+Authors: 
+    Khoi "Glorious Leader" Trinh
+	Justin "Blackburn" Lee 
+	Abel "Hot Garbage" Jimenez 
+	Aung "Chromosome" Thu 
+	Jason "Massive" Duong
+
 Affiliated with: University of California, Irvine
-Version: Release 1.0.0: Status (Alpha)
-Date: March 5, 2018
+Version: Release 1.0.0: Status (Beta Mode)
+Date: March 12, 2018
 /***************************************************/
 
 Description: Toph Chat is an instant messaging application 
-supporting standard features such as private chats, group chats,
+supporting standard features such as private chats, group chats, emojis,
 and data encryption.
 
 
-
-	      Current Module Statuses (ALPHA):
+	      Current Module Statuses (Beta):
       Client-Side: Basic send/receive of packet and protocols parsing, basic 
 	 	   data structure like room, user informatiom. Need to implement 
 		   special commands like invite, room admin, unfriend, indexing 
-		   of user room can be improved. Existing module needs to be 
+		   of user room can be improved. Existing module are now 
 	 	   debugged and optimized.
       Server-Side: Basic send/receive and message parsing. Server also need to be 
 		   modified to account for special need like admin, cookies, 
 		   user database search.
        Client GUI: User-inputted messages can be displayed, Friend list 
-          	   can be shown. multiple chat rooms can be opened
-       Server GUI: Basic display framework created
-  Data Encryption: Basic encryption code foundation created.
+          	   can be shown. multiple chat rooms can be opened, emojis almost supported 
+       Server GUI: Basic display framework created and now functional
+  Data Encryption: Advanced encryption code foundation created. Symmetrical and Asymetrical encrpytion 
 
 
+*Refer to /doc/Chat_UserManual.pdf for more in-depth information
+on the functionalities and corresponding timelines for each functionality.
 
-
-*Refer to /doc/Chat_SoftwareSpec.pdf for more detailed information on structures, modules and their functions.
 
 
 References
