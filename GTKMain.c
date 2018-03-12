@@ -316,6 +316,62 @@ int main(int argc, char *argv[])
     gtk_widget_show(accountCreationVBox);
 //    gtk_widget_show(accountCreationScreen);
 
+    /*************************************************************************************************/
+    /*******************************/
+    /******   Message Popup  ******/
+    /*****************************/
+    GtkWidget *messagePopupScreen;
+    
+    messagePopupScreen = gtk_window_new(GTK_WINDOW_TOPLEVEL);      
+
+    gtk_window_set_title(GTK_WINDOW(messagePopupScreen), "New Message Request!");  /* sets title of window */
+    gtk_widget_set_size_request(messagePopupScreen, 270, 100);
+    gtk_container_set_border_width(GTK_CONTAINER (messagePopupScreen), 10);
+    gtk_window_set_resizable(GTK_WINDOW (messagePopupScreen), FALSE);
+    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer) name);/* deletes window */
+
+    /* labels */
+    GtkWidget *newMessage;
+    newMessage = gtk_label_new("You've received a new message!");
+    
+    /* buttons */
+    GtkWidget *reject;
+    reject = gtk_button_new_with_label("Reject");
+    gtk_widget_set_size_request(reject, 70, 30);
+
+    GtkWidget *accept;
+    accept = gtk_button_new_with_label("Accept");
+    gtk_widget_set_size_request(accept, 70, 30);
+   
+    /* hbox */
+    GtkWidget *newMessageHBox;
+    newMessageHBox = gtk_hbox_new(TRUE, 0);
+    
+    /* vbox */
+    GtkWidget *newMessageVBox;
+    newMessageVBox = gtk_vbox_new(FALSE ,0);
+
+    /*** final packing ***/
+    gtk_box_pack_start(GTK_BOX(newMessageHBox), reject, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(newMessageHBox), accept, FALSE, FALSE, 0);
+
+    gtk_box_pack_start(GTK_BOX(newMessageVBox), newMessage, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(newMessageVBox), newMessageHBox, FALSE, FALSE, 0);    
+
+    gtk_container_add(GTK_CONTAINER (messagePopupScreen), newMessageVBox);
+
+    /* SIGNALS */
+    g_signal_connect(accept, "clicked", G_CALLBACK (AcceptMessage), messagePopupScreen); 
+
+
+    /* Show widgets */
+    gtk_widget_show(newMessageVBox);
+    gtk_widget_show(newMessageHBox);
+    gtk_widget_show(reject);
+    gtk_widget_show(accept);
+    gtk_widget_show(newMessage);
+//    gtk_widget_show(messagePopupScreen);
+
     /*******************************/
     /*****      VARIABLES     *****/
     /*****************************/
@@ -665,6 +721,8 @@ int main(int argc, char *argv[])
     g_signal_connect(createAccount, "clicked", G_CALLBACK(CreateAccount), accountCreationScreen);
     g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), loginArray);    /* if the user wants to log in */
      
+        /* message signals */
+//    g_signal_connect(
 
     /****** SHOWING WIDGETS ******/
     gtk_widget_show(scrollWindow);
@@ -688,6 +746,8 @@ int main(int argc, char *argv[])
     gtk_widget_show(hBox);
 //    gtk_widget_show(window);
     gtk_widget_show(loginScreen);
+    
+    printf("hello \n");    
 
     gtk_main(); /* main event loop */
     
