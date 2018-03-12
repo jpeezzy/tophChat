@@ -107,6 +107,9 @@ test_RSA: rsa_DEBUG.o
 test_serverGUI: serverGUI_DEBUG.o
 	$(CC) $(LFLAGS) $(DEBUG) $(GTKLIBS) $(^) -o $(@)
 
+test_Encrypt: encrypt_DEBUG.o
+	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) $(^) -o $(@)
+
 #clean 
 
 clean:
