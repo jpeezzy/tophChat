@@ -93,7 +93,7 @@ onlineUserList *serverCreateOnlineList(void);
 void serverDelOnlineList(onlineUserList *allOnlineUser);
 
 // add user to the list of online user
-onlineUser *serverAddOnlineUser(char *userName, onlineUserList *allUser, TINFO *database);
+onlineUser *serverAddOnlineUser(char *userName, onlineUserList *allUser, int socket, TINFO *database);
 
 int serverLogOffUser(onlineUser *user);
 
