@@ -290,8 +290,25 @@ void MessageUser(GtkWidget *widget, GtkWidget *tabCreation[])
 
 void BlockUser(GtkWidget *widget, GtkWidget *tabCreation[])
 {
-    printf("You blocked the user from contacting you. \n");
-    printf("[TO BE IMPLEMENTED]\n");
+    int check = 0;
+
+    check = CheckNotebook(tabCreation[2], tabCreation[5]);  /* checking if tab already exists */
+    if (check > 1)
+    {
+        printf("[Delete the tab] \n");
+        printf("[TO BE IMPLEMENTED] \n");
+    }
+    else if (check == 0)
+    {
+        printf("You blocked the user from contacting you. \n");
+        printf("[TO BE IMPLEMENTED]\n");
+    }
+}
+
+void AcceptMessage(GtkWidget *button, GtkWidget *window)
+{
+   gtk_widget_destroy(window);
+
 }
 
 void SetWelcomeScreen(GtkWidget *tabs, GtkWidget *tabLabel, GtkWidget *scrollWindow, GtkWidget *messageScreen, GtkTextBuffer *buffer)

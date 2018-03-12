@@ -21,6 +21,6 @@ gboolean Overwrite(GtkWidget *username, GtkWidget *entry);  /* overwrites the en
 void ShowCharacters(GtkWidget *button, GtkWidget *vBox); /* shows password characters if button is toggled */
 void ClearForm(GtkWidget *button, GtkWidget *vBox); /* clears the forms */
 void CreateAccount(GtkWidget *button, GtkWidget *screen);   /* create a new account */
-
+void AcceptMessage(GtkWidget *button, GtkWidget *window);
 
 #endif 
