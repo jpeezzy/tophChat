@@ -1,9 +1,14 @@
 #include <gtk/gtk.h>
 #include "GTK.h"
-#include "tcpGUI.h"
 
 #include <assert.h>
 #include <string.h>
+#include "fifo.h"
+#include "constants.h"
+#include "protocol_const.h"
+#include "tcpGUI.h"
+#include "utils.h"
+#include "protocol.h"
 
 gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
@@ -189,7 +194,7 @@ void EnterKey(GtkWidget *entry, gpointer messageStruct)
     MESSAGE_STRUCT *messageData;
 
     /* converting from vBox to tabs */
-    messageData = (MESSAGE_STRUCT *) messageStruct;
+    messageData = (MESSAGE_STRUCT *)messageStruct;
     conversion = gtk_container_get_children(GTK_CONTAINER(messageData->widget));
     tabs = conversion->data;
 
@@ -224,6 +229,7 @@ void EnterKey(GtkWidget *entry, gpointer messageStruct)
 
 void SendButton(GtkWidget *widget, GtkWidget *vBox)
 {
+    GtkWidget *vBox;
     GtkTextIter iter;
     GtkWidget *tabs;
     GtkWidget *messageScreen;

@@ -211,7 +211,7 @@ void serverDelOnlineList(onlineUserList *allOnlineUser)
 }
 
 // add user to the list of online user
-onlineUser *serverAddOnlineUser(char *userName, onlineUserList *allUser, TINFO *database)
+onlineUser *serverAddOnlineUser(char *userName, onlineUserList *allUser, int socket, TINFO *database)
 {
     int i;
 
@@ -233,6 +233,7 @@ onlineUser *serverAddOnlineUser(char *userName, onlineUserList *allUser, TINFO *
         {
             allUser->userList[i].slot_status = ONLINE;
             allUser->userList[i].userProfile = tempUser;
+            tempUser->socket = socket;
             return &(allUser->userList[i]);
         }
     }

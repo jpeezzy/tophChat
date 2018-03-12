@@ -56,7 +56,7 @@ int main_loop(void)
             {
                 incomingSocket = accept(socketListener, addrDummy, &socklenDummy);
                 ++(userList->totalOnlineUser);
-                serverAddOnlineUser(userName[j], userList, dataBase);
+                serverAddOnlineUser(userName[j], userList, incomingSocket, dataBase);
                 addUserToServerRoom(testRoom, userName[j], dataBase);
                 ++j;
             }
