@@ -451,7 +451,7 @@ int main(void)
         {
             receiveRoom(testroomList, i + 2);
             assert(testroomList->roomList[i].roomNum == i + 2);
-            assert(testroomList->roomList[i].status, == ROOM_READY);
+            assert(testroomList->roomList[i].status == ROOM_READY);
             closeRoom(&(testroomList->roomList[i]), outputFIFO, userName);
             readBuffer(outputFIFO, tempPacket);
 
