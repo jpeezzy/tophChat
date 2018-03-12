@@ -61,7 +61,9 @@ void showFriends(TUSER *user);
 
 //Authentification gets the actual user struct
 //and checks if the password is correct
-int authentifyUser(cp username, ui hashpassword, TUSER *actualUser, TINFO *userbase);
+//return 0 for true 
+//return 1 for false
+int authentifyUser(cp username, ui hashpassword, TINFO *userbase);
 
 int checkIfFriends(TUSER *user1, TUSER *user2);
 
