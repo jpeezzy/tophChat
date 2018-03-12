@@ -360,8 +360,33 @@ serverChatRoom *findServerRoomByNumber(struct allServerRoom *allRoom, int roomNu
     return NULL;
 }
 
+int getFriendList(TUSER *user)
+{
+
+    return 0;
+}
+
+// get a list of online user separated by '/'
+int getOnlineUser(onlineUserList *allUsers, char *onlineList)
+{
+    onlineList[0] = '\0';
+    int nextIndex = 0;
+    for (int i = 0; i < MAX_SERVER_USERS; ++i)
+    {
+        if (allUsers->userList[i].slot_status == ONLINE)
+        {
+            strcat(onlineList, allUsers->userList[i].userProfile->userName);
+            nextIndex += strlen(allUsers->userList[i].userProfile->userName);
+            onlineList[nextIndex] = '/';
+            onlineList[nextIndex] = '\0';
+        }
+    }
+}
+
 int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO *dataBase, char *packet)
 {
+    char message[MESS_LIMIT];
+    char packet[PACKAGE_SIZE];
     for (int i = 0; i < MAX_SERVER_USERS; ++i)
     {
         if (userList->userList[i].slot_status == ONLINE)
@@ -412,6 +437,12 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                         {
                         case CLOSECOM:
                             break;
+
+                        case GETONLINEUSER:
+                            getOnlineUser(userList, message);
+                            assembleCommand(111, COMID, GETONLINEUSER, "server", message, packet);
+                            sendPacket(packet, userList->userList[i].userProfile->socket);
+                            break;
                         }
                     }
                     else
@@ -424,77 +455,6 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
     }
     return 0;
 }
-
-    // /********************************UTILITIES HERE*********************************/
-
-    // return the pointer to the room based on room number
-    // serverChatRoom *lookUpRoom(struct allServerRoom *allRoom, int roomNum)
-    // {
-    //     int j = 0;
-    //     for (j = 0; j < allRoom->totalRoom; ++j)
-    //     {
-    //         if (allRoom->roomList[j].roomNum == roomNum)
-    //         {
-    //             return &(allRoom->roomList[j]);
-    //         }
-    //     }
-    //     return NULL;
-    // }
-
-    // // TODO: make this multithreaded
-    // // do all administrative tasks to keep server running
-    // int serverMailman(onlineUserList *userList, struct allServerRoom *allRoom)
-    // {
-    //     char packet[PACKAGE_SIZE];
-    //     struct messageServerRoom *tempRoom;
-    //     char messageBody[MESS_LIMIT + 1];
-    //     int roomNum;
-    //     struct messageServerRoom *tempRoom;
-    //     for (int i = 0; i < userList->totalUser; ++i)
-    //     {
-    //         if (fetchPacket(packet, userList->userList[i].socket) != SOCKET_NO_DATA)
-    //         {
-    //             if (getpacketType(packet) == ISMESSAGE)
-    //             {
-    //                 // TODO handle error better
-    //                 // this is a message
-    //                 roomNum = getroomNumber(packet);
-    //                 if ((tempRoom = lookUpRoom(allRoom, roomNum)) != NULL)
-    //                 {
-    //                     serverRoomSpreadMessage(userList->userList[i].socket, tempRoom, packet);
-    //                 }
-    //             }
-
-    //             else if (getpacketType(packet) == ISCOMM)
-    //             {
-    //                 char comType = getCommandType(packet);
-    //                 if (comType == ROID)
-    //                 {
-    //                     switch (getCommandID(packet))
-    //                     {
-    //                     case ROCREATE:
-    //                         if ((tempRoom = serverRoomCreate(allRoom)) != NULL)
-    //                         {
-    //                             // TODO: Check for if room is full
-    //                             tempRoom->isOccupied = ROOM_OCCUPIED;
-    //                             tempRoom->socketList[tempRoom->peopleNum - 1] = userList->userList[i].socket;
-    //                             tempRoom->peopleNum += 1;
-    //                         }
-    //                         break;
-    //                     case RODEL:
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //             else
-    //             {
-    //                 // not a recognizable format
-    //             }
-    //         }
-    //     }
-    //     // no data
-    //     return -1;
-    // }
 
 #ifdef TEST_SERVER
 int main(int argc, char *argv[])

@@ -62,6 +62,7 @@
 #define COMID 'C'
 #define CLOSECOM 1 // close the communication
 #define OPENCOM 2  // open a new communication
+#define GETONLINEUSER 3
 #define TOTAL_COMRQ 2
 
 // TODO: use enum for this

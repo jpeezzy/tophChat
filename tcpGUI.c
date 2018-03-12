@@ -317,6 +317,12 @@ int parseCommand(inboxQueue *inbox)
         }
         else if (getCommandType(packet) == COMID)
         {
+            switch (getCommandID(packet))
+            {
+            case GETONLINEUSER:
+                // display list of user
+                break;
+            }
         }
         else
         {
@@ -328,47 +334,3 @@ int parseCommand(inboxQueue *inbox)
         return FIFO_NO_DATA;
     }
 }
-
-// int mailMan(roomList *allRoom, serverConnection *server)
-// {
-//     char packet[PACKAGE_SIZE];
-//     chatRoom *tempRoom;
-//     char messageBody[MESS_LIMIT + 1];
-//     char roomNum[CHAT_ROOM_CHARACTER + 1];
-//     if (fetchPacket(packet, server->socket) != SOCKET_NO_DATA)
-//     {
-
-//         if (getpacketType(packet) == ISMESSAGE)
-//         {
-//             // TODO: fix room number mechanism
-//             getMessageBody(packet, messageBody);
-//             tempRoom = retrieveRoom(allRoom, getroomNumber(packet));
-//             writeBuffer(&(tempRoom->inMessage), messageBody, MESS_LIMIT + 1);
-//         }
-//         else if (getpacketType(packet) == ISCOMM)
-//         {
-//             switch (getCommandType(packet))
-//             {
-//             case FRIENDID:
-//                 switch (getCommandID(packet))
-//                 {
-//                 case ROCREATE:
-//                     prepareRoom(allRoom, getroomNumber(packet));
-//                     break;
-//                 case RODEL:
-//                     closeRoom(retrieveRoom(allRoom, getroomNumber(packet)), server);
-//                 }
-//                 break;
-//             case ROID:
-//                 break;
-//             case COMID:
-//                 break;
-//             default:
-//                 return UNKNOWN_COMMAND_TYPE;
-//             }
-//         }
-//         return 0;
-//     }
-//     // no data
-//     return -1;
-// }
