@@ -25,7 +25,7 @@ TUSER *addUser(cp _userName, cp _name,
 	temp->friendCount = 0;
 	temp->hashID = hashID(_userName);
 	temp->numOfRoomUserIn = 0;
-	temp->socket = 0; 
+	temp->socket = -1; 
 
 	/*Null everythin gwe don't know */
 	temp->email = NULL;
