@@ -285,6 +285,7 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
     MESSAGE_STRUCT *messageData;
     messageData = (MESSAGE_STRUCT *)messageStruct;
     vBox = messageData->widget;
+    const gchar *actualMessage;    
 
     guint16 check = 0;
 
@@ -300,6 +301,7 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
     messageScreen = child->data;
 
     check = gtk_entry_get_text_length(GTK_ENTRY(list2->data)); /* checking length of text input */
+    actualMessage = gtk_entry_get_text(GTK_ENTRY (list2->data));    /* saving actual text */
 
     if (check != 0) /* only run this if there is a text input */
     {
@@ -321,7 +323,7 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
 
         gtk_entry_set_text(GTK_ENTRY(list2->data), ""); /* replaces textBox with empty text again */
 
-        sendMessage(&(Allroom->roomList[0]), messageData->outputFIFO, messageData->username, messageData->message); /* send message to fifo */
+        sendMessage(&(messageData->Allroom->roomList[0]), messageData->outputFIFO, messageData->username, actualMessage); /* send message to fifo */
     }
 }
 

@@ -693,8 +693,9 @@ int main(int argc, char *argv[])
     fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
     inboxQueue *inbox = initInboxQueue();
     /* Message Struct Initialization */
-    MESSAGE_STRUCT messageStruct;
-    messageStruct.widget = vBox;
+    MESSAGE_STRUCT *messageStruct;
+    messageStruct = CreateMessageStruct(vBox, window, server, AllRoom, outputBuffer, inbox, "", "");    
+/*    messageStruct.widget = vBox;
     messageStruct.window = window;
     messageStruct.server = server;
     messageStruct.Allroom = AllRoom;
@@ -702,10 +703,11 @@ int main(int argc, char *argv[])
     messageStruct.inbox = inbox;
     messageStruct.username = "";
     messageStruct.message = "";
-
+*/
     /* Login Struct */
-    MESSAGE_STRUCT loginStruct;
-    loginStruct.widget = loginVBox;
+    MESSAGE_STRUCT *loginStruct;
+    loginStruct = CreateMessageStruct(loginVBox, loginScreen, server, AllRoom, outputBuffer, inbox, "", "");
+/*    loginStruct.widget = loginVBox;
     loginStruct.window = loginScreen;
     loginStruct.server = server;
     loginStruct.Allroom = AllRoom;
@@ -713,9 +715,9 @@ int main(int argc, char *argv[])
     messageStruct.inbox = inbox;
     messageStruct.username = "";
     messageStruct.message = "";
-
+*/
     /* MessageStruct Array */
-    MESSAGE_STRUCT messageStructArray[2];
+    MESSAGE_STRUCT *messageStructArray[2];
     messageStructArray[0] = messageStruct;
     messageStructArray[1] = loginStruct;
 
@@ -734,8 +736,8 @@ int main(int argc, char *argv[])
     g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
 
     /* Messaging Signals */
-    g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer)&messageStruct);     /* to send message with enter key */
-    g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), (gpointer)&messageStruct); /* to send message with "Send" button */
+    g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer) messageStruct);     /* to send message with enter key */
+    g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), (gpointer) messageStruct); /* to send message with "Send" button */
 
     //        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
     //        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
@@ -755,7 +757,7 @@ int main(int argc, char *argv[])
     /* login signals */
     g_signal_connect(quitButton, "clicked", G_CALLBACK(LoginExit), NULL); /* if the user quits */
     g_signal_connect(createAccount, "clicked", G_CALLBACK(CreateAccount), accountCreationScreen);
-    g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), (gpointer)messageStructArray); /* if the user wants to log in */
+    g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), (gpointer) messageStructArray); /* if the user wants to log in */
 
     /* message signals */
     //    g_signal_connect(
@@ -788,6 +790,7 @@ int main(int argc, char *argv[])
         recvMessageFromServer(AllRoom, inbox, server);
         sendMessageToServer(outputBuffer, server);
 
+        printf("hello \n");
         gtk_main(); /* main event loop */
     }
     return 0;

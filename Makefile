@@ -17,13 +17,13 @@ all: fifo_debug.o server_main.o client_main.o utils.o protocol.o tcpPacket_debug
 
 #Executables
 
-server_main: tcpPacket.o server_back_end.o server_main.o utils.o protocol.o tophChatUsers.o constants.h fifo.o
+server_main: tcpPacket_debug.o server_back_end_debug.o server_main.o utils.o protocol.o tophChatUsers.o constants.h fifo.o
 	$(CC)  $(^) -o $(@)	$(LFLAGS)
 
 client_main: tcpPacket.o protocol.o tcpGUI.o client_main.o utils.o
 	$(CC)  $(^) -o $(@)	$(LFLAGS)
 
-ChatGUI: GTKMain.o GTK.o emoji.o protocol.o utils.o tcpPacket_debug.o tcpGUIg.o fifo_debug.o 
+ChatGUI: GTKMain.o GTK.o emoji.o protocol.o utils.o tcpPacket_debug.o tcpGUI.o fifo_debug.o 
 	$(CC) $(CFLAGS) $(GTKLIBS) $(^) -o $(@)
 
 fifo_debug.o: fifo.c fifo.h constants.h
