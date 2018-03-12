@@ -701,7 +701,7 @@ int main(int argc, char *argv[])
     for (;;)
     {
         recvMessageFromServer(AllRoom, inbox, server);
-        sendMessageToServer(outputFIFO, server);
+        sendMessageToServer(outputBuffer, server);
 
         /**** SIGNALS ********/
         g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */

@@ -229,7 +229,7 @@ void EnterKey(GtkWidget *entry, gpointer messageStruct)
 
 void SendButton(GtkWidget *widget, GtkWidget *vBox)
 {
-    GtkWidget *vBox;
+//    GtkWidget *vBox;
     GtkTextIter iter;
     GtkWidget *tabs;
     GtkWidget *messageScreen;

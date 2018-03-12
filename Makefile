@@ -25,7 +25,7 @@ client_main: tcpPacket_debug.o protocol.o tcpGUI_debug.o client_main.o utils.o
 ChatGUI: GTKMain.o GTK.o emoji.o protocol.o utils.o tcpPacket_debug.o tcpGUI_debug.o fifo_debug.o 
 	$(CC) $(CFLAGS) $(GTKLIBS) $(^) -o $(@)
 
-fifo_debug.o: fifo_debug.o: fifo.c fifo.h constants.h
+fifo_debug.o: fifo.c fifo.h constants.h
 	$(CC) -c fifo.c $(CFLAGS) $(DEBUG) -o $(@)
 	
 serverGUI: serverGUI.o 
