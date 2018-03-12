@@ -160,48 +160,57 @@ TEST(getMessageBody, protocolTest)
     ASSERT_EQ(0, strcmp(result, "gfadhjgvnekjbgjkeds23!)#*@!ldsj"));
 }
 
-// TEST(AssembleCommand, AssembleTest)
-// {
-//     char testPacket[PACKAGE_SIZE];
-//     char userName[] = "12345678912345678912";
-//     char senderName[] assembleCommand(111, ROID, RODEL, NULL, testPacket);
-//     EXPECT_EQ(strcmp("1111TPC{}HR2", testPacket), 0);
-//     printf("\n%s\n", testPacket);
+TEST(AssembleCommand, AssembleTest)
+{
+    char testPacket[PACKAGE_SIZE];
+    assembleCommand(111, ROID, RODEL, "dkm1234", "ghsdfsl", testPacket);
+    EXPECT_EQ(strcmp("1111TPC{}HR2dkm1234/ghsdfsl", testPacket), 0);
+    printf("\n%s\n", testPacket);
 
-//     assembleCommand(10, COMID, CLOSECOM, "Test Command", testPacket);
-//     EXPECT_EQ(strcmp("0101TPC{}HC1Test Command", testPacket), 0);
-//     printf("\n%s\n", testPacket);
+    assembleCommand(10, COMID, CLOSECOM, "user_name1", "rewjjdfsl!@#", testPacket);
+    EXPECT_EQ(strcmp("0101TPC{}HC1user_name1/rewjjdfsl!@#", testPacket), 0);
+    printf("\n%s\n", testPacket);
 
-//     assembleCommand(931, FRIENDID, DEFRIEND, NULL, testPacket);
-//     EXPECT_EQ(strcmp("9311TPC{}HF3", testPacket), 0);
-//     printf("\n%s\n", testPacket);
+    assembleCommand(931, FRIENDID, DEFRIEND, "fhskjfds", NULL, testPacket);
+    EXPECT_EQ(strcmp("9311TPC{}HF3fhskjfds/1", testPacket), 0);
+    printf("\n%s\n", testPacket);
 
-//     assembleCommand(312, ROID, RODEL, "!JFLAHS", testPacket);
-//     EXPECT_EQ(strcmp("3121TPC{}HR2!JFLAHS", testPacket), 0);
-//     printf("\n%s\n", testPacket);
-// }
+    assembleCommand(312, ROID, RODEL, "!JFLAHS", "!@#\dasjl", testPacket);
+    EXPECT_EQ(strcmp("3121TPC{}HR2!JFLAHS/!@#\dasjl", testPacket), 0);
+    printf("\n%s\n", testPacket);
+}
 
-// TEST(AssembleMessage, AssembleTest)
-// {
-//     char testPacket[PACKAGE_SIZE] = "";
-//     char messageBody[MESS_LIMIT] = "";
-//     char userName[] = "12345678912345678912";
-//     char outputUserName[30];
-//     char *testMessage[] = {"This is nice", "That's not right", "fjldshvjdsnkjwehg;ke", "9283741892uioUoi@fds", "dfsfdsq1@!##$!",
-//                            "fjdslfjew", "sjdklfjdslkgndsv,mnklwje", "123451fdsfdsa", "@!!@}{FL:ASL<><AD", "#PHFGJSBH(*@!P(*", "fdshjfjjdslkfjwdsjlnvkls", "2", "3", "~#@!3ewdflkna;", "nc,mxvns/.,/", "1", "2", "546", "142423", "fi2jwrwe", "12412fdsa", "bcnxz., flkawej", "/,/.3,12/lkaf", "fsdlj912pfa", "`13124ujrklj"};
-//     int testMessageNum = sizeof(testMessage) / sizeof(char *);
+TEST(AssembleMessage, AssembleTest)
+{
+    char testPacket[PACKAGE_SIZE] = "";
+    char messageBody[MESS_LIMIT] = "";
+    char *userName[] = {"123456789123\78912",
+                        "!@RFKLASJKLFA",
+                        "1932ryhfkjdsnkjds",
+                        "fskddvjh2iuy3ir",
+                        "fu12y7iyfuas",
+                        "fjlh2u3yr8jkl!)&*",
+                        "fuyu12hrfljsdhnj",
+                        "12849754379fh",
+                        "treyhsgdfkjh2397",
+                        "237yfusdh1231"};
+    char outputUserName[30];
+    char *testMessage[] = {"This is nice", "That's not right", "fjldshvjdsnkjwehg;ke", "9283741892uioUoi@fds", "dfsfdsq1@!##$!",
+                           "fjdslfjew", "sjdklfjdslkgndsv,mnklwje", "123451fdsfdsa", "@!!@}{FL:ASL<><AD", "#PHFGJSBH(*@!P(*"};
+    int testMessageNum = sizeof(testMessage) / sizeof(char *);
 
-//     for (int i = 0; i < testMessageNum; ++i)
-//     {
-//         assembleMessage(i, userName, testMessage[i], testPacket);
-//         getMessageBody(testPacket, messageBody);
-//         ASSERT_EQ(strcmp(messageBody, testMessage[i]), 0);
-//         ASSERT_EQ(getroomNumber(testPacket), i);
-//         ASSERT_EQ(getpacketType(testPacket), ISMESSAGE);
-//         getSenderName(outputUserName, testPacket);
-//         ASSERT_EQ(strcmp(outputUserName, userName), 0);
-//     }
-// }
+    for (int i = 0; i < testMessageNum; ++i)
+    {
+        assembleMessage(i, userName[i], testMessage[i], testPacket);
+        getMessageBody(testPacket, messageBody);
+        EXPECT_EQ(strcmp(messageBody, testMessage[i]), 0);
+        EXPECT_EQ(getroomNumber(testPacket), i);
+        EXPECT_EQ(getpacketType(testPacket), ISMESSAGE);
+        getSenderName(outputUserName, testPacket);
+        EXPECT_EQ(strcmp(outputUserName, userName[i]), 0);
+        printf("\n%s\n", testPacket);
+    }
+}
 
 int main(int argc, char **argv)
 {

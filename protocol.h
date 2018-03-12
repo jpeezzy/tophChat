@@ -6,7 +6,7 @@
 
 int processPacket(char *packet);
 
-int assembleCommand(int roomNum, char COM_ID, int COM_NUM, char *senderName, char *targetName, char *additionInfo, char *outputCom);
+int assembleCommand(int roomNum, char COM_ID, int COM_NUM, char *senderName, char *targetName, char *outputCom);
 
 int assembleMessage(int roomNum, char *senderName, char *message, char *outputPacket);
 // divide special command into categories:

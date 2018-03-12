@@ -147,48 +147,49 @@ int getMessageBody(char *packet, char *MessageBody)
 
 // assemble a command from a list of details like room number, type of command and which command of the type it is
 // additional info can be parameter like the friend name, put NULL if there is nothing
-// int assembleCommand(int roomNum, char COM_ID, int COM_NUM, char *senderName, char *targetName, char *additionInfo, char *outputCom)
-// {
-//     assert(outputCom);
-//     char namePadding[] = "12345678912345678912";
-//     outputCom[0] = '\0';
+int assembleCommand(int roomNum, char COM_ID, int COM_NUM, char *senderName, char *targetName, char *outputCom)
+{
+    assert(outputCom);
+    outputCom[0] = '\0';
+    outputCom[2] = intToChar(roomNum % 10);
+    roomNum /= 10;
+    outputCom[1] = intToChar(roomNum % 10);
+    roomNum /= 10;
+    outputCom[0] = intToChar(roomNum % 10);
+    outputCom[3] = '\0';
 
-//     outputCom[2] = intToChar(roomNum % 10);
-//     roomNum /= 10;
-//     outputCom[1] = intToChar(roomNum % 10);
-//     roomNum /= 10;
-//     outputCom[0] = intToChar(roomNum % 10);
-//     outputCom[3] = '\0';
-//     strcat(outputCom, ID_COMM);
-//     outputCom[CHAT_ROOM_CHARACTER + ID_LENGTH] = COM_ID;
-//     outputCom[CHAT_ROOM_CHARACTER + ID_LENGTH + 1] = intToChar(COM_NUM);
-//     outputCom[CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH] = '\0';
-//     strcat(outputCom, senderName);
-//     if (targetName != NULL)
-//     {
-//         strcat(outputCom, targetName);
-//     }
-//     else
-//     {
-//         strcat(outputCom, namePadding);
-//     }
+    strcat(outputCom, ID_COMM);
+    outputCom[CHAT_ROOM_CHARACTER + ID_LENGTH] = COM_ID;
+    outputCom[CHAT_ROOM_CHARACTER + ID_LENGTH + 1] = intToChar(COM_NUM);
+    outputCom[CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH] = '\0';
 
-//     if (additionInfo != NULL)
-//     {
-//         strcat(outputCom, additionInfo);
-//     }
-//     return 0;
-// }
+    strcat(outputCom, senderName);
+    outputCom[strlen(senderName) + CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH] = '/';
+    outputCom[strlen(senderName) + CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH + 1] = '\0';
 
-// int assembleMessage(int roomNum, char *senderName, char *message, char *outputPacket)
-// {
-//     assert(message);
-//     outputPacket[0] = '\0';
-//     char roomNumChar[CHAT_ROOM_CHARACTER + 1];
-//     snprintf(roomNumChar, (CHAT_ROOM_CHARACTER + 1) * sizeof(char), "%d", roomNum);
-//     strcat(outputPacket, roomNumChar);
-//     strcat(outputPacket, ID_MESS);
-//     strcat(outputPacket, senderName);
-//     strcat(outputPacket, message);
-//     return 0;
-// }
+    if (targetName != NULL)
+    {
+        strcat(outputCom, targetName);
+    }
+    else
+    {
+        outputCom[strlen(senderName) + CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH + 1] = '1';
+        outputCom[strlen(senderName) + CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH + 2] = '\0';
+    }
+    return 0;
+}
+
+int assembleMessage(int roomNum, char *senderName, char *message, char *outputPacket)
+{
+    assert(message);
+    outputPacket[0] = '\0';
+    char roomNumChar[CHAT_ROOM_CHARACTER + 1];
+    intToString(roomNum, roomNumChar, 3);
+    strcat(outputPacket, roomNumChar);
+    strcat(outputPacket, ID_MESS);
+    strcat(outputPacket, senderName);
+    outputPacket[strlen(senderName) + CHAT_ROOM_CHARACTER + ID_LENGTH] = '/';
+    outputPacket[strlen(senderName) + CHAT_ROOM_CHARACTER + ID_LENGTH + 1] = '\0';
+    strcat(outputPacket, message);
+    return 0;
+}

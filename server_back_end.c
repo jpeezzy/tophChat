@@ -88,6 +88,7 @@ struct allServerRoom *serverRoomSetCreate(void)
         ((allRoom->roomList)[i]).inMessage = initBuffer(SERVER_CHAT_ROOM_INPUT_FIFO_MAX);
         for (int j = 0; j < MAX_USER_PER_ROOM; ++j)
         {
+            ((allRoom->roomList[i]).socketList[j]) = -1;
             ((allRoom->roomList[i]).userList[j]) = NULL; // will be filled with pointer to the Justin database
         }
     }
@@ -225,6 +226,12 @@ onlineUserList *serverCreateOnlineList(void)
     for (int i = 0; i < MAX_SERVER_USERS; ++i)
     {
         userList->userList[i].slot_status = NOT_ONLINE;
+        userList->userList[i].totalRoomIn = 0;
+
+        for (int j = 0; j < CHAT_ROOM_LIMIT; ++j)
+        {
+            userList->userList[i].roomList[j] = -1;
+        }
     }
     return userList;
 }
@@ -234,11 +241,11 @@ void serverDelOnlineList(onlineUserList *allOnlineUser)
     free(allOnlineUser);
 }
 
-// TODO: replace this with Justin's data structure
-// check if the user already exists
+// add user to the list of online user
 onlineUser *serverAddOnlineUser(char *userName, int userSocket, onlineUserList *allUser, TINFO *database)
 {
     int i;
+
     if (allUser->totalOnlineUser == MAX_SERVER_USERS)
     {
         // server full
@@ -264,10 +271,15 @@ onlineUser *serverAddOnlineUser(char *userName, int userSocket, onlineUserList *
 
 int serverLogOffUser(onlineUser *user)
 {
-    // TODO: use Justin functions
     close(user->userProfile->socket);
     user->slot_status = NOT_ONLINE;
     user->userProfile->socket = NOT_ONLINE;
+
+    for (int j = 0; j < CHAT_ROOM_LIMIT; ++j)
+    {
+        user->roomList[j] = -1;
+    }
+    user->totalRoomIn = 0;
     return 0;
 }
 
@@ -292,28 +304,99 @@ int sendRoomInvite(char *userNameRequester, char *userNameTarget, chatRoom *room
         return USER_NOT_ONLINE;
     }
 
-    assembleCommand(room->roomNum, ROID, ROINVITE, NULL, packet);
+    assembleCommand(room->roomNum, ROID, ROINVITE, userNameRequester, userNameTarget, packet);
     sendPacket(packet, allUser->userList[i].userProfile->socket);
     return 0;
 }
 
-// /********************************UTILITIES HERE*********************************/
-// // TODO implement lookup
-// int lookUpUser();
-
-// return the pointer to the room based on room number
-serverChatRoom *lookUpRoom(struct allServerRoom *allRoom, int roomNum)
+int addUserToServerRoom(chatRoom *room, char *userNameTarget)
 {
-    int j = 0;
-    for (j = 0; j < allRoom->totalRoom; ++j)
+}
+
+int removeUserFromServerRoom(chatRoom *room, char *userNameTarget)
+{
+}
+
+int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO *dataBase, char *packet)
+{
+    char packet[500];
+    for (int i = 0; i < MAX_SERVER_USERS; ++i)
     {
-        if (allRoom->roomList[j].roomNum == roomNum)
+        if (userList->userList[i].slot_status == ONLINE)
         {
-            return &(allRoom->roomList[j]);
+            if (fetchPacket(packet, userList->userList[i].userProfile->socket) == 0)
+            {
+                if (getpacketType(packet) == ISMESSAGE)
+                {
+                    sendServerRoomMessage(retrieveRoom(allRoom, getroomNumber(packet)), packet);
+                }
+                else if (getpacketType(packet) == ISCOMM)
+                {
+                    if (getCommandType(packet) == FRIENDID)
+                    {
+                        switch (getCommandID(packet))
+                        {
+                        case FREQUEST:
+                            break;
+                        case DEREQUEST:
+                            break;
+                        case FRIEACCEPT:
+                            break;
+                        case FRIEACCEPTED:
+                            break;
+                        case FRIEDENIED:
+                            break;
+                        }
+                    }
+                    else if (getCommandType(packet) == ROID)
+                    {
+                        switch (getCommandID(packet))
+                        {
+                        case ROCREATE:
+                            break;
+                        case RODEL:
+                            break;
+                        case ROINVITE:
+                            break;
+                        case ROACCEPT:
+                            break;
+                        case RODENY:
+                            break;
+                        }
+                    }
+                    else if (getCommandType(packet) == COMID)
+                    {
+                        switch (getCommandID(packet))
+                        {
+                        case CLOSECOM:
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        return UNKNOWN_COMMAND_TYPE;
+                    }
+                }
+            }
         }
     }
-    return NULL;
 }
+
+    // /********************************UTILITIES HERE*********************************/
+
+    // return the pointer to the room based on room number
+    // serverChatRoom *lookUpRoom(struct allServerRoom *allRoom, int roomNum)
+    // {
+    //     int j = 0;
+    //     for (j = 0; j < allRoom->totalRoom; ++j)
+    //     {
+    //         if (allRoom->roomList[j].roomNum == roomNum)
+    //         {
+    //             return &(allRoom->roomList[j]);
+    //         }
+    //     }
+    //     return NULL;
+    // }
 
     // // TODO: make this multithreaded
     // // do all administrative tasks to keep server running

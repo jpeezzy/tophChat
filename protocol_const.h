@@ -41,16 +41,22 @@
 #define DEFRIEND 3     // delete friends
 #define FRIEACCEPT 4   // accept friend request
 #define FRIEACCEPTED 5 //friend request accepted
+#define FRIEDENIED 6   // friend request denied
 #define TOTAL_FRRQ 5   // how many friend related request we have
 
 // room related request
 #define ROID 'R'
-#define ROCREATE 1 // need to make someone admin
-#define RODEL 2    // delete room, only admin can do that
-#define ROADMIN 3  // change admin
-#define ROINVITE 4 // invite someone to room
-#define ROACCEPT 5 // accept room request
-#define TOTAL_RORQ 5
+#define ROCREATE 1         // need to make someone admin
+#define RODEL 2            // delete room, only admin can do that
+#define ROADMIN 3          // change admin
+#define ROINVITE 4         // invite someone to room
+#define ROACCEPT 5         // accept room request
+#define RODENY 6           // deny room request
+#define ROGRANTED 7        // room opening granted
+#define RODENIED 8         // request to open room denied
+#define ROOMJOINACCEPTED 9 // request to join room accepted
+// #define ROOMJOINDENIED 9   // request to join denied
+#define TOTAL_RORQ 8
 
 // communication related
 #define COMID 'C'
