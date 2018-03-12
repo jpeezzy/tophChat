@@ -33,18 +33,18 @@ struct MessageStruct
 };
 
 MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, serverConnection *server, struct allRoom *Allroom, fifo *outputFIFO, inboxQueue *inbox, char *username, char *message);
-gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data);        /* Exits out of the window and the program */
-gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data); /* Exits out of the window and the program */
+gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data); /* Exits out of the window and the program */
+gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data);   /* Exits out of the window and the program */
 //void click(GtkWidget *widget, GdkEvent *event, gpointer data);
 //GtkWidget *CreateBox(GtkWidget *window, GtkWidget *button);
-void EnterKey(GtkWidget *entry, gpointer messageStruct);                                                                                      /* when the user presses enter in the textBox */
-void SendButton(GtkWidget *widget, gpointer messageStruct);                                                                                   /* when user presses send button */
+void EnterKey(GtkWidget *entry, gpointer messageStruct);                                                                               /* when the user presses enter in the textBox */
+void SendButton(GtkWidget *widget, gpointer messageStruct);                                                                            /* when user presses send button */
 void OptionsPopup(GtkWidget *button, GtkWidget *options[]);                                                                            /* option box pops up when friend is clicked on */
 void MessageUser(GtkWidget *widget, GtkWidget *tabCreation[]);                                                                         /* when "message" button pressed. creates new tab for the friend" */
 void BlockUser(GtkWidget *widget, GtkWidget *tabCreation[]);                                                                           /* blocks the user selected */
 void SetMessageScreen(GtkWidget *tabs, GtkWidget *tabLabel, GtkWidget *scrollWindow, GtkWidget *messageScreen);                        /* setting up message screens */
 void SetWelcomeScreen(GtkWidget *tabs, GtkWidget *tabLabel, GtkWidget *scrollWindow, GtkWidget *messageScreen, GtkTextBuffer *buffer); /* setting up welcome screens */
-void Login(GtkWidget *widget, gpointer messageStructArray[]);                                                                                      /* logs the user into the hat application */
+void Login(GtkWidget *widget, gpointer messageStructArray[]);                                                                          /* logs the user into the hat application */
 int CheckNotebook(GtkWidget *tabs, GtkWidget *tabLabel);                                                                               /* checks through the notebook's tabs for matching tab names */
 gboolean HideCharacters(GtkWidget *widget, GdkEvent *event, GtkWidget *button);                                                        /* turns on character hiding for password typing */
 gboolean Overwrite(GtkWidget *username, GtkWidget *entry);                                                                             /* overwrites the entry buffer in username box */
@@ -78,7 +78,7 @@ gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data)
     g_print("You exited out the window! \n");
     g_print("See you later, %s!\n", (gchar *)data);
     client_shutdown = 1; /* leaves event loop */
-    return FALSE;    /* return false to destroy window */
+    return FALSE;        /* return false to destroy window */
 }
 
 gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data)
@@ -327,7 +327,7 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
     MESSAGE_STRUCT *messageData;
     messageData = (MESSAGE_STRUCT *)messageStruct;
     vBox = messageData->widget;
-    const gchar *actualMessage;    
+    const gchar *actualMessage;
 
     guint16 check = 0;
 
@@ -342,8 +342,8 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
 
     messageScreen = child->data;
 
-    check = gtk_entry_get_text_length(GTK_ENTRY(list2->data)); /* checking length of text input */
-    actualMessage = gtk_entry_get_text(GTK_ENTRY (list2->data));    /* saving actual text */
+    check = gtk_entry_get_text_length(GTK_ENTRY(list2->data));  /* checking length of text input */
+    actualMessage = gtk_entry_get_text(GTK_ENTRY(list2->data)); /* saving actual text */
 
     if (check != 0) /* only run this if there is a text input */
     {
@@ -491,7 +491,7 @@ void UpdateWindow(void)
      * as such, it can't have the usual GUI main loop (gtk_main);
      * instead, we call this UpdateWindow function on a regular basis
      */
-    while(gtk_events_pending())
+    while (gtk_events_pending())
     {
         gtk_main_iteration();
     }
@@ -959,7 +959,7 @@ int main(int argc, char *argv[])
     /* Buttons */
     GtkWidget *sendButton;
     sendButton = gtk_button_new_with_label("SEND");
-    gtk_widget_set_size_request(sendButton, 100, 50);    
+    gtk_widget_set_size_request(sendButton, 100, 50);
 
     GtkWidget *friends[10];
     for (int i = 0; i < 10; i++) /* creating new friend buttons */
@@ -1176,8 +1176,8 @@ int main(int argc, char *argv[])
     inboxQueue *inbox = initInboxQueue();
     /* Message Struct Initialization */
     MESSAGE_STRUCT *messageStruct;
-    messageStruct = CreateMessageStruct(vBox, window, server, AllRoom, outputBuffer, inbox, "", "");    
-/*    messageStruct.widget = vBox;
+    messageStruct = CreateMessageStruct(vBox, window, server, AllRoom, outputBuffer, inbox, "", "");
+    /*    messageStruct.widget = vBox;
     messageStruct.window = window;
     messageStruct.server = server;
     messageStruct.Allroom = AllRoom;
@@ -1189,7 +1189,7 @@ int main(int argc, char *argv[])
     /* Login Struct */
     MESSAGE_STRUCT *loginStruct;
     loginStruct = CreateMessageStruct(loginVBox, loginScreen, server, AllRoom, outputBuffer, inbox, "", "");
-/*    loginStruct.widget = loginVBox;
+    /*    loginStruct.widget = loginVBox;
     loginStruct.window = loginScreen;
     loginStruct.server = server;
     loginStruct.Allroom = AllRoom;
@@ -1218,8 +1218,8 @@ int main(int argc, char *argv[])
     g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
 
     /* Messaging Signals */
-    g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer) messageStruct);     /* to send message with enter key */
-    g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), (gpointer) messageStruct); /* to send message with "Send" button */
+    g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer)messageStruct);     /* to send message with enter key */
+    g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), (gpointer)messageStruct); /* to send message with "Send" button */
 
     //        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
     //        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
@@ -1239,7 +1239,7 @@ int main(int argc, char *argv[])
     /* login signals */
     g_signal_connect(quitButton, "clicked", G_CALLBACK(LoginExit), NULL); /* if the user quits */
     g_signal_connect(createAccount, "clicked", G_CALLBACK(CreateAccount), accountCreationScreen);
-    g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), (gpointer) messageStructArray); /* if the user wants to log in */
+    g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), (gpointer)messageStructArray); /* if the user wants to log in */
 
     /* message signals */
     //    g_signal_connect(
@@ -1267,14 +1267,13 @@ int main(int argc, char *argv[])
     //    gtk_widget_show(window);
     gtk_widget_show(loginScreen);
 
-    
     GtkTextBuffer *updateBuffer;
-
-    while(!client_shutdown)
+    char message[PACKAGE_SIZE];
+    while (!client_shutdown)
     {
         recvMessageFromServer(AllRoom, inbox, server);
         sendMessageToServer(outputBuffer, server);
-        
+
         /*** update message ****/
 
         updateBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen)); /* gets the buffer for the current screen */
@@ -1289,13 +1288,13 @@ int main(int argc, char *argv[])
 
         gtk_text_buffer_get_iter_at_offset(updateBuffer, &iter, -1); /* get mark at end again */
 
-        gtk_text_buffer_insert(updateBuffer, &iter, "[buffer]", -1); /* inserts user text */
-
+        if (fetchMessage(&(AllRoom->roomList[0]), message) >= 0)
+        {
+            gtk_text_buffer_insert(updateBuffer, &iter, message, -1); /* inserts user text */
+        }
         gtk_entry_set_text(GTK_ENTRY("entry"), ""); /* replaces textBox with empty text again */
 
-        
-        
-        UpdateWindow();/* main event loop */
+        UpdateWindow(); /* main event loop */
     }
     return 0;
 }

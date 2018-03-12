@@ -174,7 +174,7 @@ int serverRoomSpreadMessage(struct messageServerRoom *room, TINFO *dataBase)
         {
             return USER_NOT_EXIST;
         }
-        for (int i = 0; i < room->peopleNum; ++i)
+        for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
         {
             if (room->socketList[i] >= 0)
             {
