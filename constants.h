@@ -25,8 +25,8 @@
 
 #define MAX_USER_PER_ROOM 5
 
-#define LISTENER_TIMEOUT 50 // seconds for timeout
-#define CLIENT_TIMEOUT 50   // timeout for listening on clients
+#define LISTENER_TIMEOUT 5 // seconds for timeout
+#define CLIENT_TIMEOUT 50  // timeout for listening on clients
 
 // ERROR CODE STARTS HERE
 

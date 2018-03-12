@@ -92,6 +92,7 @@ struct allServerRoom *serverRoomSetCreate(void)
             ((allRoom->roomList[i]).userList[j]) = NULL; // will be filled with pointer to the Justin database
         }
     }
+    return allRoom;
 }
 void serverRoomSetDel(struct allServerRoom *allRoom)
 {
@@ -169,7 +170,7 @@ int serverRoomSpreadMessage(struct messageServerRoom *room, char *serverPacket, 
     tempUser = findUserByName(userName, dataBase);
     if (tempUser == NULL)
     {
-        return -1;
+        return USER_NOT_EXIST;
     }
     for (int i = 0; i < room->peopleNum; ++i)
     {
@@ -177,11 +178,11 @@ int serverRoomSpreadMessage(struct messageServerRoom *room, char *serverPacket, 
         {
             if ((room->socketList[i]) != tempUser->socket)
             {
-                // TODO: Change this
                 assert(sendPacket(serverPacket, room->socketList[i]) >= 0);
             }
         }
     }
+    return 0;
 }
 
 // put the user message onto the server room fifo
@@ -189,32 +190,6 @@ int sendServerRoomMessage(struct messageServerRoom *room, char *userPacket)
 {
     // TODO: not thread safe
     return writeBuffer(room->inMessage, userPacket);
-}
-
-int addUserToServerRoom(onlineUser *user, serverChatRoom *room)
-{
-    assert(user->userProfile->socket >= 0);
-    if (room->peopleNum == MAX_USER_PER_ROOM)
-    {
-        return ROOM_FULL;
-    }
-    for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
-    {
-        if (room->socketList[i] == -1)
-        {
-            room->socketList[i] = user->userProfile->socket;
-            break;
-        }
-    }
-
-    for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
-    {
-        if (room->userList[i] == NULL)
-        {
-            room->userList[i] = user;
-        }
-    }
-    ++(room->peopleNum);
 }
 
 // /*******************************USER STUFFS HERE**************************/
@@ -236,7 +211,7 @@ void serverDelOnlineList(onlineUserList *allOnlineUser)
 }
 
 // add user to the list of online user
-onlineUser *serverAddOnlineUser(char *userName, int userSocket, onlineUserList *allUser, TINFO *database)
+onlineUser *serverAddOnlineUser(char *userName, onlineUserList *allUser, TINFO *database)
 {
     int i;
 
@@ -254,13 +229,14 @@ onlineUser *serverAddOnlineUser(char *userName, int userSocket, onlineUserList *
     }
     for (i = 0; i < MAX_SERVER_USERS; ++i)
     {
-        if (allUser->userList[i].slot_status = NOT_ONLINE)
+        if (allUser->userList[i].slot_status == NOT_ONLINE)
         {
             allUser->userList[i].slot_status = ONLINE;
             allUser->userList[i].userProfile = tempUser;
             return &(allUser->userList[i]);
         }
     }
+    return NULL;
 }
 
 int serverLogOffUser(onlineUser *user)
@@ -277,9 +253,8 @@ int serverLogOffUser(onlineUser *user)
     return 0;
 }
 
-int sendRoomInvite(char *userNameRequester, char *userNameTarget, serverChatRoom *room, onlineUserList *allUser, TINFO *database)
+int sendRoomInvite(char *userNameRequester, char *userNameTarget, serverChatRoom *room, TINFO *database)
 {
-    int i = 0;
     char packet[PACKAGE_SIZE];
     TUSER *target = findUserByName(userNameTarget, database);
     TUSER *sender = findUserByName(userNameRequester, database);
@@ -338,6 +313,7 @@ int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataB
             }
         }
     }
+    return 0;
 }
 
 int removeUserFromServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataBase)
@@ -372,9 +348,20 @@ int removeUserFromServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *
     }
 }
 
+serverChatRoom *findServerRoomByNumber(struct allServerRoom *allRoom, int roomNum)
+{
+    for (int i = 0; i < MAX_SERVER_CHATROOMS; ++i)
+    {
+        if (allRoom->roomList[i].roomNum == roomNum)
+        {
+            return &(allRoom->roomList[i]);
+        }
+    }
+    return NULL;
+}
+
 int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO *dataBase, char *packet)
 {
-    char packet[500];
     for (int i = 0; i < MAX_SERVER_USERS; ++i)
     {
         if (userList->userList[i].slot_status == ONLINE)
@@ -383,7 +370,7 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
             {
                 if (getpacketType(packet) == ISMESSAGE)
                 {
-                    sendServerRoomMessage(retrieveRoom(allRoom, getroomNumber(packet)), packet);
+                    sendServerRoomMessage(findServerRoomByNumber(allRoom, getroomNumber(packet)), packet);
                 }
                 else if (getpacketType(packet) == ISCOMM)
                 {
