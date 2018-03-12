@@ -322,9 +322,10 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
         gtk_text_buffer_insert(buffer, &iter, gtk_entry_get_text(GTK_ENTRY(list2->data)), -1); /* inserts user text */
 
         gtk_entry_set_text(GTK_ENTRY(list2->data), ""); /* replaces textBox with empty text again */
+
+        sendMessage(0, messageData->outputFIFO, messageData->username, messageData->message); /* send message to fifo */
     }
 
-    sendMessage(0, messageData->outputFIFO, messageData->username, messageData->message); /* send message to fifo */
 }
 
 void OptionsPopup(GtkWidget *button, GtkWidget *options[])
