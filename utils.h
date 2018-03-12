@@ -14,5 +14,7 @@ int charToInt(char character);
 
 char intToChar(int number);
 
+void intToString(int number, char *numberString, int numLength);
+
 int uniqueRandGen(int range, int *listPtr, int list_length);
 #endif

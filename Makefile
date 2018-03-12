@@ -22,7 +22,7 @@ server_main: tcpPacket_debug.o server_back_end_debug.o server_main.o
 client_main: tcpPacket_debug.o protocol.o tcpGUI_debug.o client_main.o utils.o
 	$(CC)  $(^) -o $(@)	$(LFLAGS)
 
-ChatGUI: GTKMain.c GTK.o
+ChatGUI: GTKMain.o GTK.o emoji.o
 	$(CC) $(CFLAGS) $(GTKLIBS) $(^) -o $(@)
 
 serverGUI: serverGUI.o 
@@ -64,11 +64,17 @@ server_back_end.o: server_back_end.c server_back_end.h constants.h
 tophChatUsers.o: tophChatUsers.c tophChatUsers.h
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
-GTK.o:  GTK.c GTK.h
+GTK.o:  GTK.c GTK.h emoji.h
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
 rsa.o: rsa.c rsa.h 
 	$(CC) $(CLFAGS) -c $(<) -o $(@)
+
+GTKMain.o: GTKMain.c GTK.h emoji.h
+	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
+
+emoji.o: emoji.c emoji.h
+	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
 serverGUI.o: serverGUI.c
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
@@ -84,7 +90,13 @@ rsa_DEBUG.o: rsa.c rsa.h
 serverGUI_DEBUG.o: serverGUI.c
 	$(CC) $(CFLAGS) $(DEBUG) $(GTKINC) -c $(<) -o $(@)	
 
+test_emoji.o: testEmoji.c emoji.h
+	$(CC) $(CFLAGS) $(DEBUG) $(GTKINC) -c $(<) -o $(@)
+
 #Test Executables
+
+test_emoji: test_emoji.o emoji.o
+	$(CC) $(CFLAGS) $(DEBUG) $(GTKLIBS) $(^) -o $(@)
 
 test_RSA: rsa_DEBUG.o 
 	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) $(^) -o $(@)
@@ -95,4 +107,4 @@ test_serverGUI: serverGUI_DEBUG.o
 #clean 
 
 clean:
-	rm -rf *.o $(executable_file) -v serverGUI ChatGUI serverGUI test_RSA test_serverGUI
+	rm -rf *.o $(executable_file) -v serverGUI ChatGUI serverGUI test_RSA test_serverGUI test_emoji

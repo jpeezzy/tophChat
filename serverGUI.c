@@ -12,38 +12,63 @@
 #include <assert.h>
 #include <math.h>
 
-const char *Program = "Toph Chat Server GUI";
+#include "constants.h"
+#include "utils.h"
+#include "server_back_end.h"
+#include "tophChatUsers.h"
+#include "tcpPacket.h"
+
+const char *Program = "Toph Chat Server";
 int Shutdown = 0;
 
 /*********** GUI functions **************/
 
-static GtkTreeModel *fill_model_room(void)
+static GtkTreeModel *store_model_room(serverRoomList *allRoom)
 {
+    assert(allRoom);
     int i;
     GtkListStore *store;
     GtkTreeIter iter;
     
     char roomName[10];
 
-    /* 2 colums, column 0 = string, column 1= string */
-    store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+    /* 4 columns */
+    store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_UINT);
     
     /* Append a row and add in data */
-    for(i = 0; i < 10; ++i)
+    for(i = 0; i < allRoom->totalRoom; ++i)
     {
         sprintf(roomName, "Room %d", i);
         gtk_list_store_append(store, &iter);
-        gtk_list_store_set(store, &iter, 
-                           0, roomName,
-                           1, "Vacant",
-                           -1);
+        
+        /* if the room is occupied */
+        if (allRoom->roomList[i].isOccupied == 1)
+        {
+            gtk_list_store_set(store, &iter, 
+                               0, roomName,
+                               1, allRoom->roomList[i].adminID, 
+                               2, "Occupied",
+                               3, allRoom->roomList[i].peopleNum,
+                               -1);
+        }
+        else
+        {
+            gtk_list_store_set(store, &iter, 
+                               0, roomName,
+                               1, allRoom->roomList[i].adminID, 
+                               2, "Vacant",
+                               3, allRoom->roomList[i].peopleNum,
+                               -1);
+
+        }
     }                   
     
     return GTK_TREE_MODEL(store);
 }
 
-static GtkWidget *view_model_room(void)
+static GtkWidget *view_model_room(serverRoomList *allRoom)
 {
+    assert(allRoom);
     GtkCellRenderer *renderer;
     GtkTreeModel *model;
     GtkWidget *view;
@@ -63,12 +88,30 @@ static GtkWidget *view_model_room(void)
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
                                                 -1,
-                                                "Status",
+                                                "ID",
                                                 renderer,
                                                 "text", 1,
                                                 NULL);
+    /* ----- Column #3 ----- */
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
+                                                -1,
+                                                "Status",
+                                                renderer,
+                                                "text", 2,
+                                                NULL);
 
-    model = fill_model_room();
+    /* ----- Column #4 ----- */
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
+                                                -1,
+                                                "No. of Users",
+                                                renderer,
+                                                "text", 3,
+                                                NULL);
+
+
+    model = store_model_room(allRoom);
 
     gtk_tree_view_set_model(GTK_TREE_VIEW(view), model);
 
@@ -81,32 +124,47 @@ static GtkWidget *view_model_room(void)
     return view; 
 }
 
-static GtkTreeModel *fill_model_user(void)
+static GtkTreeModel *store_model_user(onlineUserList *allOnline)
 {
+    assert(allOnline);
     int i;
     GtkListStore *store;
     GtkTreeIter iter;
     
-    char username[10];
-
-    /* 2 colums, column 0 = string, column 1= string */
-    store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+    /* initialize columns with data types */
+    store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_UINT);
     
     /* Append a row and add in data */
-    for(i = 0; i < 15; ++i)
+    for(i = 0; i < allOnline->totalUser; ++i)
     {
-        sprintf(username, "User %d", i);
         gtk_list_store_append(store, &iter);
-        gtk_list_store_set(store, &iter, 
-                           0, username,
-                           1, "Offline",
-                           -1);
+        
+        /* if user is available */
+        if (allOnline->userList[i].status == 1)
+        {
+            gtk_list_store_set(store, &iter, 
+                               0, allOnline->userList[i].userProfile.userName,
+                               1, "Available",
+                               2, allOnline->userList[i].socket,
+                               3, allOnline->userList[i].userProfile.friendCount,                               
+                               -1);
+        }
+        else
+        {
+            gtk_list_store_set(store, &iter, 
+                               0, allOnline->userList[i].userProfile.userName,
+                               1, "Busy",
+                               2, allOnline->userList[i].socket,
+                               3, allOnline->userList[i].userProfile.friendCount,                               
+                               -1);
+
+        }
     }
                        
     return GTK_TREE_MODEL(store);
 }
 
-static GtkWidget *view_model_user(void)
+static GtkWidget *view_model_user(onlineUserList *allOnline)
 {
     GtkCellRenderer *renderer;
     GtkTreeModel *model;
@@ -118,7 +176,7 @@ static GtkWidget *view_model_user(void)
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
                                                 -1,
-                                                "User List",
+                                                "Username",
                                                 renderer,
                                                 "text", 0,
                                                 NULL);
@@ -132,7 +190,25 @@ static GtkWidget *view_model_user(void)
                                                 "text", 1,
                                                 NULL);
 
-    model = fill_model_room();
+    /* ----- Column #3 ----- */
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
+                                                -1,
+                                                "Socket No.",
+                                                renderer,
+                                                "text", 2,
+                                                NULL);
+
+    /* ----- Column #4 ----- */
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view),
+                                                -1,
+                                                "No. of Friends",
+                                                renderer,
+                                                "text", 3,
+                                                NULL);
+
+    model = store_model_user(allOnline);
 
     gtk_tree_view_set_model(GTK_TREE_VIEW(view), model);
 
@@ -168,7 +244,9 @@ void ShutdownClicked(GtkWidget *Widget, gpointer Data)
 
 /* creates the server window */
 GtkWidget *CreateWindow(int *argc,
-                        char **argv[])
+                        char **argv[],
+                        serverRoomList *allRoom,
+                        onlineUserList *allOnline)
 {
     GtkWidget *Window;
     GtkWidget *VBox, *HBox;
@@ -195,22 +273,22 @@ GtkWidget *CreateWindow(int *argc,
  
     /* Horizontal box for Client List and Room List */
     HBox = gtk_hbox_new(FALSE, 10);
-    gtk_box_pack_start((GtkBox *)VBox, HBox, TRUE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(VBox), HBox, TRUE, TRUE, 10);
     gtk_widget_show(HBox);    
 
     /* Client List */
-    ClientList = view_model_user();
-    gtk_box_pack_start((GtkBox *)HBox, ClientList, TRUE, TRUE, 0);
+    ClientList = view_model_user(allOnline);
+    gtk_box_pack_start(GTK_BOX(HBox), ClientList, TRUE, TRUE, 0);
     gtk_widget_show(ClientList);
  
     /* Room List */
-    RoomList = view_model_room();
-    gtk_box_pack_start((GtkBox *)HBox, RoomList, TRUE, TRUE, 0);
+    RoomList = view_model_room(allRoom);
+    gtk_box_pack_start(GTK_BOX(HBox), RoomList, TRUE, TRUE, 0);
     gtk_widget_show(RoomList);
 
     /* on the bottom, a button to shutdown the server and quit */
     ShutdownButton = gtk_button_new_with_label("Shutdown Server");
-    gtk_box_pack_start((GtkBox *)VBox, ShutdownButton, FALSE, FALSE, 10);
+    gtk_box_pack_start(GTK_BOX(VBox), ShutdownButton, FALSE, FALSE, 10);
     gtk_widget_show(ShutdownButton);    
 
     /* connect shutdown button with function terminating this server */
@@ -248,6 +326,8 @@ void FatalError(const char *ErrorMsg)
 int main(int argc, char* argv[])
 {
     GtkWidget *Window; /* the server window */
+    serverRoomList *allRoom;
+    onlineUserList *allOnline;
 
 #ifdef DEBUG
     printf("%s: Starting... \n", Program);
@@ -256,7 +336,7 @@ int main(int argc, char* argv[])
 #ifdef DEBUG
     printf("%s: Creating the server window...\n", Program);
 #endif
-    Window = CreateWindow(&argc, &argv);
+    Window = CreateWindow(&argc, &argv, allRoom, allOnline);
     if (!Window)
     {
         fprintf(stderr, "%s: cannot create GUI window\n", Program);

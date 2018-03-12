@@ -7,11 +7,10 @@
 #define CHAT_SERVER_PORT "5000"
 
 #define SOCKET_NUM_CHAR 5 // how many char needed to describe the socket number
-#define MAX_USER_NAME 20  // 20 character maximum
 #define MESS_LIMIT 500    // how many char user can send
-// #define PACKAGE_SIZE 510 // 500 char, 7 word command/message ID and and 2 char for room ID, 1 for /0
-#define PACKAGE_SIZE 515      // 5 additional char for socket number
-#define CHAT_ROOM_LIMIT 20    // a user can have maximum of
+// #define PACKAGE_SIZE 510 // 500 char, 7 word command/message ID and and 2 char for room ID, 20 for the userName 1 for the \ separating the name and the /0 to terminate string
+#define PACKAGE_SIZE 531      // total package size including null terminator
+#define CHAT_ROOM_LIMIT 20    // a user can have maximum of 20 rooms open
 #define CHAT_ROOM_CHARACTER 3 // how many char needed to define the room number, doesn't have null terminator
 
 // Queue Limit Constant
@@ -49,6 +48,10 @@
 
 #define SERVER_FULL -1
 
+#define USER_NOT_EXIST -1
+#define USER_NOT_ONLINE -2
+#define USER_NOT_FRIEND -3
+
 //ROOM STATUS GO HERE FOR CLIENTS
 #define ROOM_TAKEN 3
 #define ROOM_READY 2       // synchronized with server
@@ -58,6 +61,7 @@
 //ROOM STATUS GO HERE FOR SERVER
 #define ROOM_NOT_OCCUPIED 0
 #define ROOM_BUSY 1
+#define ROOM_FULL -1
 
 //USER PERSONAL STUFFS GO HERE
 #define NOT_ONLINE -1

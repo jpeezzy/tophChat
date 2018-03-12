@@ -13,7 +13,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <assert.h>
-#include <strings.h>    
+#include <strings.h>
 #include <sys/select.h>
 
 // #include <pthread.h>
@@ -22,7 +22,7 @@
 #include "tcpPacket.h"
 #include "server_back_end.h"
 
-#define ALPLHA_RELEASE
+// #define ALPLHA_RELEASE
 // TODO: implement multi-threaded
 
 #ifdef ALPLHA_RELEASE
@@ -46,7 +46,7 @@ int main(void)
 
     int socketListener = listenSocketInit();
     int isFull = 0;
-    char packet[PACKAGE_SIZE]="";
+    char packet[PACKAGE_SIZE] = "";
     FD_SET(socketListener, &setListener);
     int j = 0;
     for (;;)
@@ -55,7 +55,7 @@ int main(void)
         FD_SET(socketListener, &setListener);
         if (isFull || select(socketListener + 1, &setListener, NULL, NULL, NULL) > 0)
         {
-            
+
             if (isFull != 1)
             {
                 socketList[j] = accept(socketListener, addrList[j], &socklenList[j]);
@@ -89,19 +89,28 @@ int main(void)
 #else
 int main_loop(void)
 {
-
-    fd_set *setClient;
-    FD_ZERO(setClient);
-    fd_set *setListener;
-    FD_ZERO(setListener);
+    int incomingSocket = -1;
+    struct sockaddr *addrDummy;
+    socklen_t socklenDummy;
+    struct timeval timeout;
+    timeout.tv_sec = 2;
+    // fd_set *setClient;
+    // FD_ZERO(setClient);
+    fd_set setListener;
+    FD_ZERO(&setListener);
 
     int socketListener = listenSocketInit();
-    listen(socketListener, MAX_SERVER_USERS);
-    FD_SET(socketListener, setListener);
-
-    // forever loop, main thread watches for new client, other thread handles one client
+    char packet[PACKAGE_SIZE] = "";
+    FD_SET(socketListener, &setListener);
+    int j = 0;
     for (;;)
     {
+        FD_ZERO(&setListener);
+        FD_SET(socketListener, &setListener);
+        select(socketListener + 1, &setListener, NULL, NULL, &timeout);
+        incomingSocket = accept(socketListener, addrDummy, &socklenDummy);
+        printf("\nreceived connection\n");
+        ++j;
     }
     return 0;
 }

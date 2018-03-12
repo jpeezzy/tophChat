@@ -98,7 +98,7 @@ int writeInboxMessage(char *message, inboxQueue *inbox)
     return 0;
 }
 
-int requestRoom(roomList *allRoom, fifo *outputFIFO)
+int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName)
 {
     // TODO: thread sensitive
     int i = 0;
@@ -107,7 +107,7 @@ int requestRoom(roomList *allRoom, fifo *outputFIFO)
     {
         if ((allRoom->roomList[i]).status == ROOM_UNALLOCATED)
         {
-            assembleCommand(i, ROID, ROCREATE, NULL, tempMessage);
+            assembleCommand(i, ROID, ROCREATE, userName, NULL, tempMessage);
             writeBuffer(outputFIFO, tempMessage);
             allRoom->roomList[i].status = ROOM_WAITING;
             return 0;
@@ -141,11 +141,11 @@ int receiveRoom(roomList *allRoom, int serverroomNum)
 }
 
 // close the room and let the server know that the room number is free to be used by others
-int closeRoom(chatRoom *room, fifo *outputFIFIO)
+int closeRoom(chatRoom *room, fifo *outputFIFIO, char *userName)
 {
     char tempPacket[PACKAGE_SIZE] = "";
     room->status = ROOM_UNALLOCATED; // freed
-    assembleCommand(room->roomNum, ROID, RODEL, NULL, tempPacket);
+    assembleCommand(room->roomNum, ROID, RODEL, userName, NULL, tempPacket);
     closeBuffer(room->inMessage);
     room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
     writeBuffer(outputFIFIO, tempPacket);
@@ -233,12 +233,12 @@ int fetchMessage(chatRoom *room, char *buffer)
 }
 
 // copy the user message to the output queue of the program
-int sendMessage(chatRoom *room, fifo *outputFIFO, char *message)
+int sendMessage(chatRoom *room, fifo *outputFIFO, char *userName, char *message)
 {
     assert(message);
     char tempPacket[PACKAGE_SIZE];
     // TODO: multithreaded mutex
-    assembleMessage(room->roomNum, message, tempPacket);
+    assembleMessage(room->roomNum, userName, message, tempPacket);
     if (writeBuffer(outputFIFO, tempPacket) == FIFO_FULL)
     {
         return -1;
@@ -246,6 +246,86 @@ int sendMessage(chatRoom *room, fifo *outputFIFO, char *message)
     else
     {
         return 0;
+    }
+}
+
+int sendMessageToServer(fifo *outputFIFO, serverConnection *server)
+{
+    char packet[PACKAGE_SIZE];
+    if (readBuffer(outputFIFO, packet) == 0)
+    {
+        return sendPacket(packet, server->socket);
+    }
+    else
+    {
+        return FIFO_NO_DATA;
+    }
+}
+
+// get a message from a server and put it in the correct fifo
+int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection *server)
+{
+    char packet[PACKAGE_SIZE];
+    int errCode = 0;
+    chatRoom *tempRoom;
+    if (errCode = fetchPacket(packet, server->socket) == 0)
+    {
+        if (getpacketType(packet) == ISCOMM)
+        {
+            tempRoom = retrieveRoom(allRoom, getroomNumber(packet));
+            writeBuffer(tempRoom->inMessage, packet);
+        }
+        else if (getpacketType(packet) == ISMESSAGE)
+        {
+            writeBuffer(inbox->messageQueue, packet);
+        }
+        else
+        {
+            return UNKNOWN_COMMAND_TYPE;
+        }
+    }
+    else
+    {
+        return errCode;
+    }
+}
+
+int parseCommand(inboxQueue *inbox)
+{
+    char packet[PACKAGE_SIZE];
+    if (readBuffer(inbox->messageQueue, packet) == 0)
+    {
+        if (getCommandType(packet) == FRIENDID)
+        {
+            switch (getCommandID(packet))
+            {
+            case FRIEACCEPTED:
+                break;
+            case FRIEDENIED:
+                break;
+            }
+        }
+        else if (getCommandType(packet) == ROID)
+        {
+            switch (getCommandID(packet))
+            {
+            case ROGRANTED:
+                break;
+            case RODENIED:
+                break;
+            }
+        }
+        else if (getCommandType(packet) == COMID)
+        {
+        }
+        else
+        {
+            return UNKNOWN_COMMAND_TYPE;
+        }
+    }
+    else
+    {
+        return FIFO_NO_DATA;
     }
 }
 
