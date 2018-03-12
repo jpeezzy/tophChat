@@ -401,7 +401,7 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
     {
         if (userList->userList[i].slot_status == ONLINE)
         {
-            if (fetchPacket(packet, userList->userList[i].userProfile->socket) == 0)
+            if (fetchPacket(packet, userList->userList[i].userProfile->socket) >= 0)
             {
                 if (getpacketType(packet) == ISMESSAGE)
                 {
