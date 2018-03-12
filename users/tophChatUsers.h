@@ -78,3 +78,9 @@ int checkSocket(TUSER *user);
 
 //Change socket based off if they are online
 int changeSocket(TUSER *user, int socket);
+
+//Saves the user to a text file (appends it to the end 
+int saveUser(TUSER *user);
+
+//Loads the user
+int loadUser(cp textFile);

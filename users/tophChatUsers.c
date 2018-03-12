@@ -1,10 +1,10 @@
-#include "tophChatUsers.h"
 #include <assert.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h> 
 #include <string.h>
 
+#include "tophChatUsers.h"
 TUSER *addUser(cp _userName, cp _name, 
 		ui _hashedPassword, TINFO* userBase)
 {
@@ -33,13 +33,13 @@ TUSER *addUser(cp _userName, cp _name,
 	userBase->Users[userBase->numOfUsers] = temp;
 	//Increment Total user count
 	userBase->numOfUsers++;
-	
+
 	//Settin the chat rooms to negative
 	for(int i = 0; i < CHAT_ROOM_LIMIT; i++)
 	{
 		temp->listOfRooms[i] = -1;
 	}
-	
+
 	for(int i = 0; i < MAX_FRIENDS; i++)
 	{
 		temp->friends[i] = NULL;
@@ -58,7 +58,7 @@ int deleteUser(TUSER *user)
 	//free(user->friends);
 	free(user);
 	return 0;
-	
+
 }
 /*Function: hashID
  * returns: unsigned int 
@@ -116,7 +116,7 @@ int addFriend(cp userName, TUSER *user, TINFO *userBase)
 /*Function: showFriends
  * input, TUSER user 
  * output: prints out the friends TUSER has 
-*/
+ */
 void showFriends(TUSER *user)
 {
 	if(user->friends[0] == NULL)
@@ -182,6 +182,33 @@ int changeSocket(TUSER *user, int socket)
 	user->socket = socket;
 	return 0;
 }
+
+int saveUser(TUSER *user)
+{
+	FILE *file = fopen("Users.txt", "a");
+	if (file == NULL)
+	{
+		printf("Error opening file!\n");
+		exit(1);
+	}
+	//The format in the file is 
+	/*userName | hashedPassword | friendCount | all the friends space |  */
+	fprintf(file, "%s | %u | %u | ", user->userName, user->hashedPassword, user->friendCount);
+	//now to dynamically save all the friend user has saved
+	for(ui i = 0; i < user->friendCount; i++)
+	{
+		fprintf(file, " %s", user->friends[i]->userName);
+	}
+	fprintf(file, " |\n");
+	fclose(file);
+	return 0;
+}
+
+int loadUser(cp textFile)
+{
+
+}
+
 #ifdef DEBUG
 int main()
 {
@@ -189,10 +216,12 @@ int main()
 	TINFO *dataBase = createTINFO();
 	addUser("Justindlee","Justin", 1234, dataBase);
 	addUser("BoostedGorilla","asdf", 1234, dataBase);
-	//printf("I was able to find %s \n", findUserByName("Justindlee", dataBase)->userName);
-	//printf("We authentify the user with the password 123, result is %d \n", authentifyUser("Justindlee", 1234, dataBase));
+	printf("I was able to find %s \n", findUserByName("Justindlee", dataBase)->userName);
+	printf("We authentify the user with the password 123, result is %d \n", authentifyUser("Justindlee", 1234, dataBase));
 	addFriend("BoostedGorilla", findUserByName("Justindlee", dataBase), dataBase);
 	printf("%d\n", checkIfFriends(findUserByName("Justindlee", dataBase), findUserByName("BoostedGorilla", dataBase)));
+	saveUser(findUserByName("Justindlee", dataBase));
+	printf("saved successfully!\n");
 	deleteUser(dataBase->Users[0]);
 	deleteTINFO(dataBase);
 	printf("Finished running!\n");
