@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../constants.h"
+#include "constants.h"
 
 #define ui unsigned int
 #define cp char *
