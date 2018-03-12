@@ -19,6 +19,7 @@ all: utils.o protocol.o server_main.o client_main.o tcpGUI_debug.o tcpGUI.o tcpP
 
 server_main: tcpPacket_debug.o server_back_end_debug.o server_main.o utils.o protocol.o tophChatUsers.o constants.h fifo_debug.o 
 	$(CC)  $(^) -o $(@)	$(LFLAGS)
+
 client_main: tcpPacket_debug.o protocol.o tcpGUI_debug.o client_main.o utils.o
 	$(CC)  $(^) -o $(@)	$(LFLAGS)
 
@@ -110,7 +111,12 @@ test_serverGUI: serverGUI_DEBUG.o
 test_Encrypt: encrypt_DEBUG.o
 	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) $(^) -o $(@)
 
-#clean 
+test_server_main: tcpPacket_debug.o server_back_end_debug.o server_main.o utils.o protocol.o tophChatUsers.o constants.h fifo_debug.o 
+	$(CC)  $(^) $(DEBUG) -o $(@)	$(LFLAGS)
+
+test_client_main: tcpPacket_debug.o protocol.o tcpGUI_debug.o client_main.o utils.o
+	$(CC)  $(^) $(DEBUG) -o $(@)	$(LFLAGS)
+ 
 
 clean:
 	rm -rf *.o $(executable_file) -v serverGUI ChatGUI serverGUI test_RSA test_serverGUI test_emoji
