@@ -1,17 +1,17 @@
 #include <assert.h>
 #include <time.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <stdio.h> 
 #include <string.h>
 #include <sys/types.h>
 
 #include "tophChatUsers.h"
-TUSER *addUser(cp _userName, cp _name,
-			   ui _hashedPassword, TINFO *userBase)
+TUSER *addUser(cp _userName, cp _name, 
+		ui _hashedPassword, TINFO* userBase)
 {
 	/*Making sure inputs set in are correct*/
 	TUSER *temp = malloc(sizeof(TUSER));
-	if (!temp)
+	if(!temp)
 	{
 		perror("NOT ENOUGH RAM");
 	}
@@ -25,7 +25,7 @@ TUSER *addUser(cp _userName, cp _name,
 	temp->friendCount = 0;
 	temp->hashID = hashID(_userName);
 	temp->numOfRoomUserIn = 0;
-	temp->socket = 0;
+	temp->socket = 0; 
 
 	/*Null everythin gwe don't know */
 	temp->email = NULL;
@@ -36,12 +36,12 @@ TUSER *addUser(cp _userName, cp _name,
 	userBase->numOfUsers++;
 
 	//Settin the chat rooms to negative
-	for (int i = 0; i < CHAT_ROOM_LIMIT; i++)
+	for(int i = 0; i < CHAT_ROOM_LIMIT; i++)
 	{
 		temp->listOfRooms[i] = -1;
 	}
 
-	for (int i = 0; i < MAX_FRIENDS; i++)
+	for(int i = 0; i < MAX_FRIENDS; i++)
 	{
 		temp->friends[i] = NULL;
 	}
@@ -59,6 +59,7 @@ int deleteUser(TUSER *user)
 	//free(user->friends);
 	free(user);
 	return 0;
+
 }
 /*Function: hashID
  * returns: unsigned int 
@@ -70,22 +71,22 @@ int deleteUser(TUSER *user)
  * */
 ui hashID(cp userName)
 {
-	return ((ui)atoi(userName)) * 53 - (ui)(atoi(userName)) % 73;
+	return ((ui) atoi(userName)) * 53 
+		- (ui)(atoi(userName)) % 73;
 }
 
 /*Function: createTINFO*/
 TINFO *createTINFO()
 {
 	TINFO *temp = malloc(sizeof(TINFO));
-	if (!temp)
-		perror("OUT OF RAM");
+	if(!temp) perror("OUT OF RAM");
 	temp->numOfUsers = 0;
 	return temp;
 }
 int deleteTINFO(TINFO *userBase)
 {
 	int i = 0;
-	while (userBase->Users[i] != NULL)
+	while(userBase->Users[i] != NULL)
 	{
 		deleteUser(userBase->Users[i]);
 		userBase->Users[i] = NULL;
@@ -101,9 +102,9 @@ int deleteTINFO(TINFO *userBase)
 int addFriend(cp userName, TUSER *user, TINFO *userBase)
 {
 	//Check if user exists
-	for (ui i = 0; i < userBase->numOfUsers; i++)
+	for(ui i = 0; i < userBase->numOfUsers; i++)
 	{
-		if (strcmp(userName, userBase->Users[i]->userName) == 0)
+		if(strcmp(userName, userBase->Users[i]->userName) == 0)
 		{
 			TUSER *potentialFriend = userBase->Users[i];
 			//add user to friendList
@@ -126,13 +127,13 @@ int addFriend(cp userName, TUSER *user, TINFO *userBase)
  */
 void showFriends(TUSER *user)
 {
-	if (user->friends[0] == NULL)
+	if(user->friends[0] == NULL)
 	{
 		printf("He doesn't have friends");
 		return;
 	}
 
-	for (ui i = 0; i < user->friendCount; i++)
+	for(ui i = 0; i < user->friendCount; i++)
 	{
 		printf("%s \n", user->friends[i]->userName);
 	}
@@ -145,9 +146,9 @@ void showFriends(TUSER *user)
 //returns the user if true, returns null if false
 TUSER *findUserByName(cp username, TINFO *userbase)
 {
-	for (ui i = 0; i < userbase->numOfUsers; i++)
+	for(ui i = 0; i<userbase->numOfUsers; i++)
 	{
-		if (strcmp(username, userbase->Users[i]->userName) == 0)
+		if (strcmp(username, userbase->Users[i]->userName) == 0) 
 			return userbase->Users[i];
 	}
 	return NULL;
@@ -157,33 +158,31 @@ TUSER *findUserByName(cp username, TINFO *userbase)
 int authentifyUser(cp username, ui hashpassword, TINFO *userbase)
 {
 	TUSER *actualUser = findUserByName(username, userbase);
-	return (strcmp(username, actualUser->userName) == 0 &&
-			hashpassword == actualUser->hashedPassword)
-			   ? 0
-			   : 1;
+	return (strcmp(username, actualUser->userName) == 0 && 
+			hashpassword == actualUser->hashedPassword) ? 0: 1;
 }
 
 int checkIfFriends(TUSER *user1, TUSER *user2)
 {
 	int user1friend = 0;
 	int user2friend = 0;
-	for (int i = 0; i < MAX_FRIENDS; i++)
+	for(int i = 0; i < MAX_FRIENDS; i++)
 	{
-		if (user1->friends[i] == user2)
+		if(user1->friends[i] == user2)
 		{
 			user1friend = 1;
 		}
-		if (user2->friends[i] == user1)
+		if(user2->friends[i] == user1)
 		{
 			user2friend = 1;
 		}
 	}
 	return user2friend && user1friend;
 }
-//Check Sockets, -1 offline, returns1 online
+//Check Sockets, -1 offline, returns1 online 
 int checkSocket(TUSER *user)
 {
-	return (user->socket == -1) ? -1 : 1;
+	return (user->socket == -1) ? -1: 1;
 }
 //returns 0 if sucessful
 int changeSocket(TUSER *user, int socket)
@@ -200,11 +199,11 @@ int saveUser(TUSER *user)
 		printf("Error opening file!\n");
 		exit(1);
 	}
-	//The format in the file is
+	//The format in the file is 
 	/*userName | hashedPassword | friendCount | all the friends space |  */
 	fprintf(file, "%s|%s|%u|%u|", user->userName, user->name, user->hashedPassword, user->friendCount);
 	//now to dynamically save all the friend user has saved
-	for (ui i = 0; i < user->friendCount; i++)
+	for(ui i = 0; i < user->friendCount; i++)
 	{
 		fprintf(file, "%s|", user->friends[i]->userName);
 	}
@@ -223,11 +222,11 @@ int loadUser(cp textFile, TINFO *userBase)
 		exit(1);
 	}
 	//Load the users based off information
-	while (fgets(line, sizeof(line), file))
+	while (fgets(line, sizeof(line), file)) 
 	{
 		printf("%s", line);
-		char *_userName = malloc(256 * sizeof(char));
-		char *_name = malloc(256 * sizeof(char));
+		char* _userName = malloc(256*sizeof(char));
+		char* _name = malloc(256*sizeof(char));
 		ui _hashPassword;
 		ui _numFriends;
 		//read tolkenized input
@@ -241,22 +240,22 @@ int loadUser(cp textFile, TINFO *userBase)
 		split = strtok(NULL, "|");
 		_numFriends = (ui)atoi(split);
 		addUser(_userName, _name, _numFriends, userBase);
-		printf("%s|\n", findUserByName(_userName, userBase)->userName);
+		printf("%s|\n", findUserByName(_userName,userBase)->userName);
 	}
 	fclose(file);
 
 	//now that all the users are loaded, its time to add them all as friends
 	FILE *file2 = fopen(textFile, "r");
-	while (fgets(line, sizeof(line), file2))
+	while(fgets(line, sizeof(line), file2))
 	{
 		char *split = strtok(line, "|");
-		char *_userName = split;
+		char* _userName = split;
 		printf("Here the name is %s\n", _userName);
 		split = strtok(NULL, "|");
 		split = strtok(NULL, "|");
 		split = strtok(NULL, "|");
 		TUSER *temp = findUserByName(_userName, userBase);
-		for (ui i = 0; i < temp->friendCount; i++)
+		for(ui i = 0; i < temp->friendCount; i++)
 		{
 			split = strtok(line, "|");
 			printf("Here the name is %s\n", split);
@@ -264,47 +263,49 @@ int loadUser(cp textFile, TINFO *userBase)
 		}
 		//now we start looking for friends
 		//int position = 0;
+
 	}
-	/*	while( split != NULL ) 
+/*	while( split != NULL ) 
 	{
 		printf( " %s\n", split );
 
 		split = strtok(NULL, "|");
 	}*/
 	return 0;
+
 }
 
-// #ifdef DEBUG
-// int main()
-// {
-// 	/*creating a user */
-// 	TINFO *dataBase = createTINFO();
-// /*	addUser("Justindlee","Justin", 1234, dataBase);
-// 	addUser("BoostedGorilla","asdf", 1234, dataBase);
+#ifdef DEBUG
+int main()
+{
+	/*creating a user */
+	TINFO *dataBase = createTINFO();
+/*	addUser("Justindlee","Justin", 1234, dataBase);
+	addUser("BoostedGorilla","asdf", 1234, dataBase);
 
-// 	printf("I was able to find %s \n", findUserByName("Justindlee", dataBase)->userName);
+	printf("I was able to find %s \n", findUserByName("Justindlee", dataBase)->userName);
 
-// 	printf("We authentify the user with the password 123,"" result is %d \n",
-// 			authentifyUser("Justindlee", 1234, dataBase));
+	printf("We authentify the user with the password 123,"" result is %d \n", 
+			authentifyUser("Justindlee", 1234, dataBase));
 
-// 	addFriend("BoostedGorilla", findUserByName("Justindlee", dataBase), dataBase);
-// 	printf("%d\n", checkIfFriends(findUserByName("Justindlee", dataBase),
-// 				findUserByName("BoostedGorilla", dataBase)));
-// */
-// //	saveUser(findUserByName("Justindlee", dataBase));
-// //	printf("saved successfully!\n");
+	addFriend("BoostedGorilla", findUserByName("Justindlee", dataBase), dataBase);
+	printf("%d\n", checkIfFriends(findUserByName("Justindlee", dataBase), 
+				findUserByName("BoostedGorilla", dataBase)));
+*/
+//	saveUser(findUserByName("Justindlee", dataBase));
+//	printf("saved successfully!\n");
 
-// 	loadUser("Users.txt", dataBase);
-// 	printf("loaded successfully?\n");
-// 	//printf("%s\n", dataBase->Users[0]->userName);
-// 	printf("can we see ADMIN: %s \n", findUserByName("USER", dataBase)->friends[0]->userName);
-// 	printf("loaded successfully! are harabe and justin friends? %d\n",
-// 			checkIfFriends(findUserByName("ADMIN", dataBase), findUserByName("USER", dataBase)));
+	loadUser("Users.txt", dataBase);
+	printf("loaded successfully?\n");
+	//printf("%s\n", dataBase->Users[0]->userName);
+	printf("can we see ADMIN: %s \n", findUserByName("USER", dataBase)->friends[0]->userName);
+	printf("loaded successfully! are harabe and justin friends? %d\n", 
+			checkIfFriends(findUserByName("ADMIN", dataBase), findUserByName("USER", dataBase)));
 
-// 	deleteTINFO(dataBase);
+	deleteTINFO(dataBase);
 
-// 	printf("Finished running!\n");
+	printf("Finished running!\n");
 
-// 	return 0;
-// }
-// #endif
+	return 0;
+}
+#endif
