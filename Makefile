@@ -17,7 +17,7 @@ all: utils.o protocol.o server_main.o client_main.o tcpGUI_debug.o tcpGUI.o tcpP
 
 #Executables
 
-server_main: tcpPacket_debug.o server_back_end_debug.o server_main.o utils.o protocol.o tophChatUsers.o constants.h 
+server_main: tcpPacket_debug.o server_back_end_debug.o server_main.o utils.o protocol.o tophChatUsers.o constants.h fifo_debug.o 
 	$(CC)  $(^) -o $(@)	$(LFLAGS)
 client_main: tcpPacket_debug.o protocol.o tcpGUI_debug.o client_main.o utils.o
 	$(CC)  $(^) -o $(@)	$(LFLAGS)

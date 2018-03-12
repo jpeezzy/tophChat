@@ -33,11 +33,11 @@
  */
 int listenSocketInit(void)
 {
-    struct timeval timeoutListener;
-    timeoutListener.tv_sec = LISTENER_TIMEOUT;
+    // struct timeval timeoutListener;
+    // timeoutListener.tv_sec = LISTENER_TIMEOUT;
 
-    struct timeval timeoutClient;
-    timeoutListener.tv_sec = CLIENT_TIMEOUT;
+    // struct timeval timeoutClient;
+    // timeoutListener.tv_sec = CLIENT_TIMEOUT;
 
     // the socket that will be listening
     struct addrinfo *serverListener;
@@ -160,29 +160,36 @@ void serverRoomReturn(serverChatRoom *room)
 }
 
 // send message to everyone in the room except the writer
-int serverRoomSpreadMessage(struct messageServerRoom *room, char *serverPacket, TINFO *dataBase)
+int serverRoomSpreadMessage(struct messageServerRoom *room, TINFO *dataBase)
 {
-    assert(serverPacket);
-    char userName[50];
-    TUSER *tempUser;
-    assert(room);
-    getSenderName(userName, serverPacket);
-    tempUser = findUserByName(userName, dataBase);
-    if (tempUser == NULL)
+    char serverPacket[PACKAGE_SIZE];
+    if (readBuffer(room->inMessage, serverPacket) == 0)
     {
-        return USER_NOT_EXIST;
-    }
-    for (int i = 0; i < room->peopleNum; ++i)
-    {
-        if (room->socketList[i] >= 0)
+        char userName[50];
+        TUSER *tempUser;
+        assert(room);
+        getSenderName(userName, serverPacket);
+        tempUser = findUserByName(userName, dataBase);
+        if (tempUser == NULL)
         {
-            if ((room->socketList[i]) != tempUser->socket)
+            return USER_NOT_EXIST;
+        }
+        for (int i = 0; i < room->peopleNum; ++i)
+        {
+            if (room->socketList[i] >= 0)
             {
-                assert(sendPacket(serverPacket, room->socketList[i]) >= 0);
+                if ((room->socketList[i]) != tempUser->socket)
+                {
+                    assert(sendPacket(serverPacket, room->socketList[i]) >= 0);
+                }
             }
         }
+        return 0;
     }
-    return 0;
+    else
+    {
+        return FIFO_NO_DATA;
+    }
 }
 
 // put the user message onto the server room fifo
@@ -361,11 +368,11 @@ serverChatRoom *findServerRoomByNumber(struct allServerRoom *allRoom, int roomNu
     return NULL;
 }
 
-int getFriendList(TUSER *user)
-{
+// int getFriendList(TUSER *user)
+// {
 
-    return 0;
-}
+//     return 0;
+// }
 
 // get a list of online user separated by '/'
 int getOnlineUser(onlineUserList *allUsers, char *onlineList)
@@ -382,12 +389,12 @@ int getOnlineUser(onlineUserList *allUsers, char *onlineList)
             onlineList[nextIndex] = '\0';
         }
     }
+    return 0;
 }
 
 int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO *dataBase, char *packet)
 {
     char message[MESS_LIMIT];
-    char packet[PACKAGE_SIZE];
     for (int i = 0; i < MAX_SERVER_USERS; ++i)
     {
         if (userList->userList[i].slot_status == ONLINE)

@@ -64,6 +64,7 @@ int main(void)
         if (j == 2)
         {
             triagePacket(userList, roomList, dataBase, packet);
+            serverRoomSpreadMessage(testRoom, dataBase);
         }
     }
     return 0;

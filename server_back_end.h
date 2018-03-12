@@ -80,7 +80,7 @@ struct allServerRoom *serverRoomSetCreate(void);
 void serverRoomReturn(serverChatRoom *room);
 
 // send message to everyone in the room except the writer
-int serverRoomSpreadMessage(struct messageServerRoom *room, char *serverPacket, TINFO *dataBase);
+int serverRoomSpreadMessage(struct messageServerRoom *room, TINFO *dataBase);
 
 // put the user message onto the server room fifo
 int sendServerRoomMessage(struct messageServerRoom *room, char *userPacket);

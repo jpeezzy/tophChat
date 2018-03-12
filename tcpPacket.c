@@ -66,7 +66,3 @@ int fetchPacket(char *packet, int socket)
 }
 
 // the mailman thread, used for update I/O buffer
-int manageIO(serverConnection *server, fifo *inputFIFO, fifo *outputFIFO)
-{
-    return 0;
-}

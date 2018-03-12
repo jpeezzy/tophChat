@@ -21,7 +21,7 @@
 #include "tcpGUI.h"
 
 typedef struct PacketClient clientPacket;
-// TODO: change this to the agreed string format 
+// TODO: change this to the agreed string format
 struct PacketClient
 {
     char message[MESS_LIMIT];
@@ -33,9 +33,5 @@ int sendPacket(char *packet, int socket);
 
 // receive one packet
 int fetchPacket(char *packet, int socket);
-
-
-// process the packets in the FIFO
-int manageIO(serverConnection *server, fifo *inputFIFO, fifo *outputFIFO);
 
 #endif
