@@ -295,6 +295,10 @@ int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataB
     }
     else
     {
+        if (tempUser->numOfRoomUserIn == CHAT_ROOM_LIMIT)
+        {
+            return USER_OCCUPIED_MAX_ROOM;
+        }
         ++(room->peopleNum);
         for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
         {
@@ -303,23 +307,17 @@ int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataB
             {
                 room->socketList[i] = tempUser->socket;
 
-                if (tempUser->numOfRoomUserIn == CHAT_ROOM_LIMIT)
+                // add this room to user list of room
+                for (int j = 0; j < CHAT_ROOM_LIMIT; ++j)
                 {
-                    return USER_OCCUPIED_MAX_ROOM;
-                }
-                else
-                {
-                    // add this room to user list of room
-                    for (int j = 0; j < CHAT_ROOM_LIMIT; ++j)
+                    if (tempUser->listOfRooms[i] == -1)
                     {
-                        if (tempUser->listOfRooms[i] == -1)
-                        {
-                            tempUser->listOfRooms[i] = room->roomNum;
-                            ++(tempUser->numOfRoomUserIn);
-                            break;
-                        }
+                        tempUser->listOfRooms[i] = room->roomNum;
+                        ++(tempUser->numOfRoomUserIn);
+                        break;
                     }
                 }
+
                 break;
             }
         }
