@@ -44,7 +44,8 @@ int main(void)
     onlineUserList *userList = serverCreateOnlineList();
 
     char *userName[] = {"ADMIN", "USER"};
-
+    addUser(userName[0], userName[0], 213123, dataBase);
+    addUser(userName[1], userName[1], 213123, dataBase);
     // limit to two users
     for (;;)
     {
@@ -58,6 +59,7 @@ int main(void)
                 ++(userList->totalOnlineUser);
                 serverAddOnlineUser(userName[j], userList, incomingSocket, dataBase);
                 addUserToServerRoom(testRoom, userName[j], dataBase);
+                printf("\nuser added\n");
                 ++j;
             }
         }
