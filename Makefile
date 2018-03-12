@@ -5,13 +5,19 @@ LFLAGS := -Wall -lm
 DEBUG := -DDEBUG
 MAIN := -DMAIN
 testServerBin=testServer
-executable_file := server_main client_main $(testServerBin)
+executable_file := server_main client_main ChatGUI serverGUI $(testServerBin)
+
+test_executable_files := test_emoji test_RSA test_serverGUI test_Encrypt test_server_back_end test_server_main test_tcp_GUI test_client_main 
 
 # compiler flags for GTK usage
 GTKINC := `pkg-config --cflags gtk+-2.0`
 GTKLIBS := `pkg-config --libs gtk+-2.0`
 
-all: fifo_debug.o server_main.o client_main.o utils.o protocol.o tcpPacket_debug.o tcpPacket.o tcpGUI_debug.o tcpGUI.o server_back_end_debug.o server_back_end.o tophChatUsers.o GTK.o rsa.o GTKMain.o emoji.o serverGUI.o encrypt.o rsa_DEBUG.o serverGUI_DEBUG.o test_emoji.o 
+object_files := fifo.o server_main.o client_main.o utils.o protocol.o tcpPacket.o tcpGUI.o server_back_end.o tophChatUsers.o GTK.o rsa.o GTKMain.o emoji.o serverGUI.o encrypt.o
+
+debug_object_files := utils_debug.o fifo_debug.o tcpGUI_debug.o tcpPacket_debug.o server_back_end_debug.o rsa_DEBUG.o serverGUI_DEBUG.o test_emoji.o  
+
+all: $(object_files) $(debug_object_files)
 
 #####################END OF TDD AREA################################
 
@@ -23,26 +29,21 @@ server_main: tcpPacket_debug.o server_back_end_debug.o server_main.o utils.o pro
 client_main: tcpPacket_debug.o protocol.o tcpGUI_debug.o client_main.o utils.o
 	$(CC)  $(^) -o $(@)	$(LFLAGS)
 
-ChatGUI: GTKMain.o emoji.o protocol.o utils.o tcpPacket_debug.o tcpGUI_debug.o fifo_debug.o 
+ChatGUI: GTKMain.o emoji.o protocol.o utils.o tcpPacket.o tcpGUI.o fifo.o 
 	$(CC) $(CFLAGS) $(GTKLIBS) $(^) -o $(@)
-
-fifo_debug.o: fifo.c fifo.h constants.h
-	$(CC) -c fifo.c $(CFLAGS) $(DEBUG) -o $(@)
-	
-fifo.o: fifo.c fifo.h constants.h
-	$(CC) -c fifo.c $(CFLAGS) -o $(@)
 	
 serverGUI: serverGUI.o 
 	$(CC) $(LFLAGS) $(GTKLIBS) $(^) -o $(@)	
 
 #Object files
+
+fifo.o: fifo.c fifo.h constants.h
+	$(CC) -c fifo.c $(CFLAGS) -o $(@)
+	
 server_main.o: server_main.c
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
 client_main.o: client_main.c 
-	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
-
-utils_debug.o: utils.c utils.h constants.h
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
 utils.o: utils.c utils.h constants.h
@@ -51,25 +52,14 @@ utils.o: utils.c utils.h constants.h
 protocol.o: protocol.c protocol.h protocol_const.h utils.h constants.h server_back_end.h
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
-tcpPacket_debug.o: tcpPacket.c tcpPacket.h fifo.h tcpGUI.h constants.h 
-	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
-
 tcpPacket.o: tcpPacket.c tcpPacket.h fifo.h tcpGUI.h constants.h 
 	$(CC) -c $(<) $(CFLAGS) -o $(@)
-
-tcpGUI_debug.o: tcpGUI.c tcpGUI.h constants.h 
-	$(CC) -c $(<) $(CFLAGS) $(MAIN) $(DEBUG) -o $(@)
 
 tcpGUI.o: tcpGUI.c tcpGUI.h constants.h 
 	$(CC) -c $(<) $(CFLAGS) -o $(@)
 
-server_back_end_debug.o: server_back_end.c server_back_end.h constants.h
-	$(CC) -c $(<) $(CFLAGS) $(MAIN) $(DEBUG) -o $(@)
-
 server_back_end.o: server_back_end.c server_back_end.h constants.h
 	$(CC) -c $(<) $(CFLAGS) -o $(@)
-
-
 
 tophChatUsers.o: tophChatUsers.c tophChatUsers.h
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
@@ -94,6 +84,21 @@ encrypt.o: encrypt.c encrypt.h
 
 #Test object files
 
+utils_debug.o: utils.c utils.h constants.h
+	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
+ 
+fifo_debug.o: fifo.c fifo.h constants.h
+	$(CC) -c fifo.c $(CFLAGS) $(DEBUG) -o $(@)
+ 
+tcpGUI_debug.o: tcpGUI.c tcpGUI.h constants.h 
+	$(CC) -c $(<) $(CFLAGS) $(MAIN) $(DEBUG) -o $(@)
+ 
+tcpPacket_debug.o: tcpPacket.c tcpPacket.h fifo.h tcpGUI.h constants.h 
+	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
+ 
+server_back_end_debug.o: server_back_end.c server_back_end.h constants.h
+	$(CC) -c $(<) $(CFLAGS) $(MAIN) $(DEBUG) -o $(@)
+ 
 rsa_DEBUG.o: rsa.c rsa.h
 	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) -c $(<) -o $(@)
 
@@ -130,4 +135,4 @@ test_client_main: tcpPacket_debug.o protocol.o tcpGUI.o client_main.o utils_debu
 	$(CC)  $(^) $(DEBUG) $(MAIN) -o $(@)	$(LFLAGS)
 
 clean:
-	rm -rf *.o $(executable_file) -v serverGUI ChatGUI serverGUI test_RSA test_serverGUI test_emoji
+	rm -rf *.o $(executable_file) -v $(test_executable_files) 
