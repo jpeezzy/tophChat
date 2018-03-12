@@ -688,6 +688,7 @@ int main(int argc, char *argv[])
     char packet[PACKAGE_SIZE] = "";
     char message[MESS_LIMIT] = "";
     roomList *AllRoom = roomsetInit();
+    (AllRoom->roomList[0]).status = ROOM_WAITING;
     receiveRoom(AllRoom, 0);
     fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
     inboxQueue *inbox = initInboxQueue();
