@@ -9,6 +9,9 @@
 #include <gtk/gtk.h>
 
 #include "GTK.h"
+#include "fifo.h"
+#include "constants.h"
+#include "protocol_const.h"
 
 int main(int argc, char *argv[])
 {
@@ -682,11 +685,16 @@ int main(int argc, char *argv[])
     assert(server);
     char packet[PACKAGE_SIZE] = "";
     char message[MESS_LIMIT] = "";
-
-        /* Message Struct Initialization */
+    roomList *AllRoom = roomsetInit();
+    fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
+    inboxQueue *inbox = initInboxQueue();
+    /* Message Struct Initialization */
     MESSAGE_STRUCT MessageStruct;
     MessageStruct.widget = vBox;
     MessageStruct.server = server;
+    MessageStruct.Allroom = AllRoom;
+    MessageStruct.outputFIFO = outputBuffer;
+    MessageStruct.inbox = inbox;
 
     for (;;)
     {
@@ -704,7 +712,7 @@ int main(int argc, char *argv[])
         g_signal_connect(showPasswordCheckBox, "toggled", G_CALLBACK(ShowCharacters), accountCreationVBox);
         g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
 
-            /* have to change these signals */
+        /* have to change these signals */
         g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
         g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
 

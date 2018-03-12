@@ -15,7 +15,6 @@ struct MessageStruct
     serverConnection *server;
     struct allRoom *Allroom;
     fifo *outputFIFO;
-    serverConnection *server;
     inboxQueue *inbox;
 }
 
