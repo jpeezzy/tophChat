@@ -28,7 +28,7 @@ fifo_debug.o: fifo.c fifo.h constants.h
 # networkTestClass.o: networkTestClass.cc networkTestClass.h constants.h tcpGUI.h server_back_end.h 
 # 	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
 
-testServer: server_back_end.c server_back_end.h testString.h
+testServer: server_back_end.c server_back_end.h testString.h tophChatUsers.o 
 	$(CC) $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
 #JOINT TEST OF CLIENT AND SERVER
@@ -44,6 +44,12 @@ server_main_test.o: server_main_test.cc server_main.c
 server_main_debug.o: server_main.c constants.h tcpGUI.h tcpPacket.h 
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
+#TOPH CHAT STUFFS
+tophChatUsers.o: ./users/tophChatUsers.c ./users/tophChatUsers.h
+	$(CC) $(CFLAGS) $(GTKINC) $(<) -o $(@)
+
+DEBUG: tophChatUsers.c tophChatUsers.h
+	$(CC) $(CFLAGS) -DDEBUG $(GTKINC) $(<) -o $(@)
 
 #TEST SIMPLE I/O FUNCTION LIKE SEND, FETCH 
 tdd_tcpGUI: tcpGUI_test.o tcpGUI_debug.o fifo_debug.o protocol.o utils.o
@@ -60,7 +66,7 @@ tcpPacket_test.o: tcpPacket_test.cc tcpPacket.c
 tcpPacket_debug.o: tcpPacket.c tcpPacket.h fifo.h tcpGUI.h constants.h 
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
-tdd_server_back_end: server_back_end_test.o server_back_end_debug.o
+tdd_server_back_end: server_back_end_test.o server_back_end_debug.o tcpPacket_debug.o utils.o protocol.o tophChatUsers.o 
 	$(CXX) $(^) -o $(@) $(LKP)
 server_back_end_test.o: server_back_end_test.cc server_back_end.c 
 	$(CXX) -c $(<) $(CPFLAGS) -o $(@)

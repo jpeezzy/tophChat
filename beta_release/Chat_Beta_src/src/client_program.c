@@ -9,12 +9,8 @@
 #include <gtk/gtk.h>
 
 #include "GTK.h"
-#include "fifo.h"
-#include "constants.h"
-#include "protocol_const.h"
 #include "tcpGUI.h"
-#include "utils.h"
-#include "protocol.h"
+
 int main(int argc, char *argv[])
 {
 
@@ -37,6 +33,7 @@ int main(int argc, char *argv[])
 
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 
+    g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
     /**************************************************************************************************/
     /**********************************************/
     /***********     LOGIN SCREEN    *************/
@@ -49,6 +46,7 @@ int main(int argc, char *argv[])
     gtk_widget_set_size_request(loginScreen, 400, 300);
     gtk_container_set_border_width(GTK_CONTAINER(loginScreen), 10);
     gtk_window_set_resizable(GTK_WINDOW(loginScreen), FALSE);
+    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
 
     /* frame */
     GtkWidget *loginFrame;
@@ -191,6 +189,7 @@ int main(int argc, char *argv[])
     gtk_widget_set_size_request(accountCreationScreen, 600, 300);
     gtk_container_set_border_width(GTK_CONTAINER(accountCreationScreen), 10);
     gtk_window_set_resizable(GTK_WINDOW(accountCreationScreen), FALSE);
+    g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
 
     /* frame */
     GtkWidget *accountFrame;
@@ -287,6 +286,11 @@ int main(int argc, char *argv[])
     gtk_container_add(GTK_CONTAINER(accountCreationScreen), accountFrame);
 
     /**** SIGNALS ****/
+    g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);
+    g_signal_connect(newPassword, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
+    g_signal_connect(newPasswordConfirm, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
+    g_signal_connect(showPasswordCheckBox, "toggled", G_CALLBACK(ShowCharacters), accountCreationVBox);
+    g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
 
     /* showing widgets */
     gtk_widget_show(showPasswordCheckBox);
@@ -320,6 +324,7 @@ int main(int argc, char *argv[])
     gtk_widget_set_size_request(messagePopupScreen, 270, 100);
     gtk_container_set_border_width(GTK_CONTAINER(messagePopupScreen), 10);
     gtk_window_set_resizable(GTK_WINDOW(messagePopupScreen), FALSE);
+    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
 
     /* labels */
     GtkWidget *newMessage;
@@ -352,6 +357,7 @@ int main(int argc, char *argv[])
     gtk_container_add(GTK_CONTAINER(messagePopupScreen), newMessageVBox);
 
     /* SIGNALS */
+    g_signal_connect(accept, "clicked", G_CALLBACK(AcceptMessage), messagePopupScreen);
 
     /* Show widgets */
     gtk_widget_show(newMessageVBox);
@@ -682,63 +688,11 @@ int main(int argc, char *argv[])
     loginArray[1] = loginScreen;
     loginArray[2] = window;
 
-    /* CLIENT SERVER INITIALIZATION */
-    serverConnection *server = openConnection();
-    assert(server);
-    char packet[PACKAGE_SIZE] = "";
-    char message[MESS_LIMIT] = "";
-    roomList *AllRoom = roomsetInit();
-    fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
-    inboxQueue *inbox = initInboxQueue();
-    /* Message Struct Initialization */
-    MESSAGE_STRUCT messageStruct;
-    messageStruct.widget = vBox;
-    messageStruct.window = window;
-    messageStruct.server = server;
-    messageStruct.Allroom = AllRoom;
-    messageStruct.outputFIFO = outputBuffer;
-    messageStruct.inbox = inbox;
-    messageStruct.username = "";
-    messageStruct.message = "";
-
-    /* Login Struct */
-    MESSAGE_STRUCT loginStruct;
-    loginStruct.widget = loginVBox;
-    loginStruct.window = loginScreen;
-    loginStruct.server = server;
-    loginStruct.Allroom = AllRoom;
-    loginStruct.outputFIFO = outputBuffer;
-    messageStruct.inbox = inbox;
-    messageStruct.username = "";
-    messageStruct.message = "";
-
-    /* MessageStruct Array */
-    MESSAGE_STRUCT messageStructArray[2];
-    messageStructArray[0] = messageStruct;
-    messageStructArray[1] = loginStruct;
-
     /**** SIGNALS ********/
-    g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
-    g_signal_connect(accept, "clicked", G_CALLBACK(AcceptMessage), messagePopupScreen);
-    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name);    /* deletes window */
-    g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
-    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name);           /* deletes window */
+    g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
+    g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
 
-        /* Create Account Signals */
-    g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);
-    g_signal_connect(newPassword, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
-    g_signal_connect(newPasswordConfirm, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
-    g_signal_connect(showPasswordCheckBox, "toggled", G_CALLBACK(ShowCharacters), accountCreationVBox);
-    g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
-
-        /* Messaging Signals */
-    g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer) &messageStruct); /* to send message with enter key */
-    g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), (gpointer) &messageStruct);                 /* to send message with "Send" button */
-
-//        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
-//        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
-
-        /* option clicks for all of friends on list */
+    /* option clicks for all of friends on list */
     g_signal_connect(friends[0], "clicked", G_CALLBACK(OptionsPopup), optionsArray0); /* opens up options popup */
     g_signal_connect(friends[1], "clicked", G_CALLBACK(OptionsPopup), optionsArray1);
     g_signal_connect(friends[2], "clicked", G_CALLBACK(OptionsPopup), optionsArray2);
@@ -753,7 +707,7 @@ int main(int argc, char *argv[])
     /* login signals */
     g_signal_connect(quitButton, "clicked", G_CALLBACK(LoginExit), NULL); /* if the user quits */
     g_signal_connect(createAccount, "clicked", G_CALLBACK(CreateAccount), accountCreationScreen);
-    g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), (gpointer) messageStructArray); /* if the user wants to log in */
+    g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), loginArray); /* if the user wants to log in */
 
     /* message signals */
     //    g_signal_connect(
@@ -781,13 +735,9 @@ int main(int argc, char *argv[])
     //    gtk_widget_show(window);
     gtk_widget_show(loginScreen);
 
+    printf("hello \n");
 
-    for (;;)
-    {
-        recvMessageFromServer(AllRoom, inbox, server);
-        sendMessageToServer(outputBuffer, server);
+    gtk_main(); /* main event loop */
 
-        gtk_main(); /* main event loop */
-    }
     return 0;
 }
