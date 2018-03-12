@@ -226,7 +226,7 @@ int loadUser(cp textFile, TINFO *userBase)
 	//Load the users based off information
 	while (fgets(line, sizeof(line), file)) 
 	{
-		//printf("%s", line);
+		printf("%s", line);
 		char* _userName = malloc(256*sizeof(char));
 		char* _name = malloc(256*sizeof(char));
 		ui _hashPassword;
