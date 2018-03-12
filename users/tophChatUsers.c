@@ -50,8 +50,10 @@ TUSER *addUser(cp _userName, cp _name,
 
 int deleteUser(TUSER *user)
 {
-	//free(user->userName);
-	//user->userName = NULL;
+	free(user->userName);
+	user->userName = NULL;
+	free(user->name);
+	user->name = NULL;
 	//user->hashedPassword = 0;
 	//user->name = 0;
 	//if (user->email != NULL) free(user->email);
@@ -239,8 +241,9 @@ int loadUser(cp textFile, TINFO *userBase)
 		_hashPassword = (ui)atoi(split);
 		split = strtok(NULL, "|");
 		_numFriends = (ui)atoi(split);
-		addUser(_userName, _name, _numFriends, userBase);
-		printf("%s|\n", findUserByName(_userName,userBase)->userName);
+		TUSER *user1 = addUser(_userName, _name, _hashPassword, userBase);
+		user1->friendCount = _numFriends;
+		//printf("%s|\n", findUserByName(_userName,userBase)->userName);
 	}
 	fclose(file);
 
@@ -250,27 +253,23 @@ int loadUser(cp textFile, TINFO *userBase)
 	{
 		char *split = strtok(line, "|");
 		char* _userName = split;
-		printf("Here the name is %s\n", _userName);
+		//printf("Here the name is %s\n", _userName);
 		split = strtok(NULL, "|");
 		split = strtok(NULL, "|");
 		split = strtok(NULL, "|");
 		TUSER *temp = findUserByName(_userName, userBase);
+		//printf("%u\n", temp->friendCount);
 		for(ui i = 0; i < temp->friendCount; i++)
 		{
-			split = strtok(line, "|");
-			printf("Here the name is %s\n", split);
+			split = strtok(NULL, "|");
+			//printf("i = %d\n", i);
 			temp->friends[i] = findUserByName(split, userBase);
+			//printf("Here the name is %s\n", temp->friends[0]->userName);
 		}
 		//now we start looking for friends
 		//int position = 0;
-
 	}
-/*	while( split != NULL ) 
-	{
-		printf( " %s\n", split );
-
-		split = strtok(NULL, "|");
-	}*/
+	fclose(file2);
 	return 0;
 
 }
@@ -298,7 +297,9 @@ int main()
 	loadUser("Users.txt", dataBase);
 	printf("loaded successfully?\n");
 	//printf("%s\n", dataBase->Users[0]->userName);
-	printf("can we see ADMIN: %s \n", findUserByName("USER", dataBase)->friends[0]->userName);
+	printf("can we see ADMIN: %s \n", findUserByName("ADMIN", dataBase)->userName);
+	printf("can we see USER: %s \n", findUserByName("USER", dataBase)->userName);
+	printf("can we see USER: %s \n", findUserByName("ADMIN", dataBase)->friends[0]->userName);
 	printf("loaded successfully! are harabe and justin friends? %d\n", 
 			checkIfFriends(findUserByName("ADMIN", dataBase), findUserByName("USER", dataBase)));
 
