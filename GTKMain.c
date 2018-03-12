@@ -682,6 +682,74 @@ int main(int argc, char *argv[])
     loginArray[1] = loginScreen;
     loginArray[2] = window;
 
+
+    /**** SIGNALS ********/
+    g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
+    g_signal_connect(accept, "clicked", G_CALLBACK(AcceptMessage), messagePopupScreen);
+    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name);    /* deletes window */
+    g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
+    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name);           /* deletes window */
+
+    g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);
+    g_signal_connect(newPassword, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
+    g_signal_connect(newPasswordConfirm, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
+    g_signal_connect(showPasswordCheckBox, "toggled", G_CALLBACK(ShowCharacters), accountCreationVBox);
+    g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
+
+    /* have to change these signals */
+    g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer) &messageStruct); /* to send message with enter key */
+    g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), (gpointer) &messageStruct);                 /* to send message with "Send" button */
+
+//        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
+//        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
+
+    /* option clicks for all of friends on list */
+    g_signal_connect(friends[0], "clicked", G_CALLBACK(OptionsPopup), optionsArray0); /* opens up options popup */
+    g_signal_connect(friends[1], "clicked", G_CALLBACK(OptionsPopup), optionsArray1);
+    g_signal_connect(friends[2], "clicked", G_CALLBACK(OptionsPopup), optionsArray2);
+    g_signal_connect(friends[3], "clicked", G_CALLBACK(OptionsPopup), optionsArray3);
+    g_signal_connect(friends[4], "clicked", G_CALLBACK(OptionsPopup), optionsArray4);
+    g_signal_connect(friends[5], "clicked", G_CALLBACK(OptionsPopup), optionsArray5);
+    g_signal_connect(friends[6], "clicked", G_CALLBACK(OptionsPopup), optionsArray6);
+    g_signal_connect(friends[7], "clicked", G_CALLBACK(OptionsPopup), optionsArray7);
+    g_signal_connect(friends[8], "clicked", G_CALLBACK(OptionsPopup), optionsArray8);
+    g_signal_connect(friends[9], "clicked", G_CALLBACK(OptionsPopup), optionsArray9);
+
+    /* login signals */
+    g_signal_connect(quitButton, "clicked", G_CALLBACK(LoginExit), NULL); /* if the user quits */
+    g_signal_connect(createAccount, "clicked", G_CALLBACK(CreateAccount), accountCreationScreen);
+    g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), loginArray); /* if the user wants to log in */
+
+    /* message signals */
+    //    g_signal_connect(
+
+    /****** SHOWING WIDGETS ******/
+    gtk_widget_show(scrollWindow);
+    gtk_widget_show(expander);
+    gtk_widget_show(blockButton);
+    gtk_widget_show(messageButton);
+    gtk_widget_show(options);
+    gtk_widget_show(friendListFrame);
+    gtk_widget_show(frame);
+    gtk_widget_show(vLine2);
+    gtk_widget_show(friendsList);
+    gtk_widget_show(vLine);
+    gtk_widget_show(hBox2);
+    gtk_widget_show(sendButton);
+    gtk_widget_show(messageScreen);
+    gtk_widget_show(textBox);
+    gtk_widget_show(tabLabel);
+    gtk_widget_show(tabs);
+    gtk_widget_show(fixed);
+    gtk_widget_show(vBox);
+    gtk_widget_show(hBox);
+    //    gtk_widget_show(window);
+    gtk_widget_show(loginScreen);
+
+
+
+
+
     /* CLIENT SERVER INITIALIZATION */
     serverConnection *server = openConnection();
     assert(server);
@@ -702,71 +770,6 @@ int main(int argc, char *argv[])
     {
         recvMessageFromServer(AllRoom, inbox, server);
         sendMessageToServer(outputBuffer, server);
-
-        /**** SIGNALS ********/
-        g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
-        g_signal_connect(accept, "clicked", G_CALLBACK(AcceptMessage), messagePopupScreen);
-        g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name);    /* deletes window */
-        g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
-        g_signal_connect(loginScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name);           /* deletes window */
-
-        g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);
-        g_signal_connect(newPassword, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
-        g_signal_connect(newPasswordConfirm, "key-press-event", G_CALLBACK(HideCharacters), showPasswordCheckBox);
-        g_signal_connect(showPasswordCheckBox, "toggled", G_CALLBACK(ShowCharacters), accountCreationVBox);
-        g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
-
-        /* have to change these signals */
-        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer)&messageStruct); /* to send message with enter key */
-        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox);                 /* to send message with "Send" button */
-
-        //        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
-        //        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
-
-        /* option clicks for all of friends on list */
-        g_signal_connect(friends[0], "clicked", G_CALLBACK(OptionsPopup), optionsArray0); /* opens up options popup */
-        g_signal_connect(friends[1], "clicked", G_CALLBACK(OptionsPopup), optionsArray1);
-        g_signal_connect(friends[2], "clicked", G_CALLBACK(OptionsPopup), optionsArray2);
-        g_signal_connect(friends[3], "clicked", G_CALLBACK(OptionsPopup), optionsArray3);
-        g_signal_connect(friends[4], "clicked", G_CALLBACK(OptionsPopup), optionsArray4);
-        g_signal_connect(friends[5], "clicked", G_CALLBACK(OptionsPopup), optionsArray5);
-        g_signal_connect(friends[6], "clicked", G_CALLBACK(OptionsPopup), optionsArray6);
-        g_signal_connect(friends[7], "clicked", G_CALLBACK(OptionsPopup), optionsArray7);
-        g_signal_connect(friends[8], "clicked", G_CALLBACK(OptionsPopup), optionsArray8);
-        g_signal_connect(friends[9], "clicked", G_CALLBACK(OptionsPopup), optionsArray9);
-
-        /* login signals */
-        g_signal_connect(quitButton, "clicked", G_CALLBACK(LoginExit), NULL); /* if the user quits */
-        g_signal_connect(createAccount, "clicked", G_CALLBACK(CreateAccount), accountCreationScreen);
-        g_signal_connect(loginButton, "clicked", G_CALLBACK(Login), loginArray); /* if the user wants to log in */
-
-        /* message signals */
-        //    g_signal_connect(
-
-        /****** SHOWING WIDGETS ******/
-        gtk_widget_show(scrollWindow);
-        gtk_widget_show(expander);
-        gtk_widget_show(blockButton);
-        gtk_widget_show(messageButton);
-        gtk_widget_show(options);
-        gtk_widget_show(friendListFrame);
-        gtk_widget_show(frame);
-        gtk_widget_show(vLine2);
-        gtk_widget_show(friendsList);
-        gtk_widget_show(vLine);
-        gtk_widget_show(hBox2);
-        gtk_widget_show(sendButton);
-        gtk_widget_show(messageScreen);
-        gtk_widget_show(textBox);
-        gtk_widget_show(tabLabel);
-        gtk_widget_show(tabs);
-        gtk_widget_show(fixed);
-        gtk_widget_show(vBox);
-        gtk_widget_show(hBox);
-        //    gtk_widget_show(window);
-        gtk_widget_show(loginScreen);
-
-        printf("hello \n");
 
         gtk_main(); /* main event loop */
     }

@@ -23,7 +23,7 @@ gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data); /* Exits 
 //void click(GtkWidget *widget, GdkEvent *event, gpointer data);
 //GtkWidget *CreateBox(GtkWidget *window, GtkWidget *button);
 void EnterKey(GtkWidget *entry, gpointer messageStruct);                                                                                      /* when the user presses enter in the textBox */
-void SendButton(GtkWidget *widget, GtkWidget *vBox);                                                                                   /* when user presses send button */
+void SendButton(GtkWidget *widget, gpointer messageStruct);                                                                                   /* when user presses send button */
 void OptionsPopup(GtkWidget *button, GtkWidget *options[]);                                                                            /* option box pops up when friend is clicked on */
 void MessageUser(GtkWidget *widget, GtkWidget *tabCreation[]);                                                                         /* when "message" button pressed. creates new tab for the friend" */
 void BlockUser(GtkWidget *widget, GtkWidget *tabCreation[]);                                                                           /* blocks the user selected */
