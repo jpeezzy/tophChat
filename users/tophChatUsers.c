@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h> 
 #include <string.h>
+#include <sys/types.h>
 
 #include "tophChatUsers.h"
 TUSER *addUser(cp _userName, cp _name, 
@@ -84,6 +85,13 @@ TINFO *createTINFO()
 }
 int deleteTINFO(TINFO *userBase)
 {
+	int i = 0;
+	while(userBase->Users[i] != NULL)
+	{
+		deleteUser(userBase->Users[i]);
+		userBase->Users[i] = NULL;
+		i++;
+	}
 	free(userBase);
 	return 0;
 }
@@ -193,19 +201,77 @@ int saveUser(TUSER *user)
 	}
 	//The format in the file is 
 	/*userName | hashedPassword | friendCount | all the friends space |  */
-	fprintf(file, "%s | %u | %u | ", user->userName, user->hashedPassword, user->friendCount);
+	fprintf(file, "%s|%s|%u|%u|", user->userName, user->name, user->hashedPassword, user->friendCount);
 	//now to dynamically save all the friend user has saved
 	for(ui i = 0; i < user->friendCount; i++)
 	{
-		fprintf(file, " %s", user->friends[i]->userName);
+		fprintf(file, "%s|", user->friends[i]->userName);
 	}
 	fprintf(file, " |\n");
 	fclose(file);
 	return 0;
 }
 
-int loadUser(cp textFile)
+int loadUser(cp textFile, TINFO *userBase)
 {
+	FILE *file = fopen(textFile, "r");
+	char line[512];
+	if (file == NULL)
+	{
+		printf("Error opening file!\n");
+		exit(1);
+	}
+	//Load the users based off information
+	while (fgets(line, sizeof(line), file)) 
+	{
+		printf("%s", line);
+		char* _userName = malloc(256*sizeof(char));
+		char* _name = malloc(256*sizeof(char));
+		ui _hashPassword;
+		ui _numFriends;
+		//read tolkenized input
+		//Get all the inputs to their perspective places
+		char *split = strtok(line, "|");
+		strcpy(_userName, split);
+		split = strtok(NULL, "|");
+		strcpy(_name, split);
+		split = strtok(NULL, "|");
+		_hashPassword = (ui)atoi(split);
+		split = strtok(NULL, "|");
+		_numFriends = (ui)atoi(split);
+		addUser(_userName, _name, _numFriends, userBase);
+		printf("%s|\n", findUserByName(_userName,userBase)->userName);
+	}
+	fclose(file);
+
+	//now that all the users are loaded, its time to add them all as friends
+	FILE *file2 = fopen(textFile, "r");
+	while(fgets(line, sizeof(line), file2))
+	{
+		char *split = strtok(line, "|");
+		char* _userName = split;
+		printf("Here the name is %s\n", _userName);
+		split = strtok(NULL, "|");
+		split = strtok(NULL, "|");
+		split = strtok(NULL, "|");
+		TUSER *temp = findUserByName(_userName, userBase);
+		for(ui i = 0; i < temp->friendCount; i++)
+		{
+			split = strtok(line, "|");
+			printf("Here the name is %s\n", split);
+			temp->friends[i] = findUserByName(split, userBase);
+		}
+		//now we start looking for friends
+		//int position = 0;
+
+	}
+/*	while( split != NULL ) 
+	{
+		printf( " %s\n", split );
+
+		split = strtok(NULL, "|");
+	}*/
+	return 0;
 
 }
 
@@ -214,17 +280,32 @@ int main()
 {
 	/*creating a user */
 	TINFO *dataBase = createTINFO();
-	addUser("Justindlee","Justin", 1234, dataBase);
+/*	addUser("Justindlee","Justin", 1234, dataBase);
 	addUser("BoostedGorilla","asdf", 1234, dataBase);
+
 	printf("I was able to find %s \n", findUserByName("Justindlee", dataBase)->userName);
-	printf("We authentify the user with the password 123, result is %d \n", authentifyUser("Justindlee", 1234, dataBase));
+
+	printf("We authentify the user with the password 123,"" result is %d \n", 
+			authentifyUser("Justindlee", 1234, dataBase));
+
 	addFriend("BoostedGorilla", findUserByName("Justindlee", dataBase), dataBase);
-	printf("%d\n", checkIfFriends(findUserByName("Justindlee", dataBase), findUserByName("BoostedGorilla", dataBase)));
-	saveUser(findUserByName("Justindlee", dataBase));
-	printf("saved successfully!\n");
-	deleteUser(dataBase->Users[0]);
+	printf("%d\n", checkIfFriends(findUserByName("Justindlee", dataBase), 
+				findUserByName("BoostedGorilla", dataBase)));
+*/
+//	saveUser(findUserByName("Justindlee", dataBase));
+//	printf("saved successfully!\n");
+
+	loadUser("Users.txt", dataBase);
+	printf("loaded successfully?\n");
+	//printf("%s\n", dataBase->Users[0]->userName);
+	printf("can we see ADMIN: %s \n", findUserByName("USER", dataBase)->friends[0]->userName);
+	printf("loaded successfully! are harabe and justin friends? %d\n", 
+			checkIfFriends(findUserByName("ADMIN", dataBase), findUserByName("USER", dataBase)));
+
 	deleteTINFO(dataBase);
+
 	printf("Finished running!\n");
+
 	return 0;
 }
 #endif

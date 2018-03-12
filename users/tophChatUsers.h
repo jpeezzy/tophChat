@@ -83,4 +83,4 @@ int changeSocket(TUSER *user, int socket);
 int saveUser(TUSER *user);
 
 //Loads the user
-int loadUser(cp textFile);
+int loadUser(cp textFile, TINFO *userBase);
