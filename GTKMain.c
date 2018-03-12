@@ -698,8 +698,10 @@ int main(int argc, char *argv[])
 
     for (;;)
     {
-        /**** SIGNALS ********/
+        recvMessageFromServer(AllRoom, inbox, server);
+        sendMessageToServer(outputFIFO, server);
 
+        /**** SIGNALS ********/
         g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
         g_signal_connect(accept, "clicked", G_CALLBACK(AcceptMessage), messagePopupScreen);
         g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name);    /* deletes window */
