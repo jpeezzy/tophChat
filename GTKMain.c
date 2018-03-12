@@ -12,7 +12,9 @@
 #include "fifo.h"
 #include "constants.h"
 #include "protocol_const.h"
-
+#include "tcpGUI.h"
+#include "utils.h"
+#include "protocol.h"
 int main(int argc, char *argv[])
 {
 
@@ -715,13 +717,11 @@ int main(int argc, char *argv[])
         g_signal_connect(clearForm, "clicked", G_CALLBACK(ClearForm), accountCreationVBox);
 
         /* have to change these signals */
-        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer) &messageStruct);     /* to send message with enter key */
-        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
+        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer)&messageStruct); /* to send message with enter key */
+        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox);                 /* to send message with "Send" button */
 
-//        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
-//        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
-
-
+        //        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
+        //        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
 
         /* option clicks for all of friends on list */
         g_signal_connect(friends[0], "clicked", G_CALLBACK(OptionsPopup), optionsArray0); /* opens up options popup */
