@@ -1,7 +1,16 @@
 #ifndef GTK
 #define GTK
 #include <gtk/gtk.h>
+#include "tcpGUI.h"
 
+typedef struct MessageStruct MESSAGE_STRUCT;
+ 
+/* message struct to hold server and GUI input stuff */
+struct MessageStruct
+{
+    GtkWidget *widget;
+    serverConnection *server;      
+}   
 
 gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data);    /* Exits out of the window and the program */
 gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data);      /* Exits out of the window and the program */
