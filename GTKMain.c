@@ -29,8 +29,8 @@ struct MessageStruct
     struct allRoom *Allroom;
     fifo *outputFIFO;
     inboxQueue *inbox;
-    char *username;
-    char *message;
+    char username[20];
+    char message[481];
 };
 
 MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, serverConnection *server, struct allRoom *Allroom, fifo *outputFIFO, inboxQueue *inbox, char *username, char *message);
@@ -70,8 +70,7 @@ MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, server
     messageStruct->Allroom = Allroom;
     messageStruct->outputFIFO = outputFIFO;
     messageStruct->inbox = inbox;
-    messageStruct->username = username;
-    messageStruct->message = message;
+    return messageStruct;
 }
 
 gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data)
@@ -129,7 +128,8 @@ void Login(GtkWidget *widget, gpointer messageStructArray[])
     printf("here is password %s \n", password);
 
     //    strcpy(messageStruct1->username, username);
-    messageStruct1->username = username;
+    strncpy(messageStruct1->username, username, 20);
+    messageStruct1->username[20] = '/0';
 
     gtk_widget_destroy(vBox[1]);
     gtk_widget_show(vBox[2]);
