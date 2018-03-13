@@ -71,7 +71,7 @@ tdd_server_back_end: server_back_end_test.o server_back_end_debug.o tcpPacket_de
 server_back_end_test.o: server_back_end_test.cc server_back_end.c 
 	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
 server_back_end_debug.o: server_back_end.c server_back_end.h constants.h 
-	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
+	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -DTDD_OFFLINE -o $(@)
 
 #TEST UTILITIES
 tdd_utils: utils_test.o utils.o

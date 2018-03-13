@@ -7,7 +7,7 @@ extern "C" {
 #include "protocol_const.h"
 #include "protocol.h"
 #include "server_back_end.h"
-#include "users/tophChatUsers.h"
+#include "tophChatUsers.h"
 #include "socket.h"
 }
 
@@ -60,6 +60,7 @@ TEST(SeverRoomUser, SERVER_ROOM_TEST)
     addUser(userName, userName, 1231123, database);
     struct tophChatUser *testUser = findUserByName(userName, database);
 
+    testUser->socket = 1; // give user the online status
     addUserToServerRoom(testRoom, userName, database);
     EXPECT_EQ(testRoom->socketList[0], testUser->socket);
     EXPECT_EQ(testUser->numOfRoomUserIn, 1);
@@ -71,6 +72,56 @@ TEST(SeverRoomUser, SERVER_ROOM_TEST)
     EXPECT_EQ(testUser->numOfRoomUserIn, 0);
     EXPECT_EQ(testUser->listOfRooms[0], -1);
     EXPECT_EQ(testRoom->peopleNum, 0);
+}
+
+TEST(ServerRoomSend, SERVER_ROOM_TEST)
+{
+    // test setup
+    char packet[PACKAGE_SIZE];
+    TINFO *database = createTINFO();
+    allServerRoom *allRoom = serverRoomSetCreate();
+    serverChatRoom *testRoom = &(allRoom->roomList[10]);
+
+    char *userName[] = {"ADMIN", "USER1", "USER2", "USER3", "USER4"};
+
+    int userNameListLength = sizeof(userName) / sizeof(userName[0]);
+    struct tophChatUser **userList = (struct tophChatUser **)malloc(sizeof(struct tophChatUser *) * userNameListLength);
+
+    for (int i = 0; i < userNameListLength; ++i)
+    {
+        addUser(userName[i], userName[i], i, database);
+        userList[i] = findUserByName(userName[i], database);
+        userList[i]->socket = i;
+        addUserToServerRoom(testRoom, userName[i], database);
+    }
+
+    assembleMessage(10, userName[0], "TEST1", packet);
+    sendServerRoomMessage(testRoom, packet);
+    serverRoomSpreadMessage(testRoom, database);
+}
+
+TEST(ServerRoomInvite, SERVER_ROOM_TEST)
+{
+    // test setup
+    char packet[PACKAGE_SIZE];
+    TINFO *database = createTINFO();
+    allServerRoom *allRoom = serverRoomSetCreate();
+    serverChatRoom *testRoom = &(allRoom->roomList[10]);
+
+    char *userName[] = {"ADMIN", "USER1", "USER2", "USER3", "USER4"};
+
+    int userNameListLength = sizeof(userName) / sizeof(userName[0]);
+    struct tophChatUser **userList = (struct tophChatUser **)malloc(sizeof(struct tophChatUser *) * userNameListLength);
+
+    for (int i = 0; i < userNameListLength; ++i)
+    {
+        addUser(userName[i], userName[i], i, database);
+        userList[i] = findUserByName(userName[i], database);
+        userList[i]->socket = i;
+        addUserToServerRoom(testRoom, userName[i], database);
+    }
+
+    sendRoomInvite(userName[0], userName[1], testRoom, database);
 }
 
 TEST(OnlineListGenerate, onlineList)
@@ -101,6 +152,7 @@ TEST(AddRemoveUser, onlineList)
     EXPECT_EQ(userList->userList[0].slot_status, ONLINE);
     EXPECT_EQ(userList->userList[0].userProfile, testUser);
     EXPECT_EQ(userList->userList[0].userProfile->socket, 55);
+    EXPECT_EQ(userList->userList[0].userProfile->numOfRoomUserIn, ONLINE);
 
     serverLogOffUser(testOnlUser);
     EXPECT_EQ(testOnlUser->slot_status, NOT_ONLINE);
@@ -111,8 +163,81 @@ TEST(AddRemoveUser, onlineList)
     }
     EXPECT_EQ(testOnlUser->userProfile->numOfRoomUserIn, 0);
 
+    // test adding many users
+    {
+        char packet[PACKAGE_SIZE];
+        TINFO *database = createTINFO();
+        allServerRoom *allRoom = serverRoomSetCreate();
+        serverChatRoom *testRoom = &(allRoom->roomList[10]);
+
+        char *userName[] = {"ADMIN", "USER1", "USER2", "USER3", "USER4"};
+
+        int userNameListLength = sizeof(userName) / sizeof(userName[0]);
+        struct tophChatUser **userList = (struct tophChatUser **)malloc(sizeof(struct tophChatUser *) * userNameListLength);
+        onlineUserList *onlineList = serverCreateOnlineList();
+
+        for (int i = 0; i < userNameListLength; ++i)
+        {
+            addUser(userName[i], userName[i], i + 20000, database);
+            userList[i] = findUserByName(userName[i], database);
+            ASSERT_TRUE(serverAddOnlineUser(userName[i], onlineList, i, database) != NULL);
+            ASSERT_EQ(addUserToServerRoom(testRoom, userName[i], database), 0);
+        }
+
+        for (int i = 0; i < userNameListLength; ++i)
+        {
+            EXPECT_EQ(onlineList->userList[i].slot_status, ONLINE);
+            EXPECT_EQ(onlineList->userList[i].userProfile->socket, i);
+            EXPECT_EQ(0, strcmp(onlineList->userList[i].userProfile->userName, userName[i]));
+            EXPECT_EQ(onlineList->userList[i].userProfile->numOfRoomUserIn, 1);
+        }
+    }
+
     char buffer[100];
     EXPECT_LE(recv(testOnlUser->userProfile->socket, buffer, 100, 0), 0);
+}
+
+TEST(getOnlineUSERTEST, onlineList)
+{
+    // test setup
+    char packet[PACKAGE_SIZE];
+    TINFO *database = createTINFO();
+    allServerRoom *allRoom = serverRoomSetCreate();
+    serverChatRoom *testRoom = &(allRoom->roomList[10]);
+
+    char *userName[] = {"ADMIN", "USER1", "USER2", "USER3", "USER4"};
+
+    int userNameListLength = sizeof(userName) / sizeof(userName[0]);
+    struct tophChatUser **userList = (struct tophChatUser **)malloc(sizeof(struct tophChatUser *) * userNameListLength);
+
+    for (int i = 0; i < userNameListLength; ++i)
+    {
+        addUser(userName[i], userName[i], i, database);
+        userList[i] = findUserByName(userName[i], database);
+        addUserToServerRoom(testRoom, userName[i], database);
+    }
+
+    onlineUserList *onlineList = serverCreateOnlineList();
+    for (int i = 0; i < userNameListLength; ++i)
+    {
+        ASSERT_TRUE(serverAddOnlineUser(userName[i], onlineList, i, database) != NULL);
+    }
+
+    char onlineListMessage[PACKAGE_SIZE];
+    char correct_onlineListMessage[PACKAGE_SIZE] = "";
+    int strIndex = 0;
+    getOnlineUser(onlineList, onlineListMessage);
+
+    for (int i = 0; i < userNameListLength; ++i)
+    {
+        strcat(correct_onlineListMessage, userName[i]);
+        strIndex += strlen(userName[i]);
+        correct_onlineListMessage[strIndex] = '/';
+        correct_onlineListMessage[strIndex + 1] = '\0';
+    }
+    EXPECT_EQ(0, strcmp(correct_onlineListMessage, onlineListMessage));
+    printf("\nthe list of online user is %s\n", onlineListMessage);
+    printf("the correct online list is %s\n", correct_onlineListMessage);
 }
 
 int main(int argc, char **argv)

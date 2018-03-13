@@ -170,6 +170,9 @@ int serverRoomSpreadMessage(struct messageServerRoom *room, TINFO *dataBase)
         assert(room);
         getSenderName(userName, serverPacket);
         tempUser = findUserByName(userName, dataBase);
+#ifdef TDD_OFFLINE
+        printf("\nthe name of the sender is %s\n", userName);
+#endif
         if (tempUser == NULL)
         {
             return USER_NOT_EXIST;
@@ -180,7 +183,11 @@ int serverRoomSpreadMessage(struct messageServerRoom *room, TINFO *dataBase)
             {
                 if ((room->socketList[i]) != tempUser->socket)
                 {
+#ifdef TDD_OFFLINE
+                    printf("\nsending to user with socket: %d\n", room->socketList[i]);
+#else
                     assert(sendPacket(serverPacket, room->socketList[i]) >= 0);
+#endif
                 }
             }
         }
@@ -242,6 +249,7 @@ onlineUser *serverAddOnlineUser(char *userName, onlineUserList *allUser, int soc
             allUser->userList[i].slot_status = ONLINE;
             allUser->userList[i].userProfile = tempUser;
             tempUser->socket = socket;
+            tempUser->numOfRoomUserIn += 1;
             return &(allUser->userList[i]);
         }
     }
@@ -282,7 +290,12 @@ int sendRoomInvite(char *userNameRequester, char *userNameTarget, serverChatRoom
         return USER_NOT_ONLINE;
     }
     assembleCommand(room->roomNum, ROID, ROINVITE, userNameRequester, userNameTarget, packet);
+
+#ifdef TDD_OFFLINE
+    printf("the invitation packet is: %s\n", packet);
+#else
     sendPacket(packet, target->socket);
+#endif
     return 0;
 }
 
@@ -292,6 +305,10 @@ int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataB
     if (room->peopleNum == MAX_USER_PER_ROOM)
     {
         return ROOM_FULL;
+    }
+    else if (tempUser->socket == NOT_ONLINE)
+    {
+        return USER_NOT_ONLINE;
     }
     else
     {
@@ -387,7 +404,7 @@ int getOnlineUser(onlineUserList *allUsers, char *onlineList)
             strcat(onlineList, allUsers->userList[i].userProfile->userName);
             nextIndex += strlen(allUsers->userList[i].userProfile->userName);
             onlineList[nextIndex] = '/';
-            onlineList[nextIndex] = '\0';
+            onlineList[nextIndex + 1] = '\0';
         }
     }
     return 0;
