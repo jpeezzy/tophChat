@@ -249,7 +249,7 @@ onlineUser *serverAddOnlineUser(char *userName, onlineUserList *allUser, int soc
             allUser->userList[i].slot_status = ONLINE;
             allUser->userList[i].userProfile = tempUser;
             tempUser->socket = socket;
-            tempUser->numOfRoomUserIn += 1;
+            tempUser->numOfRoomUserIn = 0;
             return &(allUser->userList[i]);
         }
     }
@@ -345,6 +345,11 @@ int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataB
 int removeUserFromServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataBase)
 {
     TUSER *tempUser = findUserByName(userNameTarget, dataBase);
+    if (tempUser->socket == NOT_ONLINE)
+    {
+        return USER_NOT_ONLINE;
+    }
+
     if (tempUser != NULL)
     {
         --(tempUser->numOfRoomUserIn);

@@ -152,7 +152,7 @@ TEST(AddRemoveUser, onlineList)
     EXPECT_EQ(userList->userList[0].slot_status, ONLINE);
     EXPECT_EQ(userList->userList[0].userProfile, testUser);
     EXPECT_EQ(userList->userList[0].userProfile->socket, 55);
-    EXPECT_EQ(userList->userList[0].userProfile->numOfRoomUserIn, ONLINE);
+    EXPECT_EQ(userList->userList[0].userProfile->numOfRoomUserIn, 0);
 
     serverLogOffUser(testOnlUser);
     EXPECT_EQ(testOnlUser->slot_status, NOT_ONLINE);
@@ -190,7 +190,7 @@ TEST(AddRemoveUser, onlineList)
             EXPECT_EQ(onlineList->userList[i].userProfile->socket, i);
             EXPECT_EQ(0, strcmp(onlineList->userList[i].userProfile->userName, userName[i]));
             EXPECT_EQ(onlineList->userList[i].userProfile->numOfRoomUserIn, 1);
-        }
+                }
     }
 
     char buffer[100];
