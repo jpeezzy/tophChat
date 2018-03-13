@@ -269,7 +269,7 @@ int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection
     char packet[PACKAGE_SIZE];
     int errCode = 0;
     chatRoom *tempRoom;
-    if (errCode = fetchPacket(packet, server->socket) == 0)
+    if ((errCode = fetchPacket(packet, server->socket)) == 0)
     {
         if (getpacketType(packet) == ISCOMM)
         {

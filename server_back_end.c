@@ -18,7 +18,6 @@
 
 #include "server_back_end.h"
 #include "constants.h"
-#include "testString.h"
 #include "tcpPacket.h"
 #include "tophChatUsers.h"
 #include "protocol_const.h"
@@ -184,8 +183,9 @@ int serverRoomSpreadMessage(struct messageServerRoom *room, TINFO *dataBase)
                 if ((room->socketList[i]) != tempUser->socket)
                 {
 #ifdef TDD_OFFLINE
-                    printf("\nsending to user with socket: %d\n", room->socketList[i]);
+                    printf("\nsending offline to user with socket: %d\n", room->socketList[i]);
 #else
+                    printf("\nsending online to user with socket: %d\n", room->socketList[i]);
                     assert(sendPacket(serverPacket, room->socketList[i]) >= 0);
 #endif
                 }

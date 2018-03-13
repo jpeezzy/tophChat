@@ -8,7 +8,7 @@ CPFLAGS := -Wall -std=c++0x -g
 DEBUG := -DDEBUG
 MAIN := -DMAIN
 testServerBin=testServer
-executable_file := tdd_protocol tdd_utils tdd_fifo tdd_client_server tdd_simple_IO tdd_tcpPacket tdd_tcpGUI tdd_server_back_end $(testServerBin)
+executable_file := tdd_protocol tdd_utils tdd_fifo tdd_client_server tdd_simple_IO tdd_tcpPacket tdd_tcpGUI tdd_server_back_end $(testServerBin) client_2 client_1 server_live 
 
 # compiler flags for GTK usage
 GTKINC := `pkg-config --cflags gtk+-2.0`
@@ -41,11 +41,11 @@ client_main_debug.o: client_main.c constants.h tcpGUI.h tcpPacket.h
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 server_main_test.o: server_main_test.cc server_main.c 
 	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
-server_main_debug.o: server_main.c constants.h tcpGUI.h tcpPacket.h 
+server_main_debug.o: server_main.c constants.h server_back_end.h protocol_const.h tcpPacket.h 
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
 #TOPH CHAT STUFFS
-tophChatUsers.o: ./users/tophChatUsers.c ./users/tophChatUsers.h
+tophChatUsers.o: tophChatUsers.c tophChatUsers.h
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
 DEBUG: tophChatUsers.c tophChatUsers.h
@@ -63,15 +63,34 @@ tdd_tcpPacket: tcpPacket_test.o tcpPacket_debug.o testServer
 	$(CXX) tcpPacket_test.o tcpPacket_debug.o -o $(@) $(LKP)
 tcpPacket_test.o: tcpPacket_test.cc tcpPacket.c 
 	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
-tcpPacket_debug.o: tcpPacket.c tcpPacket.h fifo.h tcpGUI.h constants.h 
+tcpPacket_debug.o: tcpPacket.c tcpPacket.h constants.h 
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
-tdd_server_back_end: server_back_end_test.o server_back_end_debug.o tcpPacket_debug.o utils.o protocol.o tophChatUsers.o fifo_debug.o
+tdd_server_back_end: server_back_end_test.o server_back_end_offline.o tcpPacket_debug.o utils.o protocol.o tophChatUsers.o fifo_debug.o
 	$(CXX) $(^) -o $(@) $(LKP)
 server_back_end_test.o: server_back_end_test.cc server_back_end.c 
 	$(CXX) -c $(<) $(CPFLAGS) -o $(@)
-server_back_end_debug.o: server_back_end.c server_back_end.h constants.h 
+server_back_end_offline.o: server_back_end.c server_back_end.h constants.h 
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -DTDD_OFFLINE -o $(@)
+server_back_end_debug.o: server_back_end.c server_back_end.h constants.h protocol_const.h
+	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
+
+# multi client test
+tdd_live_server: client_1 client_2 server_live
+
+client_1.o: client_main_1.c 
+	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -DCLIENT_1 -o $(@)
+
+client_2.o: client_main_1.c
+	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
+
+client_2: constants.h tcpGUI_debug.o fifo_debug.o protocol.o utils.o client_1.o tcpPacket_debug.o 
+	$(CXX) $(^) -o $(@) $(LKP)
+client_1: constants.h tcpGUI_debug.o fifo_debug.o protocol.o utils.o client_2.o tcpPacket_debug.o 
+	$(CXX) $(^) -o $(@) $(LKP)
+
+server_live: server_main_debug.o server_back_end_debug.o tcpPacket_debug.o protocol_const.h constants.h utils.o protocol.o tophChatUsers.o fifo_debug.o
+	$(CXX) $(^) -o $(@) $(LKP)
 
 #TEST UTILITIES
 tdd_utils: utils_test.o utils.o

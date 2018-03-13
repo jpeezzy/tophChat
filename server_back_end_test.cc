@@ -190,7 +190,7 @@ TEST(AddRemoveUser, onlineList)
             EXPECT_EQ(onlineList->userList[i].userProfile->socket, i);
             EXPECT_EQ(0, strcmp(onlineList->userList[i].userProfile->userName, userName[i]));
             EXPECT_EQ(onlineList->userList[i].userProfile->numOfRoomUserIn, 1);
-                }
+        }
     }
 
     char buffer[100];

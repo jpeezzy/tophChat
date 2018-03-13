@@ -18,7 +18,6 @@
 
 #include "server_back_end.h"
 #include "constants.h"
-#include "testString.h"
 #include "tcpPacket.h"
 #include "tophChatUsers.h"
 #include "protocol_const.h"

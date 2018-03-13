@@ -39,15 +39,28 @@ int main(void)
     int tempSelect;
 
     char *testPacketList[] = {"Test1", "Test2", "Test3", "Test4"};
+
+#ifdef CLIENT_1
+    char senderName[] = "USER";
+#else
+    char senderName[] = "ADMIN";
+#endif
+    int testListLength = sizeof(testPacketList) / sizeof(testPacketList[0]);
+    int totalPacketSent = 0;
     for (;;)
     {
-        while (fetchPacket(packet, server->socket) == 0)
+        while (fetchPacket(packet, server->socket) >= 0)
         {
             getMessageBody(packet, message);
             printf("\nThe message is %s\n", message);
         }
 
-        sendPacket(packet, server->socket);
+        if (totalPacketSent < testListLength)
+        {
+            assembleMessage(0, senderName, testPacketList[totalPacketSent], packet);
+            sendPacket(packet, server->socket);
+            ++totalPacketSent;
+        }
     }
     closeConnection(server);
     return 0;

@@ -1,10 +1,8 @@
-#include "client_main.c"
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 TEST(simpleReceive, IO)
 {
-    
 }
 
 int main(int argc, char **argv)

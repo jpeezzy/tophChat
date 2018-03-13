@@ -5,8 +5,6 @@ extern "C" {
 #include <string.h>
 #include "constants.h"
 #include "tcpPacket.h"
-#include "server_back_end.h"
-#include "testString.h"
 }
 
 class IOTest : public ::testing::Test
@@ -48,7 +46,7 @@ TEST_F(IOTest, clientsendTest)
     sleep(1);
     assert(connect(server->socket, serverInfo->ai_addr, serverInfo->ai_addrlen) >= 0);
 
-    sendPacket(testString1, server->socket);
+    sendPacket("sdklfjldsfjsdlkfjklfdsjlkds", server->socket);
     close(server->socket);
     free(server);
     freeaddrinfo(serverInfo);

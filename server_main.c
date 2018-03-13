@@ -57,9 +57,19 @@ int main(void)
             {
                 incomingSocket = accept(socketListener, &addrDummy, &socklenDummy);
                 ++(userList->totalOnlineUser);
-                serverAddOnlineUser(userName[j], userList, incomingSocket, dataBase);
-                addUserToServerRoom(testRoom, userName[j], dataBase);
-                printf("\nuser added\n");
+                if (serverAddOnlineUser(userName[j], userList, incomingSocket, dataBase) == NULL)
+                {
+                    perror("\ncan't add user to server\n");
+                }
+
+                if (addUserToServerRoom(testRoom, userName[j], dataBase) < 0)
+                {
+                    perror("\ncan't adduser to server room\n");
+                }
+                else
+                {
+                    printf("\nuser added\n");
+                }
                 ++j;
             }
         }
