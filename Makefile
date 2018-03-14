@@ -32,7 +32,7 @@ client_main: tcpPacket_debug.o protocol.o tcpGUI_debug.o client_main.o utils.o
 ChatGUI: GTKMain.o emoji.o protocol.o utils.o tcpPacket.o tcpGUI.o fifo.o 
 	$(CC) $(CFLAGS) $(GTKLIBS) $(^) -o $(@)
 	
-serverGUI: serverGUI.o 
+serverGUI: serverGUI.o tcpPacket.o server_back_end.o utils.o protocol.o fifo.o tophChatUsers.o constants.h protocol_const.h
 	$(CC) $(LFLAGS) $(GTKLIBS) $(^) -o $(@)	
 
 #Object files
@@ -70,13 +70,13 @@ GTK.o:  GTK.c GTK.h emoji.h
 rsa.o: rsa.c rsa.h 
 	$(CC) $(CLFAGS) -c $(<) -o $(@)
 
-GTKMain.o: GTKMain.c emoji.h
+GTKMain.o: GTKMain.c emoji.h 
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
 emoji.o: emoji.c emoji.h
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
-serverGUI.o: serverGUI.c
+serverGUI.o: serverGUI.c constants.h protocol_const.h tcpPacket.h server_back_end.h utils.h protocol.h fifo.h tophChatUsers.h
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
 encrypt.o: encrypt.c encrypt.h
@@ -102,7 +102,7 @@ server_back_end_debug.o: server_back_end.c server_back_end.h constants.h
 rsa_DEBUG.o: rsa.c rsa.h
 	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) -c $(<) -o $(@)
 
-serverGUI_DEBUG.o: serverGUI.c
+serverGUI_DEBUG.o: serverGUI.c constants.h protocol_const.h tcpPacket.h server_back_end.h utils.h protocol.h fifo.h tophChatUsers.h
 	$(CC) $(CFLAGS) $(DEBUG) $(GTKINC) -c $(<) -o $(@)	
 
 test_emoji.o: testEmoji.c emoji.h
@@ -116,7 +116,7 @@ test_emoji: test_emoji.o emoji.o
 test_RSA: rsa_DEBUG.o 
 	$(CC) $(LFLAGS) $(DEBUG) $(MAIN) $(^) -o $(@)
 
-test_serverGUI: serverGUI_DEBUG.o
+test_serverGUI: serverGUI_DEBUG.o tcpPacket_debug.o server_back_end_debug.o utils_debug.o protocol.o fifo_debug.o tophChatUsers.o constants.h protocol_const.h
 	$(CC) $(LFLAGS) $(DEBUG) $(GTKLIBS) $(^) -o $(@)
 
 test_Encrypt: encrypt_DEBUG.o

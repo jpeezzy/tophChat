@@ -2,10 +2,16 @@
  * Author: Aung Thu
  * Date: 4 March 2018
  */
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/select.h>
+#include <netdb.h>
+#include <netinet/in.h>
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <time.h>
 #include <gtk/gtk.h>
@@ -13,13 +19,17 @@
 #include <math.h>
 
 #include "constants.h"
-#include "utils.h"
-#include "server_back_end.h"
-#include "tophChatUsers.h"
+#include "protocol_const.h"
 #include "tcpPacket.h"
+#include "server_back_end.h"
+#include "utils.h"
+#include "protocol.h"
+#include "fifo.h"
+#include "tophChatUsers.h"
+
 
 const char *Program = "Toph Chat Server";
-int Shutdown = 0;
+int server_Shutdown = 0;
 
 /*********** GUI functions **************/
 
@@ -135,27 +145,27 @@ static GtkTreeModel *store_model_user(onlineUserList *allOnline)
     store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_UINT);
     
     /* Append a row and add in data */
-    for(i = 0; i < allOnline->totalUser; ++i)
+    for(i = 0; i < allOnline->totalOnlineUser; ++i)
     {
         gtk_list_store_append(store, &iter);
         
         /* if user is available */
-        if (allOnline->userList[i].status == 1)
+        if (allOnline->userList[i].slot_status == 1)
         {
             gtk_list_store_set(store, &iter, 
-                               0, allOnline->userList[i].userProfile.userName,
+                               0, allOnline->userList[i].userProfile->userName,
                                1, "Available",
-                               2, allOnline->userList[i].socket,
-                               3, allOnline->userList[i].userProfile.friendCount,                               
+                               2, 5678,
+                               3, allOnline->userList[i].userProfile->friendCount,  
                                -1);
         }
         else
         {
             gtk_list_store_set(store, &iter, 
-                               0, allOnline->userList[i].userProfile.userName,
+                               0, allOnline->userList[i].userProfile->userName,
                                1, "Busy",
-                               2, allOnline->userList[i].socket,
-                               3, allOnline->userList[i].userProfile.friendCount,                               
+                               2, 5678,
+                               3, allOnline->userList[i].userProfile->friendCount,
                                -1);
 
         }
@@ -236,7 +246,7 @@ void ShutdownClicked(GtkWidget *Widget, gpointer Data)
 #ifdef DEBUG
     printf("%s: Shutdown clicked callback starting...\n", Program);
 #endif
-    Shutdown = 1;
+    server_Shutdown = 1;
 #ifdef DEBUG
     printf("%s: Shutdown clicked callback done.\n", Program);
 #endif
@@ -325,9 +335,29 @@ void FatalError(const char *ErrorMsg)
 
 int main(int argc, char* argv[])
 {
+    int incomingSocket = -1;
+    struct sockaddr addrDummy;
+    socklen_t socklenDummy;
+    struct timeval timeout;
+    timeout.tv_sec = 2;
+    fd_set setListener;
+    FD_ZERO(&setListener);
+    
+    int socketListener = listenSocketInit();
+    char packet[PACKAGE_SIZE] = "";
+    FD_SET(socketListener, &setListener);
+    int j = 0;
+
+    TINFO *dataBase = createTINFO();
+    serverRoomList *roomList = serverRoomSetCreate();
+    struct messageServerRoom *testRoom = serverRoomCreate(roomList);
+    onlineUserList *userList = serverCreateOnlineList();
+
+    char *userName[] = {"ADMIN", "USER"};
+    addUser(userName[0], userName[0], 213123, dataBase);
+    addUser(userName[1], userName[1], 213123, dataBase);
+    
     GtkWidget *Window; /* the server window */
-    serverRoomList *allRoom;
-    onlineUserList *allOnline;
 
 #ifdef DEBUG
     printf("%s: Starting... \n", Program);
@@ -336,7 +366,7 @@ int main(int argc, char* argv[])
 #ifdef DEBUG
     printf("%s: Creating the server window...\n", Program);
 #endif
-    Window = CreateWindow(&argc, &argv, allRoom, allOnline);
+    Window = CreateWindow(&argc, &argv, roomList, userList);
     if (!Window)
     {
         fprintf(stderr, "%s: cannot create GUI window\n", Program);
@@ -344,9 +374,41 @@ int main(int argc, char* argv[])
     }
     
     /* server main loop */
-    while(!Shutdown)
+    while(!server_Shutdown)
     {
         UpdateWindow();
+        FD_ZERO(&setListener);
+        FD_SET(socketListener, &setListener);
+        if (j < 2)
+        {
+            if (select(socketListener + 1, &setListener, NULL, NULL, &timeout) > 0)
+            {
+                incomingSocket = accept(socketListener, &addrDummy, &socklenDummy);
+                ++(userList->totalOnlineUser);
+                if (serverAddOnlineUser(userName[j], userList, incomingSocket, dataBase) == NULL)
+                {
+                    perror("\ncan't add user to server\n");
+                }
+
+                if (addUserToServerRoom(testRoom, userName[j], dataBase) < 0)
+                {
+                    perror("\ncan't adduser to server room\n");
+                }
+                else
+                {
+                    printf("\nuser added\n");
+                }
+                ++j;
+            }
+        }
+        if (j == 2)
+        {
+            if (triagePacket(userList, roomList, dataBase, packet) == 2)
+            {
+                printf("received message: %s\n", packet);
+                serverRoomSpreadMessage(testRoom, dataBase);
+            }
+        }
     }
     return 0;
 } /* end of main */
