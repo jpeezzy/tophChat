@@ -23,6 +23,7 @@
 #include "protocol_const.h"
 #include "tcpPacket.h"
 #include "utils.h"
+#include "userActions.h"
 
 serverConnection *openConnection(void)
 {
@@ -161,74 +162,6 @@ int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName)
     return -1;
 }
 
-// when receiving the confirmation of room from a server, mark the room as ready
-int receiveRoom(roomList *allRoom, int serverroomNum)
-{
-    int i = 0;
-    for (i = 0; i < allRoom->totalRoom; ++i)
-    {
-        if ((allRoom->roomList)[i].status == ROOM_UNALLOCATED)
-        {
-            (allRoom->roomList)[i].roomNum = serverroomNum;
-            (allRoom->roomList)[i].status = ROOM_READY;
-            break;
-        }
-    }
-
-    if (i == allRoom->totalRoom)
-    {
-        return NO_WAITING_ROOM;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-int joinCreatedRoom(roomList *allRoom, int roomNumber)
-{
-    if (receiveRoom(allRoom, roomNumber) >= 0)
-    {
-        chatRoom *tempRoom = retrieveRoom(allRoom, roomNumber);
-        tempRoom->status = ROOM_TAKEN;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-int joinInvitedRoom(roomList *allRoom, int roomNumber, char *userName, serverConnection *server, fifo *outputBuffer)
-{
-    char packet[PACKAGE_SIZE];
-
-    if (receiveRoom(allRoom, roomNumber) >= 0)
-    {
-        chatRoom *tempRoom = retrieveRoom(allRoom, roomNumber);
-        tempRoom->status = ROOM_TAKEN;
-        assembleCommand(roomNumber, ROID, ROACCEPT, userName, NULL, packet);
-        writeBuffer(outputBuffer, packet);
-        return 0;
-    }
-    else
-    {
-        // TODO: Change error code
-        return -1;
-    }
-}
-
-// close the room and let the server know that the room number is free to be used by others
-int closeRoom(chatRoom *room, fifo *outputFIFIO, char *userName)
-{
-    char tempPacket[PACKAGE_SIZE] = "";
-    room->status = ROOM_UNALLOCATED; // freed
-    assembleCommand(room->roomNum, ROID, RODEL, userName, NULL, tempPacket);
-    closeBuffer(room->inMessage);
-    room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
-    writeBuffer(outputFIFIO, tempPacket);
-    return 0;
-}
-
 roomList *roomsetInit(void)
 {
     roomList *temproomSet = malloc(sizeof(struct allRoom));
@@ -249,64 +182,6 @@ int roomsetDel(roomList *allRoom)
     }
     free(allRoom);
     return 0;
-}
-
-// ROOM EXIT
-
-int leaveRoom(chatRoom *room, char *userName, serverConnection *server, fifo *outputBuffer)
-{
-    char packet[PACKAGE_SIZE];
-    closeBuffer(room->inMessage);
-    room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
-    room->status = ROOM_UNALLOCATED;
-    assembleCommand(room->roomNum, ROID, ROLEAVE, userName, NULL, packet);
-    writeBuffer(outputBuffer, packet);
-    return 0;
-}
-
-int closeRoom(chatRoom *room, serverConnection *server, char *userName, fifo *outputBuffer)
-{
-    char packet[PACKAGE_SIZE];
-    closeBuffer(room->inMessage);
-    room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
-    room->status = ROOM_UNALLOCATED;
-    assembleCommand(room->roomNum, ROID, RODEL, userName, NULL, packet);
-    writeBuffer(outputBuffer, packet);
-    return 0;
-}
-
-// copy the received message to the buffer
-int fetchMessage(chatRoom *room, char *buffer)
-{
-    assert(room);
-    assert(buffer);
-    // TODO: implement muxtex if using multithreaded
-    if (readBuffer(room->inMessage, buffer) == FIFO_NO_DATA)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-// copy the user message to the output queue of the program
-int sendMessage(chatRoom *room, fifo *outputFIFO, char *userName, char *message)
-{
-    assert(message);
-    char tempPacket[PACKAGE_SIZE];
-    // TODO: multithreaded mutex
-    assembleMessage(room->roomNum, userName, message, tempPacket);
-    writeBuffer(room->inMessage, message);
-    if (writeBuffer(outputFIFO, tempPacket) == FIFO_FULL)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
 }
 
 int sendToServer(fifo *outputFIFO, serverConnection *server)
@@ -376,18 +251,20 @@ int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection
     return 0;
 }
 
-int parseCommand(inboxQueue *inbox, roomList *roomList, onlineUser *userList)
+int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer, char *userName, serverConnection *server)
 {
     char packet[PACKAGE_SIZE];
 
     if (readBuffer(inbox->messageQueue, packet) == 0)
     {
         int roomNum = getroomNumber(packet);
-        int comType = getCommandType(packet);
+        char comType = getCommandType(packet);
+        int comID = getCommandID(packet);
+        char senderName[MAX_USER_NAME];
 
         if (comType == FRIENDID)
         {
-            switch (getCommandID(packet))
+            switch (comID)
             {
             case FRIEACCEPTED:
                 break;
@@ -397,21 +274,39 @@ int parseCommand(inboxQueue *inbox, roomList *roomList, onlineUser *userList)
         }
         else if (comType == ROID)
         {
-            switch (getCommandID(packet))
+            switch (comID)
             {
-            case ROINVITED:
-
-                break;
             }
         }
-
         else if (comType == ROID_PASSIVE)
         {
-            switch (getCommandID(packet))
+            switch (comID)
             {
             case ROGRANTED:
                 receiveRoom(roomList, getroomNumber(packet));
                 joinCreatedRoom(roomList, getroomNumber(packet));
+                break;
+
+            case ROINVITED:
+#ifdef DEBUG
+                char answer;
+                getCommandSender(packet, senderName);
+                printf("\nyou haven been invited by%s\n, join? y/n", senderName);
+                scanf(" %c", &answer);
+                if (answer == 'y')
+                {
+
+                    joinInvitedRoom(roomList, roomNum, userName, server, outputBuffer);
+                }
+                else
+                {
+                    denyInvitedRoom(roomList, roomNum, userName, server, outputBuffer);
+                }
+
+#endif
+
+                // check if user agreed
+
                 break;
             case RODENIED:
                 // let user know he can't open more room
@@ -421,7 +316,7 @@ int parseCommand(inboxQueue *inbox, roomList *roomList, onlineUser *userList)
         }
         else if (comType == COMID)
         {
-            switch (getCommandID(packet))
+            switch (comID)
             {
             case GETONLINEUSER:
                 // display list of user

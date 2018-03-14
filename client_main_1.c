@@ -23,6 +23,7 @@
 #include "tcpPacket.h"
 #include "protocol.h"
 #include "protocol_const.h"
+#include "userActions.h"
 
 #define DEBUG
 
@@ -50,6 +51,7 @@ int main(void)
     int totalPacketSent = 0;
     char sourceName[MAX_USER_NAME];
     int errorCode;
+    int connectedEstablished = 0;
 
     fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
     inboxQueue *inbox = initInboxQueue();
@@ -73,16 +75,23 @@ int main(void)
         {
             if (errorCode == ISMESSAGE)
             {
-                        }
-
-            else if (errorCode = ISCOMM)
-            {
-                parseCommand(inbox);
+                for (int i = 0; i < CHAT_ROOM_LIMIT; ++i)
+                {
+                    if (userRoomList->roomList[i].status == ROOM_TAKEN)
+                    {
+                        readBuffer(userRoomList->roomList[i].inMessage, packet);
+                        getMessageBody(packet, message);
+                        printf("\nThe message is %s and from %s\n", message, sourceName);
+                    }
+                }
             }
-            printf("\nThe message is %s and from %s\n", message, sourceName);
+            else if (errorCode == ISCOMM)
+            {
+                parseInboxCommand(inbox, userRoomList, outputBuffer);
+            }
         }
 
-        if (totalPacketSent < testListLength)
+        if (totalPacketSent < testListLength && connectedEstablished)
         {
             assembleMessage(0, senderName, testPacketList[totalPacketSent], packet);
             sendPacket(packet, server->socket);

@@ -96,6 +96,6 @@ int sendToServer(fifo *outputFIFO, serverConnection *server);
 // get a message from a server and put it in the correct fifo
 int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection *server);
 
-int parseCommand(inboxQueue *inbox);
+int parseInboxCommand(inboxQueue *inbox);
 
 #endif
