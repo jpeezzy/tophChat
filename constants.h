@@ -55,6 +55,7 @@
 #define USER_OCCUPIED_MAX_ROOM -10
 
 //ROOM STATUS GO HERE FOR CLIENTS
+
 #define ROOM_TAKEN 3
 #define ROOM_READY 2       // synchronized with server
 #define ROOM_WAITING 1     // used for marking which room is wating

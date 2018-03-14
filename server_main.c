@@ -22,6 +22,7 @@
 #include "tcpPacket.h"
 #include "server_back_end.h"
 #include "protocol_const.h"
+#include "fifo.h"
 
 int main(void)
 {
@@ -46,6 +47,7 @@ int main(void)
     char *userName[] = {"ADMIN", "USER"};
     addUser(userName[0], userName[0], 213123, dataBase);
     addUser(userName[1], userName[1], 213123, dataBase);
+
     // limit to two users
     for (;;)
     {

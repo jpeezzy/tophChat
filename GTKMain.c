@@ -275,43 +275,43 @@ void ClearForm(GtkWidget *button, GtkWidget *vBox)
 
 void EnterKey(GtkWidget *entry, gpointer messageStruct)
 {
-//    GtkWidget *tabs;
-//    GtkWidget *vBox;
-//    GList *conversion;
-//    MESSAGE_STRUCT *messageData;
+    //    GtkWidget *tabs;
+    //    GtkWidget *vBox;
+    //    GList *conversion;
+    //    MESSAGE_STRUCT *messageData;
 
     /* converting from vBox to tabs */
-//    messageData = (MESSAGE_STRUCT *)messageStruct;
-//    conversion = gtk_container_get_children(GTK_CONTAINER(messageData->widget));
-//    tabs = conversion->data;
+    //    messageData = (MESSAGE_STRUCT *)messageStruct;
+    //    conversion = gtk_container_get_children(GTK_CONTAINER(messageData->widget));
+    //    tabs = conversion->data;
 
-//    GtkTextIter iter;
-//    guint16 check = 0;
-//    int currentPage = 0;
-//    GtkWidget *scrolledWindow;
-//    GList *child;
+    //    GtkTextIter iter;
+    //    guint16 check = 0;
+    //    int currentPage = 0;
+    //    GtkWidget *scrolledWindow;
+    //    GList *child;
 
-//    check = gtk_entry_get_text_length(GTK_ENTRY(entry));                         /* checking length of text input */
-//    currentPage = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));             /* get current page */
-//    scrolledWindow = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), currentPage); /* notebook child */
-//    child = gtk_container_get_children(GTK_CONTAINER(scrolledWindow));
+    //    check = gtk_entry_get_text_length(GTK_ENTRY(entry));                         /* checking length of text input */
+    //    currentPage = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));             /* get current page */
+    //    scrolledWindow = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), currentPage); /* notebook child */
+    //    child = gtk_container_get_children(GTK_CONTAINER(scrolledWindow));
 
-//    if (check != 0) /* only run this if there is a text input */
-//    {
-//        GtkTextBuffer *buffer;
+    //    if (check != 0) /* only run this if there is a text input */
+    //    {
+    //        GtkTextBuffer *buffer;
 
-//        buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(child->data)); /* gets the buffer for the current screen */
-//
-//        gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at the end */
-//
-//        gtk_text_buffer_insert(buffer, &iter, "\n\n", -1); /* insert new lines */
-//
-  //      gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at end again */
+    //        buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(child->data)); /* gets the buffer for the current screen */
+    //
+    //        gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at the end */
+    //
+    //        gtk_text_buffer_insert(buffer, &iter, "\n\n", -1); /* insert new lines */
+    //
+    //      gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at end again */
 
     //    gtk_text_buffer_insert(buffer, &iter, gtk_entry_get_text(GTK_ENTRY(entry)), -1); /* inserts user text */
 
-      //  gtk_entry_set_text(GTK_ENTRY(entry), ""); /* replaces textBox with empty text again */
-  //  }
+    //  gtk_entry_set_text(GTK_ENTRY(entry), ""); /* replaces textBox with empty text again */
+    //  }
 }
 
 void SendButton(GtkWidget *widget, gpointer messageStruct)
@@ -345,14 +345,13 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
 
     check = gtk_entry_get_text_length(GTK_ENTRY(list2->data));  /* checking length of text input */
     actualMessage = gtk_entry_get_text(GTK_ENTRY(list2->data)); /* saving actual text */
-    
+
     printf("This is what you said before: %s \n", actualMessage);
-        
 
     if (check != 0) /* only run this if there is a text input */
     {
         GtkTextBuffer *buffer;
-        GtkTextMark *start;        
+        GtkTextMark *start;
 
         buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen)); /* gets the buffer for the current screen */
 
@@ -365,18 +364,18 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
         gtk_text_buffer_insert(buffer, &iter, ": ", 2); /* adds ": " */
 
         gtk_text_buffer_get_iter_at_offset(buffer, &iter, -1); /* get mark at end again */
-        
-         /* get mark for emoji display at the point before user text is inserted */    
+
+        /* get mark for emoji display at the point before user text is inserted */
         start = gtk_text_buffer_create_mark(buffer, NULL, &iter, TRUE);
-    
+
         gtk_text_buffer_insert(buffer, &iter, gtk_entry_get_text(GTK_ENTRY(list2->data)), -1); /* inserts user text */
 
         printf("This is what you said: %s \n", actualMessage);
         sendMessage(&(messageData->Allroom->roomList[0]), messageData->outputFIFO, "ADMIN", actualMessage); /* send message to fifo */
 
         /* display emoji on messageScreen */
-        insert_emoji (GTK_TEXT_VIEW(messageScreen), start);
-        
+        insert_emoji(GTK_TEXT_VIEW(messageScreen), start);
+
         gtk_entry_set_text(GTK_ENTRY(list2->data), ""); /* replaces textBox with empty text again */
     }
 }
@@ -1045,10 +1044,10 @@ int main(int argc, char *argv[])
     /****    MAIN PROGRAM    ***********/
     /**********************************/
 
-    gtk_box_pack_start(GTK_BOX(hBox), textBox, FALSE, TRUE, FALSE);  /* HBOX textBox */
-    gtk_box_pack_start(GTK_BOX(hBox), emojiButton, FALSE,TRUE, FALSE); /* HBOX textBox, emojiButton */
-    gtk_box_pack_start(GTK_BOX(hBox), sendButton, FALSE, TRUE, FALSE); /* HBOX textBox, emojiButton, sendButton */
-    
+    gtk_box_pack_start(GTK_BOX(hBox), textBox, FALSE, TRUE, FALSE);     /* HBOX textBox */
+    gtk_box_pack_start(GTK_BOX(hBox), emojiButton, FALSE, TRUE, FALSE); /* HBOX textBox, emojiButton */
+    gtk_box_pack_start(GTK_BOX(hBox), sendButton, FALSE, TRUE, FALSE);  /* HBOX textBox, emojiButton, sendButton */
+
     gtk_box_pack_start(GTK_BOX(vBox), tabs, TRUE, TRUE, FALSE);  /* VBOX tabs */
     gtk_box_pack_start(GTK_BOX(vBox), hBox, FALSE, TRUE, FALSE); /* VBOX tabs, HBOX */
 
@@ -1292,12 +1291,12 @@ int main(int argc, char *argv[])
     while (!client_shutdown)
     {
         recvMessageFromServer(AllRoom, inbox, server);
-        sendMessageToServer(outputBuffer, server);
+        sendToServer(outputBuffer, server);
 
         /*** update message ****/
         if (fetchMessage(&(AllRoom->roomList[0]), message) >= 0)
         {
-            
+
             updateBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen)); /* gets the buffer for the current screen */
 
             gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at the end */
@@ -1310,10 +1309,10 @@ int main(int argc, char *argv[])
             updateStart = gtk_text_buffer_create_mark(updateBuffer, NULL, &updateIter, TRUE);
 
             gtk_text_buffer_insert(updateBuffer, &updateIter, message, -1); /* inserts user text */
-        
+
             /* display emoji on messageScreen */
-            insert_emoji (GTK_TEXT_VIEW(messageScreen), updateStart);        
-    
+            insert_emoji(GTK_TEXT_VIEW(messageScreen), updateStart);
+
             // gtk_entry_set_text(GTK_ENTRY(textBox), ""); /* replaces textBox with empty text again */
         }
 

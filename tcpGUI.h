@@ -38,7 +38,6 @@ struct messageRoom
 {
     int roomNum; // this is the room number from the server
     int status;
-    int offSet; //offset from local room number and server room
     struct FIFObuffer *inMessage;
 };
 
@@ -92,7 +91,7 @@ int fetchMessage(chatRoom *room, char *buffer);
 // copy the user message to the output queue of the program
 int sendMessage(chatRoom *room, fifo *outputFIFO, char *userName, char *message);
 
-int sendMessageToServer(fifo *outputFIFO, serverConnection *server);
+int sendToServer(fifo *outputFIFO, serverConnection *server);
 
 // get a message from a server and put it in the correct fifo
 int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection *server);

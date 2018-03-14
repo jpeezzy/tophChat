@@ -98,82 +98,9 @@ int writeInboxMessage(char *message, inboxQueue *inbox)
     return 0;
 }
 
-int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName)
-{
-    // TODO: thread sensitive
-    int i = 0;
-    char tempMessage[PACKAGE_SIZE] = "";
-    for (i = 0; i < allRoom->totalRoom; ++i)
-    {
-        if ((allRoom->roomList[i]).status == ROOM_UNALLOCATED)
-        {
-            assembleCommand(i, ROID, ROCREATE, userName, NULL, tempMessage);
-            writeBuffer(outputFIFO, tempMessage);
-            allRoom->roomList[i].status = ROOM_WAITING;
-            return 0;
-        }
-    }
-    return -1;
-}
+/******************* ROOM_STUFFS *************************/
 
-// when receiving the confirmation of room from a server, mark the room as ready
-int receiveRoom(roomList *allRoom, int serverroomNum)
-{
-    int i = 0;
-    for (i = 0; i < allRoom->totalRoom; ++i)
-    {
-        if ((allRoom->roomList)[i].status == ROOM_WAITING)
-        {
-            (allRoom->roomList)[i].roomNum = serverroomNum;
-            (allRoom->roomList)[i].status = ROOM_READY;
-            break;
-        }
-    }
-    // TODO: implement error response for no waiting rooms
-    if (i == allRoom->totalRoom)
-    {
-        return NO_WAITING_ROOM;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-// close the room and let the server know that the room number is free to be used by others
-int closeRoom(chatRoom *room, fifo *outputFIFIO, char *userName)
-{
-    char tempPacket[PACKAGE_SIZE] = "";
-    room->status = ROOM_UNALLOCATED; // freed
-    assembleCommand(room->roomNum, ROID, RODEL, userName, NULL, tempPacket);
-    closeBuffer(room->inMessage);
-    room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
-    writeBuffer(outputFIFIO, tempPacket);
-    return 0;
-}
-
-roomList *roomsetInit(void)
-{
-    roomList *temproomSet = malloc(sizeof(struct allRoom));
-    temproomSet->totalRoom = CHAT_ROOM_LIMIT;
-    for (int i = 0; i < CHAT_ROOM_LIMIT; ++i)
-    {
-        (temproomSet->roomList[i]).status = ROOM_UNALLOCATED;
-        (temproomSet->roomList[i]).inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
-    }
-    return temproomSet;
-}
-
-int roomsetDel(roomList *allRoom)
-{
-    for (int i = 0; i < allRoom->totalRoom; ++i)
-    {
-        closeBuffer(allRoom->roomList[i].inMessage);
-    }
-    free(allRoom);
-    return 0;
-}
-
+// ROOM FINDING
 // return a pointer to the room specified by the server room number
 chatRoom *retrieveRoom(roomList *allRoom, int roomNum)
 {
@@ -216,6 +143,138 @@ chatRoom *findReadyRoom(roomList *allRoom)
     }
 }
 
+// ROOM STARTING ASKING AND ACCEPTING
+int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName)
+{
+    // TODO: thread sensitive
+    int i = 0;
+    char tempMessage[PACKAGE_SIZE] = "";
+    for (i = 0; i < allRoom->totalRoom; ++i)
+    {
+        if ((allRoom->roomList[i]).status == ROOM_UNALLOCATED)
+        {
+            assembleCommand(i, ROID, ROCREATE, userName, NULL, tempMessage);
+            writeBuffer(outputFIFO, tempMessage);
+            return 0;
+        }
+    }
+    return -1;
+}
+
+// when receiving the confirmation of room from a server, mark the room as ready
+int receiveRoom(roomList *allRoom, int serverroomNum)
+{
+    int i = 0;
+    for (i = 0; i < allRoom->totalRoom; ++i)
+    {
+        if ((allRoom->roomList)[i].status == ROOM_UNALLOCATED)
+        {
+            (allRoom->roomList)[i].roomNum = serverroomNum;
+            (allRoom->roomList)[i].status = ROOM_READY;
+            break;
+        }
+    }
+
+    if (i == allRoom->totalRoom)
+    {
+        return NO_WAITING_ROOM;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int joinCreatedRoom(roomList *allRoom, int roomNumber)
+{
+    if (receiveRoom(allRoom, roomNumber) >= 0)
+    {
+        chatRoom *tempRoom = retrieveRoom(allRoom, roomNumber);
+        tempRoom->status = ROOM_TAKEN;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+int joinInvitedRoom(roomList *allRoom, int roomNumber, char *userName, serverConnection *server, fifo *outputBuffer)
+{
+    char packet[PACKAGE_SIZE];
+
+    if (receiveRoom(allRoom, roomNumber) >= 0)
+    {
+        chatRoom *tempRoom = retrieveRoom(allRoom, roomNumber);
+        tempRoom->status = ROOM_TAKEN;
+        assembleCommand(roomNumber, ROID, ROACCEPT, userName, NULL, packet);
+        writeBuffer(outputBuffer, packet);
+        return 0;
+    }
+    else
+    {
+        // TODO: Change error code
+        return -1;
+    }
+}
+
+// close the room and let the server know that the room number is free to be used by others
+int closeRoom(chatRoom *room, fifo *outputFIFIO, char *userName)
+{
+    char tempPacket[PACKAGE_SIZE] = "";
+    room->status = ROOM_UNALLOCATED; // freed
+    assembleCommand(room->roomNum, ROID, RODEL, userName, NULL, tempPacket);
+    closeBuffer(room->inMessage);
+    room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
+    writeBuffer(outputFIFIO, tempPacket);
+    return 0;
+}
+
+roomList *roomsetInit(void)
+{
+    roomList *temproomSet = malloc(sizeof(struct allRoom));
+    temproomSet->totalRoom = CHAT_ROOM_LIMIT;
+    for (int i = 0; i < CHAT_ROOM_LIMIT; ++i)
+    {
+        (temproomSet->roomList[i]).status = ROOM_UNALLOCATED;
+        (temproomSet->roomList[i]).inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
+    }
+    return temproomSet;
+}
+
+int roomsetDel(roomList *allRoom)
+{
+    for (int i = 0; i < allRoom->totalRoom; ++i)
+    {
+        closeBuffer(allRoom->roomList[i].inMessage);
+    }
+    free(allRoom);
+    return 0;
+}
+
+// ROOM EXIT
+
+int leaveRoom(chatRoom *room, char *userName, serverConnection *server, fifo *outputBuffer)
+{
+    char packet[PACKAGE_SIZE];
+    closeBuffer(room->inMessage);
+    room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
+    room->status = ROOM_UNALLOCATED;
+    assembleCommand(room->roomNum, ROID, ROLEAVE, userName, NULL, packet);
+    writeBuffer(outputBuffer, packet);
+    return 0;
+}
+
+int closeRoom(chatRoom *room, serverConnection *server, char *userName, fifo *outputBuffer)
+{
+    char packet[PACKAGE_SIZE];
+    closeBuffer(room->inMessage);
+    room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
+    room->status = ROOM_UNALLOCATED;
+    assembleCommand(room->roomNum, ROID, RODEL, userName, NULL, packet);
+    writeBuffer(outputBuffer, packet);
+    return 0;
+}
+
 // copy the received message to the buffer
 int fetchMessage(chatRoom *room, char *buffer)
 {
@@ -250,12 +309,35 @@ int sendMessage(chatRoom *room, fifo *outputFIFO, char *userName, char *message)
     }
 }
 
-int sendMessageToServer(fifo *outputFIFO, serverConnection *server)
+int sendToServer(fifo *outputFIFO, serverConnection *server)
 {
     char packet[PACKAGE_SIZE];
     if (readBuffer(outputFIFO, packet) == 0)
     {
         return sendPacket(packet, server->socket);
+    }
+    else
+    {
+        return FIFO_NO_DATA;
+    }
+}
+
+int sendAllToServer(fifo *outputBuffer, serverConnection *server)
+{
+    int atLeastOnePacket = 0;
+    if (sendToServer(outputBuffer, server) != FIFO_NO_DATA && !atLeastOnePacket)
+    {
+        atLeastOnePacket = 1;
+    }
+    while (sendToServer(outputBuffer, server) != FIFO_NO_DATA)
+    {
+        // wait until all data is sent
+        ++atLeastOnePacket;
+    }
+
+    if (atLeastOnePacket)
+    {
+        return 0;
     }
     else
     {
@@ -275,10 +357,12 @@ int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection
         {
             tempRoom = retrieveRoom(allRoom, getroomNumber(packet));
             writeBuffer(tempRoom->inMessage, packet);
+            return ISCOMM;
         }
         else if (getpacketType(packet) == ISMESSAGE)
         {
             writeBuffer(inbox->messageQueue, packet);
+            return ISMESSAGE;
         }
         else
         {
@@ -292,12 +376,16 @@ int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection
     return 0;
 }
 
-int parseCommand(inboxQueue *inbox)
+int parseCommand(inboxQueue *inbox, roomList *roomList, onlineUser *userList)
 {
     char packet[PACKAGE_SIZE];
+
     if (readBuffer(inbox->messageQueue, packet) == 0)
     {
-        if (getCommandType(packet) == FRIENDID)
+        int roomNum = getroomNumber(packet);
+        int comType = getCommandType(packet);
+
+        if (comType == FRIENDID)
         {
             switch (getCommandID(packet))
             {
@@ -307,17 +395,31 @@ int parseCommand(inboxQueue *inbox)
                 break;
             }
         }
-        else if (getCommandType(packet) == ROID)
+        else if (comType == ROID)
+        {
+            switch (getCommandID(packet))
+            {
+            case ROINVITED:
+
+                break;
+            }
+        }
+
+        else if (comType == ROID_PASSIVE)
         {
             switch (getCommandID(packet))
             {
             case ROGRANTED:
+                receiveRoom(roomList, getroomNumber(packet));
+                joinCreatedRoom(roomList, getroomNumber(packet));
                 break;
             case RODENIED:
+                // let user know he can't open more room
+                return USER_OCCUPIED_MAX_ROOM;
                 break;
             }
         }
-        else if (getCommandType(packet) == COMID)
+        else if (comType == COMID)
         {
             switch (getCommandID(packet))
             {

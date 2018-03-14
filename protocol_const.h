@@ -45,18 +45,24 @@
 #define TOTAL_FRRQ 5   // how many friend related request we have
 
 // room related request
+// active requests like asking for room
 #define ROID 'R'
-#define ROCREATE 1         // need to make someone admin
-#define RODEL 2            // delete room, only admin can do that
-#define ROADMIN 3          // change admin
-#define ROINVITE 4         // invite someone to room
-#define ROACCEPT 5         // accept room request
-#define RODENY 6           // deny room request
-#define ROGRANTED 7        // room opening granted
-#define RODENIED 8         // request to open room denied
-#define ROOMJOINACCEPTED 9 // request to join room accepted
-// #define ROOMJOINDENIED 9   // request to join denied
-#define TOTAL_RORQ 8
+#define ROREQUEST 0 // request to join room
+#define ROLEAVE 1   // request to leave room
+#define ROCREATE 2  // create room, owner is first admin
+#define RODEL 3     // delete room, only admin can do that
+#define ROADMIN 4   // change admin
+#define ROINVITE 5  // invite someone to room
+#define ROACCEPT 6  // accept room request
+#define RODENY 7    // deny room request
+
+// passive info like you get denied
+#define ROID_PASSIVE 'A'
+#define ROGRANTED 0        // room opening granted
+#define RODENIED 1         // request to open room denied
+#define ROOMJOINACCEPTED 2 // request to join room accepted
+#define ROOMJOINDENIED 3   // request to join denied
+#define ROINVITED 4        // invited to a room
 
 // communication related
 #define COMID 'C'

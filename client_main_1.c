@@ -28,6 +28,7 @@
 
 int main(void)
 {
+    // server and packet
     serverConnection *server = openConnection();
     assert(server);
     char packet[PACKAGE_SIZE] = "";
@@ -36,8 +37,8 @@ int main(void)
     struct timeval timeout;
     timeout.tv_sec = 10;
     timeout.tv_usec = 0;
-    int tempSelect;
 
+    // constant var
     char *testPacketList[] = {"Test1", "Test2", "Test3", "Test4"};
 
 #ifdef CLIENT_1
@@ -47,12 +48,38 @@ int main(void)
 #endif
     int testListLength = sizeof(testPacketList) / sizeof(testPacketList[0]);
     int totalPacketSent = 0;
+    char sourceName[MAX_USER_NAME];
+    int errorCode;
+
+    fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
+    inboxQueue *inbox = initInboxQueue();
+
+    // user Room stuffs
+    roomList *userRoomList = roomsetInit();
+
+#ifdef CLIENT_1
+    requestRoom(userRoomList, outputBuffer);
+#else
+    int invitationReceived = 0;
+    sleep(2);
+#endif
+    // output fifo
+
+    sendAllToServer(outputBuffer, server);
+
     for (;;)
     {
-        while (fetchPacket(packet, server->socket) >= 0)
+        while ((errorCode = recvMessageFromServer(userRoomList, inbox, server)) >= 0)
         {
-            getMessageBody(packet, message);
-            printf("\nThe message is %s\n", message);
+            if (errorCode == ISMESSAGE)
+            {
+                        }
+
+            else if (errorCode = ISCOMM)
+            {
+                parseCommand(inbox);
+            }
+            printf("\nThe message is %s and from %s\n", message, sourceName);
         }
 
         if (totalPacketSent < testListLength)
