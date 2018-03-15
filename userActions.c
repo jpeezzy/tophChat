@@ -11,7 +11,7 @@
 int receiveRoom(roomList *allRoom, int serverroomNum)
 {
     int i = 0;
-    for (i = 0; i < allRoom->totalRoom; ++i)
+    for (i = 0; i < CHAT_ROOM_LIMIT; ++i)
     {
         if ((allRoom->roomList)[i].status == ROOM_UNALLOCATED)
         {
@@ -21,7 +21,7 @@ int receiveRoom(roomList *allRoom, int serverroomNum)
         }
     }
 
-    if (i == allRoom->totalRoom)
+    if (i == CHAT_ROOM_LIMIT)
     {
         return NO_WAITING_ROOM;
     }
@@ -83,6 +83,7 @@ int leaveRoom(chatRoom *room, char *userName, fifo *outputBuffer)
     closeBuffer(room->inMessage);
     room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
     room->status = ROOM_UNALLOCATED;
+    room->memberChanged=0;
     assembleCommand(room->roomNum, ROID, ROLEAVE, userName, NULL, packet);
     writeBuffer(outputBuffer, packet);
     return 0;

@@ -38,6 +38,8 @@ struct messageRoom
 {
     int roomNum; // this is the room number from the server
     int status;
+    char** friendList[MAX_USER_PER_ROOM];
+    int memberChanged; // flag if the member list change since last time
     struct FIFObuffer *inMessage;
 };
 
@@ -55,7 +57,7 @@ struct requestStorage
     fifo *messageQueue;
 };
 
-serverConnection *openConnection(void);
+serverConnection *openConnection(char* userName, unsigned long int publicKey);
 
 int closeConnection(serverConnection *server);
 
@@ -85,6 +87,8 @@ roomList *roomsetInit(void);
 
 // get a message from a server and put it in the correct fifo
 int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection *server);
+
+int updateRoomFriendList(chatRoom* room, char** friendList);
 
 int sendToServer(fifo *outputFIFO, serverConnection *server);
 

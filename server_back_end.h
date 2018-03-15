@@ -104,6 +104,12 @@ int removeUserFromServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *
 
 serverChatRoom *findServerRoomByNumber(struct allServerRoom *allRoom, int roomNum);
 
+int getOnlineUser(onlineUserList *allUsers, char *onlineList);
+
+int getRoomFriendList(serverChatRoom* room, char* friendRoomList);
+
+int getRoomFriendList(serverChatRoom* room, char* friendRoomList);
+
 int getFriendList(TUSER *user);
 
 // get a list of online user separated by '/'

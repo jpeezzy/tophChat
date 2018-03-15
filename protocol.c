@@ -98,10 +98,11 @@ int getCommandSender(char *packet, char *userName)
     return 0;
 }
 
-void getCommandTarget(char *packet, char *userName)
+int getCommandTarget(char *packet, char *userName)
 {
     int separatorIndex = 0;
-    for (int i = CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH; i < PACKAGE_SIZE - 1; ++i)
+    int i;
+    for (i = CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH; i < PACKAGE_SIZE - 1; ++i)
     {
         if (packet[i] == '/')
         {
@@ -109,8 +110,15 @@ void getCommandTarget(char *packet, char *userName)
             break;
         }
     }
-
+    if(packet[i+1]=='1' && packet[i+2]=='\0')
+    {
+        return -1; // this thing is NULL
+    }
+    else
+    {
     stringSlicer(packet, userName, separatorIndex + 1, PACKAGE_SIZE - 2);
+    return 0;
+    }
 }
 
 void getSenderName(char *userName, char *packet)
@@ -142,6 +150,29 @@ int getMessageBody(char *packet, char *MessageBody)
         }
     }
     stringSlicer(packet, MessageBody, separatorIndex + 1, PACKAGE_SIZE - 1);
+    return 0;
+}
+
+int getUserFriendList(char** friendList, char* packet)
+{
+    char messageBody[MESS_LIMIT];
+    getCommandTarget(packet, messageBody);
+    int separatorIndex=0;
+    int friendNum=0;
+    for(int i=0; i<MESS_LIMIT; ++i)
+    {
+        if(messageBody[i]=='/')
+        {
+            if(messageBody[i]=='\0')
+            {
+                break;
+            }
+            friendList[friendNum][0]='\0';
+            stringSlicer(messageBody, friendList[i], separatorIndex, i-1);
+            separatorIndex+=i+1;
+            ++friendNum;
+        }
+    }
     return 0;
 }
 

@@ -60,24 +60,35 @@ int main(void)
     roomList *userRoomList = roomsetInit();
 
 #ifdef CLIENT_1
+    printf("\nrequesting room\n");
     int requestRoomIndex = requestRoom(userRoomList, outputBuffer, senderName);
-    while(userRoomList->roomList[requestRoomIndex].status!=ROOM_READY)
+    assert(sendAllToServer(outputBuffer, server)>0);
+    printf("\nfinished sending request\n");
+    while(1)
     {
-        if((recvMessageFromServer(userRoomList, inbox, server)>=0))
+        if((recvMessageFromServer(userRoomList, inbox, server)==ISCOMM))
         {
         parseInboxCommand(inbox, userRoomList,  outputBuffer, senderName, server);
+        break;
         }
     }
-    sendInvite(userRoomList->roomList[requestRoomIndex].roomNum, senderName, "ADMIN", outputBuffer);
-#else
-    sleep(2);
+    int i=0;
+for (i = 0; i < CHAT_ROOM_LIMIT; ++i)
+    {
+        if ((userRoomList->roomList)[i].status== ROOM_TAKEN)
+        {
+            sendInvite((userRoomList->roomList)[i].roomNum, senderName, "ADMIN", outputBuffer);
+        }
+    }
+     
+    printf("\nsending room request\n");
+    assert(sendAllToServer(outputBuffer, server)>0);
 #endif
 
-    // output fifo
-    sendAllToServer(outputBuffer, server);
+   
     for (;;)
     {
-        while ((errorCode = recvMessageFromServer(userRoomList, inbox, server)) >= 0)
+        while ((errorCode = recvMessageFromServer(userRoomList, inbox, server)) > 0)
         {
             if (errorCode == ISMESSAGE)
             {
@@ -93,11 +104,17 @@ int main(void)
             }
             else if (errorCode == ISCOMM)
             {
-                parseInboxCommand(inbox, userRoomList,  outputBuffer, senderName, server);
+                printf("\nparsing command\n");
+                if(parseInboxCommand(inbox, userRoomList,  outputBuffer, senderName, server)==ACCEPTED_ROOM)
+                {
+                    printf("\nconnection established\n");
+                    connectedEstablished=1;
+                }
+
             }
         }
 
-        if (totalPacketSent < testListLength && connectedEstablished)
+        if ((totalPacketSent < testListLength) && connectedEstablished)
         {
             assembleMessage(0, senderName, testPacketList[totalPacketSent], packet);
             sendPacket(packet, server->socket);

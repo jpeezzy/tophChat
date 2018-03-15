@@ -41,8 +41,6 @@
 #define DEFRIEND 3     // delete friends
 #define FRIEACCEPT 4   // accept friend request
 
-#define TOTAL_FRRQ 5   // how many friend related request we have
-
 // room related request
 // active requests like asking for room
 #define ROID 'R'
@@ -54,6 +52,7 @@
 #define ROINVITE 5  // invite someone to room
 #define ROACCEPT 6  // accept room request
 #define RODENY 7    // deny room request
+#define ROSYNC 8 // SYNC the friend list with the server
 
 // passive info like you get denied
 #define ROID_PASSIVE 'A'
@@ -62,13 +61,14 @@
 #define ROOMJOINACCEPTED 2 // request to join room accepted
 #define ROOMJOINDENIED 3   // invitation to join room denied
 #define ROINVITED 4        // invited to a room
+#define ROSYNCED 5
 
 // communication related
 #define COMID 'C'
 #define CLOSECOM 1 // close the communication
 #define OPENCOM 2  // open a new communication
 #define GETONLINEUSER 3
-#define TOTAL_COMRQ 2
+#define SIGNUP 4 // sign user up
 
 // TODO: use enum for this
 // return value of parse function based on the the ype of request
