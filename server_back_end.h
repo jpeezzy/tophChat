@@ -109,5 +109,5 @@ int getFriendList(TUSER *user);
 // get a list of online user separated by '/'
 int getOnlineUser(onlineUserList *allUsers, char *onlineList);
 
-int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO *dataBase, char *packet);
+int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO *dataBase);
 #endif

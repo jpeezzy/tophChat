@@ -145,6 +145,8 @@ chatRoom *findReadyRoom(roomList *allRoom)
 }
 
 // ROOM STARTING ASKING AND ACCEPTING
+
+// request room from server, return the index of the room that is used for requesting
 int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName)
 {
     // TODO: thread sensitive
@@ -156,7 +158,7 @@ int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName)
         {
             assembleCommand(i, ROID, ROCREATE, userName, NULL, tempMessage);
             writeBuffer(outputFIFO, tempMessage);
-            return 0;
+            return i; 
         }
     }
     return -1;
@@ -255,62 +257,64 @@ int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer,
 {
     char packet[PACKAGE_SIZE];
 
-    if (readBuffer(inbox->messageQueue, packet) == 0)
+    // may need to change it to if for singular handling
+    while (readBuffer(inbox->messageQueue, packet) == 0)
     {
         int roomNum = getroomNumber(packet);
         char comType = getCommandType(packet);
         int comID = getCommandID(packet);
         char senderName[MAX_USER_NAME];
-
+        char receiverName[MAX_USER_NAME];
         if (comType == FRIENDID)
         {
             switch (comID)
             {
-            case FRIEACCEPTED:
+            getSenderName(senderName, packet);
+            // both of these need linking with GTK
+            case FRIEACCEPT:
+            printf("\n%s accepted your friend request\n", senderName);
                 break;
-            case FRIEDENIED:
+            case DEREQUEST:
+            printf("\n%s denied your friend request\n", senderName);
                 break;
-            }
-        }
-        else if (comType == ROID)
-        {
-            switch (comID)
-            {
             }
         }
         else if (comType == ROID_PASSIVE)
         {
+            getSenderName(senderName, packet);
             switch (comID)
             {
             case ROGRANTED:
-                receiveRoom(roomList, getroomNumber(packet));
-                joinCreatedRoom(roomList, getroomNumber(packet));
+                receiveRoom(roomList, roomNum);
+                joinCreatedRoom(roomList, roomNum);
                 break;
 
             case ROINVITED:
-#ifdef DEBUG
+
+                // TODO: handle if this user ran out of room
+                if(roomList->totalAllocatedRoom==CHAT_ROOM_LIMIT)
+                {
+                    printf("\nyou have reached maximum room limit\n");
+                    denyInvitedRoom(roomNum, userName, senderName, outputBuffer);
+                    return 0;
+                }
                 char answer;
                 getCommandSender(packet, senderName);
                 printf("\nyou haven been invited by%s\n, join? y/n", senderName);
                 scanf(" %c", &answer);
                 if (answer == 'y')
                 {
-
-                    joinInvitedRoom(roomList, roomNum, userName, server, outputBuffer);
+                    joinInvitedRoom(roomList, roomNum, userName, outputBuffer);
                 }
                 else
                 {
-                    denyInvitedRoom(roomList, roomNum, userName, server, outputBuffer);
+                    denyInvitedRoom(roomNum, userName, senderName, outputBuffer);
                 }
-
-#endif
-
                 // check if user agreed
 
                 break;
             case RODENIED:
-                // let user know he can't open more room
-                return USER_OCCUPIED_MAX_ROOM;
+                printf("\nsyour room has been denied\n");
                 break;
             }
         }
@@ -328,10 +332,10 @@ int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer,
             return UNKNOWN_COMMAND_TYPE;
         }
     }
-    else
-    {
-        return FIFO_NO_DATA;
-    }
+    // else
+    // {
+    //     return FIFO_NO_DATA;
+    // }
     return 0;
 }
 

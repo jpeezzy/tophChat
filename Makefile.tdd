@@ -84,13 +84,19 @@ client_1.o: client_main_1.c
 client_2.o: client_main_1.c
 	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
 
-client_2: constants.h tcpGUI_debug.o fifo_debug.o protocol.o utils.o client_1.o tcpPacket_debug.o 
+client_2: constants.h tcpGUI_debug.o fifo_debug.o protocol.o utils.o client_1.o tcpPacket_debug.o userActions_debug.o
 	$(CXX) $(^) -o $(@) $(LKP)
-client_1: constants.h tcpGUI_debug.o fifo_debug.o protocol.o utils.o client_2.o tcpPacket_debug.o 
+
+client_1: constants.h tcpGUI_debug.o fifo_debug.o protocol.o utils.o client_2.o tcpPacket_debug.o userActions_debug.o
 	$(CXX) $(^) -o $(@) $(LKP)
 
 server_live: server_main_debug.o server_back_end_debug.o tcpPacket_debug.o protocol_const.h constants.h utils.o protocol.o tophChatUsers.o fifo_debug.o
 	$(CXX) $(^) -o $(@) $(LKP)
+
+userActions_debug.o: userActions.c userActions.h 
+	$(CC) -c $(<) $(CFLAGS) $(DEBUG) -o $(@)
+userActions.o: userActions.c userActions.h 
+	$(CC) -c $(<) $(CFLAGS) -o $(@)
 
 #TEST UTILITIES
 tdd_utils: utils_test.o utils.o

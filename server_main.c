@@ -22,6 +22,7 @@
 #include "tcpPacket.h"
 #include "server_back_end.h"
 #include "protocol_const.h"
+#include "protocol.h"
 #include "fifo.h"
 
 int main(void)
@@ -36,6 +37,7 @@ int main(void)
 
     int socketListener = listenSocketInit();
     char packet[PACKAGE_SIZE] = "";
+    char message[MESS_LIMIT]="";
     FD_SET(socketListener, &setListener);
     int j = 0;
 
@@ -48,6 +50,10 @@ int main(void)
     addUser(userName[0], userName[0], 213123, dataBase);
     addUser(userName[1], userName[1], 213123, dataBase);
 
+    TUSER* userProfile0=findUserByName(userName[0], dataBase);
+    TUSER* userProfile1=findUserByName(userName[1], dataBase);
+
+    addFriend(userName[0], userProfile1, dataBase);
     // limit to two users
     for (;;)
     {
@@ -77,9 +83,11 @@ int main(void)
         }
         if (j == 2)
         {
-            if (triagePacket(userList, roomList, dataBase, packet) == 2)
+            if (triagePacket(userList, roomList, dataBase) == 2)
             {
-                printf("received message: %s\n", packet);
+                readBuffer(testRoom->inMessage, packet);
+                getMessageBody(packet, message);
+                printf("received message: %s\n", message);
                 serverRoomSpreadMessage(testRoom, dataBase);
             }
         }

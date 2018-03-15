@@ -51,7 +51,7 @@ int main(void)
     int totalPacketSent = 0;
     char sourceName[MAX_USER_NAME];
     int errorCode;
-    int connectedEstablished = 0;
+    int connectedEstablished = 0; // flag for if both client has joined the room
 
     fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
     inboxQueue *inbox = initInboxQueue();
@@ -60,15 +60,21 @@ int main(void)
     roomList *userRoomList = roomsetInit();
 
 #ifdef CLIENT_1
-    requestRoom(userRoomList, outputBuffer);
+    int requestRoomIndex = requestRoom(userRoomList, outputBuffer, senderName);
+    while(userRoomList->roomList[requestRoomIndex].status!=ROOM_READY)
+    {
+        if((recvMessageFromServer(userRoomList, inbox, server)>=0))
+        {
+        parseInboxCommand(inbox, userRoomList,  outputBuffer, senderName, server);
+        }
+    }
+    sendInvite(userRoomList->roomList[requestRoomIndex].roomNum, senderName, "ADMIN", outputBuffer);
 #else
-    int invitationReceived = 0;
     sleep(2);
 #endif
+
     // output fifo
-
     sendAllToServer(outputBuffer, server);
-
     for (;;)
     {
         while ((errorCode = recvMessageFromServer(userRoomList, inbox, server)) >= 0)
@@ -87,7 +93,7 @@ int main(void)
             }
             else if (errorCode == ISCOMM)
             {
-                parseInboxCommand(inbox, userRoomList, outputBuffer);
+                parseInboxCommand(inbox, userRoomList,  outputBuffer, senderName, server);
             }
         }
 

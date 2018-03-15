@@ -67,35 +67,29 @@ int retrieveInboxMessage(char *message, inboxQueue *inbox);
 
 int writeInboxMessage(char *message, inboxQueue *inbox);
 
-int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName);
+/******************* ROOM_STUFFS *************************/
 
-// when receiving the confirmation of room from a server, mark the room as ready
-int receiveRoom(roomList *allRoom, int serverroomNum);
-
-// close the room and let the server know that the room number is free to be used by others
-int closeRoom(chatRoom *room, fifo *outputFIFIO, char *userName);
-
-roomList *roomsetInit(void);
-
-int roomsetDel(roomList *allRoom);
-
+// ROOM FINDING
 // return a pointer to the room specified by the server room number
 chatRoom *retrieveRoom(roomList *allRoom, int roomNum);
 
 // find a room that has been synchronized with the server
 chatRoom *findReadyRoom(roomList *allRoom);
 
-// copy the received message to the buffer
-int fetchMessage(chatRoom *room, char *buffer);
+// ROOM STARTING ASKING AND ACCEPTING
 
-// copy the user message to the output queue of the program
-int sendMessage(chatRoom *room, fifo *outputFIFO, char *userName, char *message);
+// request room from server, return the index of the room that is used for requesting
+int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName);
 
-int sendToServer(fifo *outputFIFO, serverConnection *server);
+roomList *roomsetInit(void);
 
 // get a message from a server and put it in the correct fifo
 int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection *server);
 
-int parseInboxCommand(inboxQueue *inbox);
+int sendToServer(fifo *outputFIFO, serverConnection *server);
+
+int sendAllToServer(fifo *outputBuffer, serverConnection *server);
+
+int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer, char *userName, serverConnection *server);
 
 #endif

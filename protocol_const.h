@@ -40,8 +40,7 @@
 #define DEREQUEST 2    // deny friend request
 #define DEFRIEND 3     // delete friends
 #define FRIEACCEPT 4   // accept friend request
-#define FRIEACCEPTED 5 //friend request accepted
-#define FRIEDENIED 6   // friend request denied
+
 #define TOTAL_FRRQ 5   // how many friend related request we have
 
 // room related request
@@ -61,7 +60,7 @@
 #define ROGRANTED 0        // room opening granted
 #define RODENIED 1         // request to open room denied
 #define ROOMJOINACCEPTED 2 // request to join room accepted
-#define ROOMJOINDENIED 3   // request to join denied
+#define ROOMJOINDENIED 3   // invitation to join room denied
 #define ROINVITED 4        // invited to a room
 
 // communication related

@@ -415,9 +415,19 @@ int getOnlineUser(onlineUserList *allUsers, char *onlineList)
     return 0;
 }
 
-int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO *dataBase, char *packet)
+int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO *dataBase)
 {
     char message[MESS_LIMIT];
+    char sentPacket[PACKAGE_SIZE]="";
+    char packet[PACKAGE_SIZE]=""; // received packet
+    char senderName[MAX_USER_NAME];
+    char receiverName[MAX_USER_NAME];
+    
+    TUSER* tempUser;
+    TUSER* tempUser2;
+    int roomNum;
+    serverChatRoom* onlineRoom;
+
     for (int i = 0; i < MAX_SERVER_USERS; ++i)
     {
         if (userList->userList[i].slot_status == ONLINE)
@@ -431,19 +441,41 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                 }
                 else if (getpacketType(packet) == ISCOMM)
                 {
+                    getCommandSender(packet, senderName);
+                    getCommandTarget(packet, receiverName);
+                    int roomNum = getroomNumber(packet);
                     if (getCommandType(packet) == FRIENDID)
                     {
                         switch (getCommandID(packet))
                         {
+                        tempUser=findUserByName(senderName, dataBase);
+                        tempUser2=findUserByName(receiverName, dataBase);
                         case FREQUEST:
+                            // TODO: make friend request offline too
+                            if((tempUser = findUserByName(receiverName, dataBase))!=NULL)
+                            {
+                                assembleCommand(1, FRIENDID, FREQUEST, senderName, receiverName, sentPacket);
+                                if(tempUser->socket>-1)
+                                {
+                                sendPacket(sentPacket, tempUser->socket);
+                                }
+                            }
+                            else
+                            {
+                                return -1;
+                            }
                             break;
                         case DEREQUEST:
+                            sendPacket(packet, tempUser2->socket);
                             break;
                         case FRIEACCEPT:
+                            // TOOD: added error checking
+                            addFriend(receiverName, tempUser, dataBase);
+                            sendPacket(packet, tempUser2->socket);
                             break;
-                        case FRIEACCEPTED:
-                            break;
-                        case FRIEDENIED:
+
+                        case DEFRIEND:
+
                             break;
                         }
                     }
@@ -451,20 +483,76 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                     {
                         switch (getCommandID(packet))
                         {
-                        case ROCREATE:
+                        case ROCREATE:  
+
+                             if((tempUser = findUserByName(receiverName, dataBase))!=NULL)
+                             {
+                                 if(tempUser->numOfRoomUserIn==CHAT_ROOM_LIMIT || allRoom->totalRoom==MAX_SERVER_CHATROOMS)
+                                 {
+                                     assembleCommand(0, ROID_PASSIVE, RODENIED, senderName, NULL, sentPacket);
+                                 }
+                                
+                                 else
+                                 {
+                                     onlineRoom=serverRoomCreate(allRoom);
+                                     onlineRoom->isOccupied=ROOM_BUSY;
+                                     addUserToServerRoom(onlineRoom, senderName, dataBase);
+                                     assembleCommand(onlineRoom->roomNum, ROID_PASSIVE, ROGRANTED, senderName, NULL, sentPacket);
+                                 }
+
+                                 sendPacket(sentPacket, tempUser->socket);
+                             }
+                            onlineRoom = serverRoomCreate(allRoom);
                             break;
                         case RODEL:
                             break;
                         case ROINVITE:
+                        tempUser=findUserByName(senderName, dataBase);
+                        tempUser2=findUserByName(receiverName, dataBase);
+                        onlineRoom=findServerRoomByNumber(allRoom, roomNum);
+                            if(checkIfFriends(tempUser, tempUser2))
+                            {
+                                assembleCommand(roomNum, ROID_PASSIVE, ROOMJOINDENIED, senderName, NULL, sentPacket);
+                                sendPacket(sentPacket, tempUser->socket);
+                            }
+                            else 
+                            {
+                                
+                                if(onlineRoom->isOccupied==ROOM_NOT_OCCUPIED)
+                                {
+                                    assembleCommand(roomNum, ROID_PASSIVE, ROOMJOINDENIED, senderName, NULL, sentPacket);
+                                    sendPacket(sentPacket, tempUser->socket);
+                                }
+                                else
+                                {
+                                // forward packet to the other user
+                                sendPacket(packet, tempUser2->socket);
+                                }
+                            }
                             break;
                         case ROACCEPT:
+                                if(onlineRoom->isOccupied==ROOM_NOT_OCCUPIED)
+                                {
+                                    return -1;
+                                }
+                                else
+                                {
+                                    addUserToServerRoom(onlineRoom, senderName, dataBase);
+                                    assembleCommand(roomNum, ROID_PASSIVE, ROOMJOINACCEPTED, senderName, receiverName, sentPacket);
+                                    sendPacket(sentPacket, tempUser2->socket);
+                                }
+                            
                             break;
                         case RODENY:
+                            assembleCommand(roomNum, ROID_PASSIVE, ROOMJOINDENIED, senderName, receiverName, sentPacket);
+                            sendPacket(sentPacket, tempUser2->socket);
                             break;
                         }
                     }
                     else if (getCommandType(packet) == COMID)
                     {
+                        tempUser=findUserByName(senderName, dataBase);
+                        tempUser2=findUserByName(receiverName, dataBase);
                         switch (getCommandID(packet))
                         {
                         case CLOSECOM:
@@ -472,8 +560,8 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
 
                         case GETONLINEUSER:
                             getOnlineUser(userList, message);
-                            assembleCommand(111, COMID, GETONLINEUSER, "server", message, packet);
-                            sendPacket(packet, userList->userList[i].userProfile->socket);
+                            assembleCommand(111, COMID, GETONLINEUSER, "server", message, sentPacket);
+                            sendPacket(sentPacket, tempUser->socket);
                             break;
                         }
                     }

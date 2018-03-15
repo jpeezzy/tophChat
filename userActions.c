@@ -3,6 +3,7 @@
 #include "tcpGUI.h"
 #include "constants.h"
 #include "protocol_const.h"
+#include "protocol.h"
 
 // ROOM EXIT
 
@@ -30,6 +31,13 @@ int receiveRoom(roomList *allRoom, int serverroomNum)
     }
 }
 
+int sendInvite(int roomNum, char* userName, char* receiverName, fifo* outputBuffer)
+{
+    char packet[PACKAGE_SIZE];
+    assembleCommand(roomNum, ROID, ROINVITE, userName, receiverName, packet);
+    return writeBuffer(outputBuffer, packet);
+}
+
 int joinCreatedRoom(roomList *allRoom, int roomNumber)
 {
     if (receiveRoom(allRoom, roomNumber) >= 0)
@@ -44,10 +52,9 @@ int joinCreatedRoom(roomList *allRoom, int roomNumber)
     }
 }
 
-int joinInvitedRoom(roomList *allRoom, int roomNumber, char *userName, serverConnection *server, fifo *outputBuffer)
+int joinInvitedRoom(roomList *allRoom, int roomNumber, char *userName, fifo *outputBuffer)
 {
     char packet[PACKAGE_SIZE];
-    receiveRoom(allRoom, roomNumber);
 
     if (receiveRoom(allRoom, roomNumber) >= 0)
     {
@@ -63,15 +70,14 @@ int joinInvitedRoom(roomList *allRoom, int roomNumber, char *userName, serverCon
     }
 }
 
-int denyInvitedRoom(roomList *allRoom, int roomNumber, char *userName, serverConnection *server, fifo *outputBuffer)
+int denyInvitedRoom(int roomNumber, char *userName, char* targetName, fifo *outputBuffer)
 {
     char packet[PACKAGE_SIZE];
-
-    assembleCommand(roomNumber, ROID, RODENY, userName, NULL, packet);
+    assembleCommand(roomNumber, ROID, RODENY, userName, targetName, packet);
     return writeBuffer(outputBuffer, packet);
 }
 
-int leaveRoom(chatRoom *room, char *userName, serverConnection *server, fifo *outputBuffer)
+int leaveRoom(chatRoom *room, char *userName, fifo *outputBuffer)
 {
     char packet[PACKAGE_SIZE];
     closeBuffer(room->inMessage);
@@ -82,7 +88,7 @@ int leaveRoom(chatRoom *room, char *userName, serverConnection *server, fifo *ou
     return 0;
 }
 
-int closeRoom(chatRoom *room, serverConnection *server, char *userName, fifo *outputBuffer)
+int closeRoom(chatRoom *room, char *userName, fifo *outputBuffer)
 {
     char packet[PACKAGE_SIZE];
     closeBuffer(room->inMessage);
@@ -125,16 +131,4 @@ int sendMessage(chatRoom *room, fifo *outputFIFO, char *userName, char *message)
     {
         return 0;
     }
-}
-
-// close the room and let the server know that the room number is free to be used by others
-int closeRoom(chatRoom *room, fifo *outputFIFIO, char *userName)
-{
-    char tempPacket[PACKAGE_SIZE] = "";
-    room->status = ROOM_UNALLOCATED; // freed
-    assembleCommand(room->roomNum, ROID, RODEL, userName, NULL, tempPacket);
-    closeBuffer(room->inMessage);
-    room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
-    writeBuffer(outputFIFIO, tempPacket);
-    return 0;
 }
