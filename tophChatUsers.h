@@ -71,7 +71,7 @@ int checkIfFriends(TUSER *user1, TUSER *user2);
 TUSER *findUserByName(cp username, TINFO *userbase);
 
 //Remove friend
-int deleteFriend(cp username);
+int deleteFriend(TUSER *user1, cp username, TINFO*userbase);
 
 //chek if user is online,
 int checkSocket(TUSER *user);
