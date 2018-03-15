@@ -1187,27 +1187,12 @@ int main(int argc, char *argv[])
     /* Message Struct Initialization */
     MESSAGE_STRUCT *messageStruct;
     messageStruct = CreateMessageStruct(vBox, window, server, AllRoom, outputBuffer, inbox, "", "");
-    /*    messageStruct.widget = vBox;
-    messageStruct.window = window;
-    messageStruct.server = server;
-    messageStruct.Allroom = AllRoom;
-    messageStruct.outputFIFO = outputBuffer;
-    messageStruct.inbox = inbox;
-    messageStruct.username = "";
-    messageStruct.message = "";
-*/
+
     /* Login Struct */
     MESSAGE_STRUCT *loginStruct;
     loginStruct = CreateMessageStruct(loginVBox, loginScreen, server, AllRoom, outputBuffer, inbox, "", "");
-    /*    loginStruct.widget = loginVBox;
-    loginStruct.window = loginScreen;
-    loginStruct.server = server;
-    loginStruct.Allroom = AllRoom;
-    loginStruct.outputFIFO = outputBuffer;
-    messageStruct.inbox = inbox;
-    messageStruct.username = "";
-    messageStruct.message = "";
-*/
+
+
     /* MessageStruct Array */
     MESSAGE_STRUCT *messageStructArray[2];
     messageStructArray[0] = messageStruct;
@@ -1230,9 +1215,6 @@ int main(int argc, char *argv[])
     /* Messaging Signals */
     g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), (gpointer)messageStruct);     /* to send message with enter key */
     g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), (gpointer)messageStruct); /* to send message with "Send" button */
-
-    //        g_signal_connect(textBox, "activate", G_CALLBACK(EnterKey), tabs);     /* to send message with enter key */
-    //        g_signal_connect(sendButton, "clicked", G_CALLBACK(SendButton), vBox); /* to send message with "Send" button */
 
     /* option clicks for all of friends on list */
     g_signal_connect(friends[0], "clicked", G_CALLBACK(OptionsPopup), optionsArray0); /* opens up options popup */
