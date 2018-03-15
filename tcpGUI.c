@@ -106,14 +106,14 @@ int writeInboxMessage(char *message, inboxQueue *inbox)
 chatRoom *retrieveRoom(roomList *allRoom, int roomNum)
 {
     int i = 0;
-    for (i = 0; i < allRoom->totalRoom; ++i)
+    for (i = 0; i < CHAT_ROOM_LIMIT; ++i)
     {
         if ((allRoom->roomList)[i].roomNum == roomNum)
         {
             break;
         }
     }
-    if (i == allRoom->totalRoom)
+    if (i == CHAT_ROOM_LIMIT)
     {
         return NULL;
     }
@@ -127,14 +127,14 @@ chatRoom *retrieveRoom(roomList *allRoom, int roomNum)
 chatRoom *findReadyRoom(roomList *allRoom)
 {
     int i = 0;
-    for (i = 0; i < allRoom->totalRoom; ++i)
+    for (i = 0; i < CHAT_ROOM_LIMIT; ++i)
     {
         if ((allRoom->roomList[i]).status == ROOM_READY)
         {
             break;
         }
     }
-    if (i == allRoom->totalRoom)
+    if (i == CHAT_ROOM_LIMIT)
     {
         return NULL;
     }
@@ -152,7 +152,7 @@ int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName)
     // TODO: thread sensitive
     int i = 0;
     char tempMessage[PACKAGE_SIZE] = "";
-    for (i = 0; i < allRoom->totalRoom; ++i)
+    for (i = 0; i < CHAT_ROOM_LIMIT; ++i)
     {
         if ((allRoom->roomList[i]).status == ROOM_UNALLOCATED)
         {
@@ -167,7 +167,7 @@ int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName)
 roomList *roomsetInit(void)
 {
     roomList *temproomSet = malloc(sizeof(struct allRoom));
-    temproomSet->totalRoom = CHAT_ROOM_LIMIT;
+    temproomSet->totalRoom = 0;
     for (int i = 0; i < CHAT_ROOM_LIMIT; ++i)
     {
         (temproomSet->roomList[i]).status = ROOM_UNALLOCATED;
@@ -178,7 +178,7 @@ roomList *roomsetInit(void)
 
 int roomsetDel(roomList *allRoom)
 {
-    for (int i = 0; i < allRoom->totalRoom; ++i)
+    for (int i = 0; i < CHAT_ROOM_LIMIT; ++i)
     {
         closeBuffer(allRoom->roomList[i].inMessage);
     }
@@ -214,7 +214,7 @@ int sendAllToServer(fifo *outputBuffer, serverConnection *server)
 
     if (atLeastOnePacket)
     {
-        return 0;
+        return atLeastOnePacket;
     }
     else
     {
@@ -228,21 +228,24 @@ int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection
     char packet[PACKAGE_SIZE];
     int errCode = 0;
     chatRoom *tempRoom;
-    if ((errCode = fetchPacket(packet, server->socket)) == 0)
+    if ((errCode = fetchPacket(packet, server->socket)) > 0)
     {
-        if (getpacketType(packet) == ISCOMM)
+        if (getpacketType(packet) == ISMESSAGE)
         {
             tempRoom = retrieveRoom(allRoom, getroomNumber(packet));
             writeBuffer(tempRoom->inMessage, packet);
-            return ISCOMM;
+            return ISMESSAGE;
         }
-        else if (getpacketType(packet) == ISMESSAGE)
+        else if (getpacketType(packet) == ISCOMM)
         {
             writeBuffer(inbox->messageQueue, packet);
-            return ISMESSAGE;
+            return ISCOMM;
         }
         else
         {
+            #ifdef DEBUG
+            printf("\nreceived from server unknown command \n");
+            #endif
             return UNKNOWN_COMMAND_TYPE;
         }
     }
@@ -285,11 +288,17 @@ int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer,
             switch (comID)
             {
             case ROGRANTED:
+            #ifdef DEBUG
+            printf("\nroom allocated\n");
+            #endif
                 receiveRoom(roomList, roomNum);
                 joinCreatedRoom(roomList, roomNum);
                 break;
 
             case ROINVITED:
+            #ifdef DEBUG
+            printf("\nyou are invited to room number %d\n", roomNum);
+            #endif
 
                 // TODO: handle if this user ran out of room
                 if(roomList->totalAllocatedRoom==CHAT_ROOM_LIMIT)
@@ -305,6 +314,7 @@ int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer,
                 if (answer == 'y')
                 {
                     joinInvitedRoom(roomList, roomNum, userName, outputBuffer);
+                    return ACCEPTED_ROOM;
                 }
                 else
                 {
@@ -315,6 +325,10 @@ int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer,
                 break;
             case RODENIED:
                 printf("\nsyour room has been denied\n");
+                break;
+
+            case ROOMJOINDENIED:
+                printf("\nyour room invitation has been denied\n");
                 break;
             }
         }

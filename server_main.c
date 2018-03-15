@@ -36,6 +36,7 @@ int main(void)
     FD_ZERO(&setListener);
 
     int socketListener = listenSocketInit();
+    assert(socketListener>=0);
     char packet[PACKAGE_SIZE] = "";
     char message[MESS_LIMIT]="";
     FD_SET(socketListener, &setListener);
@@ -46,7 +47,7 @@ int main(void)
     struct messageServerRoom *testRoom = serverRoomCreate(roomList);
     onlineUserList *userList = serverCreateOnlineList();
 
-    char *userName[] = {"ADMIN", "USER"};
+    char *userName[] = {"USER", "ADMIN"};
     addUser(userName[0], userName[0], 213123, dataBase);
     addUser(userName[1], userName[1], 213123, dataBase);
 
@@ -63,26 +64,32 @@ int main(void)
         {
             if (select(socketListener + 1, &setListener, NULL, NULL, &timeout) > 0)
             {
-                incomingSocket = accept(socketListener, &addrDummy, &socklenDummy);
+                if(((incomingSocket = accept(socketListener, &addrDummy, &socklenDummy))>=0))
+                {
+                #ifdef DEBUG
+                printf("\nconnection received the socket is %d\n", incomingSocket);
+                #endif
                 ++(userList->totalOnlineUser);
                 if (serverAddOnlineUser(userName[j], userList, incomingSocket, dataBase) == NULL)
                 {
                     perror("\ncan't add user to server\n");
                 }
-
-                if (addUserToServerRoom(testRoom, userName[j], dataBase) < 0)
-                {
-                    perror("\ncan't adduser to server room\n");
-                }
-                else
-                {
-                    printf("\nuser added\n");
-                }
                 ++j;
+            }
+            else
+            {
+                #ifdef DEBUG
+                printf("\nfailed to acceept socket\n");
+                #endif
+            }
             }
         }
         if (j == 2)
         {
+            // #ifdef DEBUG
+            // printf("\nreceived both\n");
+            // fflush(stdout);
+            // #endif
             if (triagePacket(userList, roomList, dataBase) == 2)
             {
                 readBuffer(testRoom->inMessage, packet);

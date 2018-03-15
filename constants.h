@@ -4,7 +4,7 @@
 // NETWORK CONNECTION CONSTANT START HERE
 #define CHAT_SERVER_ADDR "zuma.eecs.uci.edu"
 #define RECONNECT_NUM 5 //how many times server try to reconnect
-#define CHAT_SERVER_PORT "5000"
+#define CHAT_SERVER_PORT "10000"
 
 #define SOCKET_NUM_CHAR 5 // how many char needed to describe the socket number
 #define MESS_LIMIT 481    // how many char user can send
@@ -53,6 +53,9 @@
 #define USER_NOT_FRIEND -3
 
 #define USER_OCCUPIED_MAX_ROOM -10
+
+// RETURN CODE FOR TRIAGING CLIENT FUNCTION HERE
+#define ACCEPTED_ROOM 4
 
 //ROOM STATUS GO HERE FOR CLIENTS
 

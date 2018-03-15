@@ -69,7 +69,7 @@ int writeBuffer(fifo *buf, const char *writeData)
     if ((buf->buffer)[buf->writePos] == NULL)
     {
         char *temp = (char *)malloc(sizeof(char) * PACKAGE_SIZE);
-        strcpy(temp, writeData);
+        memcpy((void*)temp, (void*)writeData, sizeof(char)*PACKAGE_SIZE);
         (buf->buffer)[buf->writePos] = temp;
         buf->writePos = (buf->writePos + 1) % (buf->bufLength);
     }
