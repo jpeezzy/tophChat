@@ -376,6 +376,7 @@ int main(int argc, char* argv[])
     /* server main loop */
     while(!server_Shutdown)
     {
+        printf("loop\n");
         UpdateWindow();
         FD_ZERO(&setListener);
         FD_SET(socketListener, &setListener);
