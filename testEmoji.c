@@ -32,11 +32,10 @@ static gboolean button_press_callback (GtkWidget *event_box,
 
 int main( int argc, char *argv[] )
 {
-    GtkWidget *window, *view;
+    GtkWidget *window, *entry;
     GtkWidget *VBox, *Label, *HBox;
     GtkWidget *emoji_popup_button;    
     GtkWidget *scrolled_window;    
-    GtkTextBuffer *buffer;
 
     gtk_init(&argc, &argv);
 
@@ -52,22 +51,20 @@ int main( int argc, char *argv[] )
     VBox = gtk_vbox_new(TRUE, 10);    
     gtk_container_add(GTK_CONTAINER(window), VBox);
     
-    Label = gtk_label_new("Insert images in GtkTextView.\n Click on the Emojis to insert the simleys");
+    Label = gtk_label_new("Insert images in GtkEntry.\n Click on the Emojis to insert the simleys");
     gtk_box_pack_start(GTK_BOX(VBox), Label, FALSE, FALSE, 10);
     
-    view = gtk_text_view_new();
-    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(view), TRUE);    
+    entry = gtk_entry_new();
 
     HBox = gtk_hbox_new(TRUE, 10);
     gtk_box_pack_start(GTK_BOX(VBox), HBox, FALSE, FALSE, 0);
        
-    emoji_popup_button = emoji_popup(GTK_TEXT_VIEW(view));
+    emoji_popup_button = emoji_popup(GTK_ENTRY(entry));
     gtk_box_pack_start(GTK_BOX(HBox), emoji_popup_button, FALSE, FALSE, 0);
     
-    scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-    gtk_box_pack_start(GTK_BOX(VBox), scrolled_window, TRUE, TRUE, 0);
-    gtk_container_add(GTK_CONTAINER(scrolled_window), view);
+    //scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(VBox), entry, TRUE, TRUE, 0);
+    //gtk_container_add(GTK_CONTAINER(scrolled_window), entry);
 
    
     gtk_widget_show_all(window);
