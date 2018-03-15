@@ -275,7 +275,7 @@ int loadUser(cp textFile, TINFO *userBase)
 /*Function: deleteFriend
  * Gets a particular user, finds the username of the person they want
  * unfriended, and unfriends */
-int deleteFriend(TUSER *user, cp username, TINFO*userbase);
+int deleteFriend(TUSER *user, cp username)
 {
 	for(ui i = 0; i<user->friendCount; i++)
 	{
@@ -287,11 +287,12 @@ int deleteFriend(TUSER *user, cp username, TINFO*userbase);
 				user->friends[i+x] = user->friends[i+x+1];
 				//sift all the users back
 			}
-			return 1;
+			user->friendCount--;
+			return 0;
 			//BRINGS THE OTHER FRIENDS BACK 1 step
 		}
 	}
-	return 0;
+	return 1;
 }
 #ifdef DEBUG
 int main()
