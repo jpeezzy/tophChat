@@ -29,8 +29,13 @@
 
 int main(void)
 {
-    // server and packet
-    serverConnection *server = openConnection();
+// server and packet
+#ifdef CLIENT_1
+    char senderName[] = "USER";
+#else
+    char senderName[] = "ADMIN";
+#endif
+    serverConnection *server = openConnection(senderName, 3124534263452345234);
     assert(server);
     char packet[PACKAGE_SIZE] = "";
     char message[MESS_LIMIT] = "";
@@ -42,11 +47,6 @@ int main(void)
     // constant var
     char *testPacketList[] = {"Test1", "Test2", "Test3", "Test4"};
 
-#ifdef CLIENT_1
-    char senderName[] = "USER";
-#else
-    char senderName[] = "ADMIN";
-#endif
     int testListLength = sizeof(testPacketList) / sizeof(testPacketList[0]);
     int totalPacketSent = 0;
     char sourceName[MAX_USER_NAME];
@@ -62,30 +62,29 @@ int main(void)
 #ifdef CLIENT_1
     printf("\nrequesting room\n");
     int requestRoomIndex = requestRoom(userRoomList, outputBuffer, senderName);
-    assert(sendAllToServer(outputBuffer, server)>0);
+    assert(sendAllToServer(outputBuffer, server) > 0);
     printf("\nfinished sending request\n");
-    while(1)
+    while (1)
     {
-        if((recvMessageFromServer(userRoomList, inbox, server)==ISCOMM))
+        if ((recvMessageFromServer(userRoomList, inbox, server) == ISCOMM))
         {
-        parseInboxCommand(inbox, userRoomList,  outputBuffer, senderName, server);
-        break;
+            parseInboxCommand(inbox, userRoomList, outputBuffer, senderName, server);
+            break;
         }
     }
-    int i=0;
-for (i = 0; i < CHAT_ROOM_LIMIT; ++i)
+    int i = 0;
+    for (i = 0; i < CHAT_ROOM_LIMIT; ++i)
     {
-        if ((userRoomList->roomList)[i].status== ROOM_TAKEN)
+        if ((userRoomList->roomList)[i].status == ROOM_TAKEN)
         {
             sendInvite((userRoomList->roomList)[i].roomNum, senderName, "ADMIN", outputBuffer);
         }
     }
-     
+
     printf("\nsending room request\n");
-    assert(sendAllToServer(outputBuffer, server)>0);
+    assert(sendAllToServer(outputBuffer, server) > 0);
 #endif
 
-   
     for (;;)
     {
         while ((errorCode = recvMessageFromServer(userRoomList, inbox, server)) > 0)
@@ -105,12 +104,11 @@ for (i = 0; i < CHAT_ROOM_LIMIT; ++i)
             else if (errorCode == ISCOMM)
             {
                 printf("\nparsing command\n");
-                if(parseInboxCommand(inbox, userRoomList,  outputBuffer, senderName, server)==ACCEPTED_ROOM)
+                if (parseInboxCommand(inbox, userRoomList, outputBuffer, senderName, server) == ACCEPTED_ROOM)
                 {
                     printf("\nconnection established\n");
-                    connectedEstablished=1;
+                    connectedEstablished = 1;
                 }
-
             }
         }
 

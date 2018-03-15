@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "fifo.h"
 #include "constants.h"
@@ -47,8 +48,14 @@ int readBuffer(fifo *buf_struct, char *buf_content)
     }
     else
     {
-        strcpy(buf_content, (buf_struct->buffer)[buf_struct->readPos]);
+        memcpy(buf_content, (buf_struct->buffer)[buf_struct->readPos], sizeof(char) * PACKAGE_SIZE);
+#ifdef DEBUG
+        printf("\nbuffer content is %s\n", (buf_struct->buffer)[buf_struct->readPos]);
+#endif
         free((buf_struct->buffer)[buf_struct->readPos]);
+#ifdef DEBUG
+        printf("\nfreed buffer content %s\n", buf_content);
+#endif
         buf_struct->buffer[buf_struct->readPos] = NULL;
     }
     // wrap around if reaching the end of buffer
@@ -68,8 +75,8 @@ int writeBuffer(fifo *buf, const char *writeData)
     // will only write if there is no data there
     if ((buf->buffer)[buf->writePos] == NULL)
     {
-        char *temp = (char *)malloc(sizeof(char) * PACKAGE_SIZE);
-        memcpy((void*)temp, (void*)writeData, sizeof(char)*PACKAGE_SIZE);
+        char *temp = (char *)calloc(PACKAGE_SIZE + 2, sizeof(char));
+        memcpy(temp, writeData, sizeof(char) * (PACKAGE_SIZE));
         (buf->buffer)[buf->writePos] = temp;
         buf->writePos = (buf->writePos + 1) % (buf->bufLength);
     }

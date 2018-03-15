@@ -36,9 +36,9 @@ int main(void)
     FD_ZERO(&setListener);
 
     int socketListener = listenSocketInit();
-    assert(socketListener>=0);
+    assert(socketListener >= 0);
     char packet[PACKAGE_SIZE] = "";
-    char message[MESS_LIMIT]="";
+    char message[MESS_LIMIT] = "";
     FD_SET(socketListener, &setListener);
     int j = 0;
 
@@ -51,8 +51,8 @@ int main(void)
     addUser(userName[0], userName[0], 213123, dataBase);
     addUser(userName[1], userName[1], 213123, dataBase);
 
-    TUSER* userProfile0=findUserByName(userName[0], dataBase);
-    TUSER* userProfile1=findUserByName(userName[1], dataBase);
+    TUSER *userProfile0 = findUserByName(userName[0], dataBase);
+    TUSER *userProfile1 = findUserByName(userName[1], dataBase);
 
     addFriend(userName[0], userProfile1, dataBase);
     // limit to two users
@@ -64,24 +64,24 @@ int main(void)
         {
             if (select(socketListener + 1, &setListener, NULL, NULL, &timeout) > 0)
             {
-                if(((incomingSocket = accept(socketListener, &addrDummy, &socklenDummy))>=0))
+                if (((incomingSocket = accept(socketListener, &addrDummy, &socklenDummy)) >= 0))
                 {
-                #ifdef DEBUG
-                printf("\nconnection received the socket is %d\n", incomingSocket);
-                #endif
-                ++(userList->totalOnlineUser);
-                if (serverAddOnlineUser(userName[j], userList, incomingSocket, dataBase) == NULL)
-                {
-                    perror("\ncan't add user to server\n");
+#ifdef DEBUG
+                    printf("\nconnection received the socket is %d\n", incomingSocket);
+#endif
+                    ++(userList->totalOnlineUser);
+                    if (serverAddOnlineUser(userName[j], userList, incomingSocket, dataBase) == NULL)
+                    {
+                        perror("\ncan't add user to server\n");
+                    }
+                    ++j;
                 }
-                ++j;
-            }
-            else
-            {
-                #ifdef DEBUG
-                printf("\nfailed to acceept socket\n");
-                #endif
-            }
+                else
+                {
+#ifdef DEBUG
+                    printf("\nfailed to acceept socket\n");
+#endif
+                }
             }
         }
         if (j == 2)
@@ -92,6 +92,9 @@ int main(void)
             // #endif
             if (triagePacket(userList, roomList, dataBase) == 2)
             {
+#ifdef DEBUG
+                printf("\naccessing message\n");
+#endif
                 readBuffer(testRoom->inMessage, packet);
                 getMessageBody(packet, message);
                 printf("received message: %s\n", message);

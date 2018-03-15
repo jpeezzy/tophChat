@@ -25,7 +25,7 @@
 #include "utils.h"
 #include "userActions.h"
 
-serverConnection *openConnection(char* userName, unsigned long int publicKey)
+serverConnection *openConnection(char *userName, unsigned long int publicKey)
 {
     serverConnection *server = NULL;
     server = (serverConnection *)malloc(sizeof(serverConnection));
@@ -164,7 +164,7 @@ int requestRoom(roomList *allRoom, fifo *outputFIFO, char *userName)
         {
             assembleCommand(i, ROID, ROCREATE, userName, NULL, tempMessage);
             writeBuffer(outputFIFO, tempMessage);
-            return i; 
+            return i;
         }
     }
     return -1;
@@ -179,12 +179,12 @@ roomList *roomsetInit(void)
         (temproomSet->roomList[i]).status = ROOM_UNALLOCATED;
         (temproomSet->roomList[i]).inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
         (temproomSet->roomList[i]).memberChanged = 0;
-        for(int j=0; j<MAX_USER_PER_ROOM;++j)
+        for (int j = 0; j < MAX_USER_PER_ROOM; ++j)
         {
-            temproomSet->roomList[i].friendList[j]=malloc(sizeof(char)*MAX_USER_NAME);
+            temproomSet->roomList[i].friendList[j] = malloc(sizeof(char) * MAX_USER_NAME);
         }
     }
-    
+
     return temproomSet;
 }
 
@@ -193,7 +193,7 @@ int roomsetDel(roomList *allRoom)
     for (int i = 0; i < CHAT_ROOM_LIMIT; ++i)
     {
         closeBuffer(allRoom->roomList[i].inMessage);
-        for(int j=0; j<MAX_USER_PER_ROOM;++j)
+        for (int j = 0; j < MAX_USER_PER_ROOM; ++j)
         {
             free(allRoom->roomList[i].friendList[j]);
         }
@@ -202,16 +202,16 @@ int roomsetDel(roomList *allRoom)
     return 0;
 }
 
-int updateRoomFriendList(chatRoom* room, char** friendList)
+int updateRoomFriendList(chatRoom *room, char **friendList)
 {
-    for(int i=0; i<MAX_USER_PER_ROOM;++i)
+    for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
     {
-        if(friendList[i]!=NULL)
+        if (friendList[i] != NULL)
         {
-            if(!strcmp(room->friendList[i], friendList[i]))
+            if (!strcmp(room->friendList[i], friendList[i]))
             {
-            room->memberChanged=1;
-            strcpy(room->friendList[i], friendList[i]);
+                room->memberChanged = 1;
+                strcpy(room->friendList[i], friendList[i]);
             }
         }
     }
@@ -275,9 +275,9 @@ int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection
         }
         else
         {
-            #ifdef DEBUG
+#ifdef DEBUG
             printf("\nreceived from server unknown command \n");
-            #endif
+#endif
             return UNKNOWN_COMMAND_TYPE;
         }
     }
@@ -289,27 +289,26 @@ int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection
 }
 
 // create a list of online user to display in the side bar for the user
-char** createFriendList(void)
+char **createFriendList(void)
 {
-    char** tempList;
-    tempList = malloc(sizeof(char*)*MAX_FRIENDS);
-    for(int i=0; i<MAX_FRIENDS; ++i)
+    char **tempList;
+    tempList = malloc(sizeof(char *) * MAX_FRIENDS);
+    for (int i = 0; i < MAX_FRIENDS; ++i)
     {
-        tempList[i]=malloc(sizeof(char)*MAX_USER_NAME);
+        tempList[i] = malloc(sizeof(char) * MAX_USER_NAME);
     }
     return tempList;
 }
 
-void delFriendList(char** friendList)
+void delFriendList(char **friendList)
 {
     assert(friendList);
-    for(int i=0; i<MAX_FRIENDS; ++i)
+    for (int i = 0; i < MAX_FRIENDS; ++i)
     {
         free(friendList[i]);
     }
     free(friendList);
 }
-
 
 int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer, char *userName, serverConnection *server)
 {
@@ -323,19 +322,19 @@ int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer,
         int comID = getCommandID(packet);
         char senderName[MAX_USER_NAME];
         char receiverName[MAX_USER_NAME];
-        char** friendList;
+        char **friendList;
         char messageBody[MESS_LIMIT];
         if (comType == FRIENDID)
         {
             switch (comID)
             {
-            getSenderName(senderName, packet);
+                getSenderName(senderName, packet);
             // both of these need linking with GTK
             case FRIEACCEPT:
-            printf("\n%s accepted your friend request\n", senderName);
+                printf("\n%s accepted your friend request\n", senderName);
                 break;
             case DEREQUEST:
-            printf("\n%s denied your friend request\n", senderName);
+                printf("\n%s denied your friend request\n", senderName);
                 break;
             }
         }
@@ -345,20 +344,20 @@ int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer,
             switch (comID)
             {
             case ROGRANTED:
-            #ifdef DEBUG
-            printf("\nroom allocated\n");
-            #endif
+#ifdef DEBUG
+                printf("\nroom allocated\n");
+#endif
                 receiveRoom(roomList, roomNum);
                 joinCreatedRoom(roomList, roomNum);
                 break;
 
             case ROINVITED:
-            #ifdef DEBUG
-            printf("\nyou are invited to room number %d\n", roomNum);
-            #endif
+#ifdef DEBUG
+                printf("\nyou are invited to room number %d\n", roomNum);
+#endif
 
                 // TODO: handle if this user ran out of room
-                if(roomList->totalAllocatedRoom==CHAT_ROOM_LIMIT)
+                if (roomList->totalAllocatedRoom == CHAT_ROOM_LIMIT)
                 {
                     printf("\nyou have reached maximum room limit\n");
                     denyInvitedRoom(roomNum, userName, senderName, outputBuffer);
@@ -368,7 +367,7 @@ int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer,
                 getCommandSender(packet, senderName);
 
                 // TODO: integrate with Jason's code to ask user
-                printf("\nyou haven been invited by%s\n, join? y/n", senderName);
+                printf("\nyou haven been invited by%s, join? y/n\n", senderName);
                 scanf(" %c", &answer);
                 if (answer == 'y')
                 {
@@ -390,15 +389,15 @@ int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer,
 
             case ROOMJOINDENIED:
 
-                 // TODO: integrate with Jason's code
+                // TODO: integrate with Jason's code
                 printf("\nyour room invitation has been denied\n");
                 break;
 
             case ROSYNCED:
-                friendList=createFriendList();
+                friendList = createFriendList();
                 getUserFriendList(friendList, packet);
                 updateRoomFriendList(retrieveRoom(roomList, roomNum), friendList);
-            break;
+                break;
             }
         }
         else if (comType == COMID)
@@ -406,13 +405,13 @@ int parseInboxCommand(inboxQueue *inbox, roomList *roomList, fifo *outputBuffer,
             switch (comID)
             {
             case OPENCOM:
-            break;
+                break;
             case GETONLINEUSER:
-                
+
                 // display list of user
-                friendList=createFriendList();
+                friendList = createFriendList();
                 getUserFriendList(friendList, packet);
-                
+
                 break;
             }
         }

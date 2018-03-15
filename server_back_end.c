@@ -229,7 +229,7 @@ void serverDelOnlineList(onlineUserList *allOnlineUser)
 onlineUser *serverAddOnlineUser(char *userName, onlineUserList *allUser, int socket, TINFO *database)
 {
     int i;
-    assert(socket>=0);
+    assert(socket >= 0);
     if (allUser->totalOnlineUser == MAX_SERVER_USERS)
     {
         // server full
@@ -307,26 +307,25 @@ int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataB
     TUSER *tempUser = findUserByName(userNameTarget, dataBase);
     if (room->peopleNum == MAX_USER_PER_ROOM)
     {
-        #ifdef DEBUG
+#ifdef DEBUG
         printf("\nroom full\n");
-        #endif
+#endif
         return ROOM_FULL;
-        
     }
     else if (tempUser->socket == NOT_ONLINE)
     {
-        #ifdef DEBUG
+#ifdef DEBUG
         printf("\nuser not online\n");
-        #endif
+#endif
         return USER_NOT_ONLINE;
     }
     else
     {
         if (tempUser->numOfRoomUserIn == CHAT_ROOM_LIMIT)
         {
-            #ifdef DEBUG
-        printf("\nuser not online\n");
-        #endif
+#ifdef DEBUG
+            printf("\nuser not online\n");
+#endif
             return USER_OCCUPIED_MAX_ROOM;
         }
         ++(room->peopleNum);
@@ -344,9 +343,9 @@ int addUserToServerRoom(serverChatRoom *room, char *userNameTarget, TINFO *dataB
                     {
                         tempUser->listOfRooms[i] = room->roomNum;
                         ++(tempUser->numOfRoomUserIn);
-                        #ifdef DEBUG
-        printf("\nuser added to room\n");
-        #endif
+#ifdef DEBUG
+                        printf("\nuser added to room\n");
+#endif
                         return 0;
                     }
                 }
@@ -431,13 +430,13 @@ int getOnlineUser(onlineUserList *allUsers, char *onlineList)
     return 0;
 }
 
-int getRoomFriendList(serverChatRoom* room, char* friendRoomList)
+int getRoomFriendList(serverChatRoom *room, char *friendRoomList)
 {
-    friendRoomList[0]='\0';
+    friendRoomList[0] = '\0';
     int nextIndex = 0;
-    for(int i=0; i < MAX_USER_PER_ROOM;++i)
+    for (int i = 0; i < MAX_USER_PER_ROOM; ++i)
     {
-        if(room->userList[i]!=NULL)
+        if (room->userList[i] != NULL)
         {
             strcat(friendRoomList, room->userList[i]->userProfile->userName);
             nextIndex += strlen(room->userList[i]->userProfile->userName);
@@ -449,13 +448,13 @@ int getRoomFriendList(serverChatRoom* room, char* friendRoomList)
 }
 
 // send messages in all of the room fifo to the members of the room except the sender
-int serverSendFIFO(struct allServerRoom* allRoom, TINFO* dataBase)
+int serverSendFIFO(struct allServerRoom *allRoom, TINFO *dataBase)
 {
-    for(int i=0; i<MAX_SERVER_CHATROOMS; ++i)
+    for (int i = 0; i < MAX_SERVER_CHATROOMS; ++i)
     {
-        if(allRoom->roomList[i].isOccupied==ROOM_BUSY)
+        if (allRoom->roomList[i].isOccupied == ROOM_BUSY)
         {
-        serverRoomSpreadMessage(&(allRoom->roomList[i]), dataBase);
+            serverRoomSpreadMessage(&(allRoom->roomList[i]), dataBase);
         }
     }
     return 0;
@@ -468,50 +467,53 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
     assert(dataBase);
 
     char message[MESS_LIMIT];
-    char sentPacket[PACKAGE_SIZE]="";
-    char packet[PACKAGE_SIZE]=""; // received packet
+    char sentPacket[PACKAGE_SIZE] = "";
+    char packet[PACKAGE_SIZE] = ""; // received packet
     char senderName[MAX_USER_NAME];
     char receiverName[MAX_USER_NAME];
-    
-    TUSER* tempUser;
-    TUSER* tempUser2;
-    int roomNum;
-    serverChatRoom* onlineRoom;
-    int userIndex=0;
 
-    for (userIndex= 0; userIndex < MAX_SERVER_USERS; ++userIndex)
+    TUSER *tempUser;
+    TUSER *tempUser2;
+    int roomNum;
+    serverChatRoom *onlineRoom;
+    int userIndex = 0;
+
+    for (userIndex = 0; userIndex < MAX_SERVER_USERS; ++userIndex)
     {
         // #ifdef DEBUG
         //                 printf("\nuser index is %d\n",userIndex);
         //                 #endif
         if (userList->userList[userIndex].slot_status == ONLINE)
         {
-                        // #ifdef DEBUG
-                        // printf("\nfound an online user %d\n",userIndex);
-                        // #endif
-            assert(((userList->userList)[userIndex]).userProfile->socket>=0);
+            // #ifdef DEBUG
+            // printf("\nfound an online user %d\n",userIndex);
+            // #endif
+            assert(((userList->userList)[userIndex]).userProfile->socket >= 0);
 
-                        // #ifdef DEBUG
-                        // printf("\nfound an online user after assert %d\n",userIndex);
-                        // #endif
-            if (fetchPacket(packet, ((userList->userList)[userIndex]).userProfile->socket) == PACKAGE_SIZE*sizeof(char))
+            // #ifdef DEBUG
+            // printf("\nfound an online user after assert %d\n",userIndex);
+            // #endif
+            if (fetchPacket(packet, ((userList->userList)[userIndex]).userProfile->socket) == PACKAGE_SIZE * sizeof(char))
             {
-                    #ifdef DEBUG
-                        printf("\nreceived packet, processing\n");
-                        #endif
+#ifdef DEBUG
+                printf("\nreceived packet, processing\n");
+#endif
                 if (getpacketType(packet) == ISMESSAGE)
                 {
-                     #ifdef DEBUG
-                        printf("\nreceived user message\n");
-                        #endif
+#ifdef DEBUG
+                    printf("\nreceived user message\n");
+#endif
                     sendServerRoomMessage(findServerRoomByNumber(allRoom, getroomNumber(packet)), packet);
+#ifdef DEBUG
+                    printf("\nsent user message to server room\n");
+#endif
                     return 2;
                 }
                 else if (getpacketType(packet) == ISCOMM)
                 {
-                    #ifdef DEBUG
-                        printf("\nreceived command\n");
-                        #endif
+#ifdef DEBUG
+                    printf("\nreceived command\n");
+#endif
                     getCommandSender(packet, senderName);
                     getCommandTarget(packet, receiverName);
                     int roomNum = getroomNumber(packet);
@@ -519,17 +521,17 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                     {
                         switch (getCommandID(packet))
                         {
-                        tempUser=findUserByName(senderName, dataBase);
-                        tempUser2=findUserByName(receiverName, dataBase);
+                            tempUser = findUserByName(senderName, dataBase);
+                            tempUser2 = findUserByName(receiverName, dataBase);
 
                         case FREQUEST:
                             // TODO: make friend request offline too
-                            if((tempUser = findUserByName(receiverName, dataBase))!=NULL)
+                            if ((tempUser = findUserByName(receiverName, dataBase)) != NULL)
                             {
                                 assembleCommand(1, FRIENDID, FREQUEST, senderName, receiverName, sentPacket);
-                                if(tempUser->socket>-1)
+                                if (tempUser->socket > -1)
                                 {
-                                sendPacket(sentPacket, tempUser->socket);
+                                    sendPacket(sentPacket, tempUser->socket);
                                 }
                             }
                             else
@@ -557,102 +559,102 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                     {
                         switch (getCommandID(packet))
                         {
-                        case ROCREATE:  
-                        #ifdef DEBUG
-                        printf("\nreceived room create request\n");
-                        #endif
-                             if((tempUser = findUserByName(senderName, dataBase))!=NULL)
-                             {
-                                 if(tempUser->numOfRoomUserIn==CHAT_ROOM_LIMIT || allRoom->totalRoom==MAX_SERVER_CHATROOMS)
-                                 {
-                                     assembleCommand(0, ROID_PASSIVE, RODENIED, senderName, NULL, sentPacket);
-                                 }
-                                
-                                 else
-                                 {
-                                    #ifdef DEBUG
+                        case ROCREATE:
+#ifdef DEBUG
+                            printf("\nreceived room create request\n");
+#endif
+                            if ((tempUser = findUserByName(senderName, dataBase)) != NULL)
+                            {
+                                if (tempUser->numOfRoomUserIn == CHAT_ROOM_LIMIT || allRoom->totalRoom == MAX_SERVER_CHATROOMS)
+                                {
+                                    assembleCommand(0, ROID_PASSIVE, RODENIED, senderName, NULL, sentPacket);
+                                }
+
+                                else
+                                {
+#ifdef DEBUG
                                     printf("\nallocating room to %s\n", senderName);
-                                    #endif
-                                     onlineRoom=serverRoomCreate(allRoom);
-                                     onlineRoom->isOccupied=ROOM_BUSY;
-                                     addUserToServerRoom(onlineRoom, senderName, dataBase);
-                                     assembleCommand(onlineRoom->roomNum, ROID_PASSIVE, ROGRANTED, senderName, NULL, sentPacket);
-                                 }
-                                 
-                                    #ifdef DEBUG
-                                    printf("\nsending approval for room number %d create to %s\n", onlineRoom->roomNum, senderName);
-                                    #endif
-                                 sendPacket(sentPacket, tempUser->socket);
-                                  #ifdef DEBUG
-                                    printf("\nfinished sending approval for room number %d create to %s\n", onlineRoom->roomNum, senderName);
-                                    #endif
-                             }
+#endif
+                                    onlineRoom = serverRoomCreate(allRoom);
+                                    onlineRoom->isOccupied = ROOM_BUSY;
+                                    addUserToServerRoom(onlineRoom, senderName, dataBase);
+                                    assembleCommand(onlineRoom->roomNum, ROID_PASSIVE, ROGRANTED, senderName, NULL, sentPacket);
+                                }
+
+#ifdef DEBUG
+                                printf("\nsending approval for room number %d create to %s\n", onlineRoom->roomNum, senderName);
+#endif
+                                sendPacket(sentPacket, tempUser->socket);
+#ifdef DEBUG
+                                printf("\nfinished sending approval for room number %d create to %s\n", onlineRoom->roomNum, senderName);
+#endif
+                            }
                             break;
 
                         case RODEL:
                             break;
 
                         case ROINVITE:
-                        #ifdef DEBUG
-                        printf("\nreceived room invite\n");
-                        #endif
-                        tempUser=findUserByName(senderName, dataBase);
-                        tempUser2=findUserByName(receiverName, dataBase);
-                        onlineRoom=findServerRoomByNumber(allRoom, roomNum);
-                            if(!checkIfFriends(tempUser, tempUser2))
+#ifdef DEBUG
+                            printf("\nreceived room invite\n");
+#endif
+                            tempUser = findUserByName(senderName, dataBase);
+                            tempUser2 = findUserByName(receiverName, dataBase);
+                            onlineRoom = findServerRoomByNumber(allRoom, roomNum);
+                            if (!checkIfFriends(tempUser, tempUser2))
                             {
-                                
+
                                 assembleCommand(roomNum, ROID_PASSIVE, ROOMJOINDENIED, senderName, NULL, sentPacket);
                                 sendPacket(sentPacket, tempUser->socket);
                             }
-                            else 
+                            else
                             {
-                                
-                                #ifdef DEBUG
+
+#ifdef DEBUG
                                 printf("\nboth users are friends\n");
-                                #endif
-                                if(onlineRoom->isOccupied==ROOM_NOT_OCCUPIED)
+#endif
+                                if (onlineRoom->isOccupied == ROOM_NOT_OCCUPIED)
                                 {
-                                    #ifdef DEBUG
+#ifdef DEBUG
                                     printf("\nroom not allocated\n");
-                                    #endif
+#endif
                                     assembleCommand(roomNum, ROID_PASSIVE, ROOMJOINDENIED, senderName, NULL, sentPacket);
                                     sendPacket(sentPacket, tempUser->socket);
                                 }
                                 else
                                 {
-                                    #ifdef DEBUG
+#ifdef DEBUG
                                     printf("\nforwarding invite\n");
-                                    #endif
-                                // forward packet to the other user
-                                 assembleCommand(roomNum, ROID_PASSIVE, ROINVITED, senderName, receiverName, sentPacket);
-                                sendPacket(sentPacket, tempUser2->socket);
+#endif
+                                    // forward packet to the other user
+                                    assembleCommand(roomNum, ROID_PASSIVE, ROINVITED, senderName, receiverName, sentPacket);
+                                    sendPacket(sentPacket, tempUser2->socket);
                                 }
                             }
                             break;
 
                         case ROACCEPT:
-                        #ifdef DEBUG
-                        printf("\nreceived room accept\n");
-                        #endif
-                                if(onlineRoom->isOccupied==ROOM_NOT_OCCUPIED)
-                                {
-                                    return -1;
-                                }
-                                else
-                                {
-                                    addUserToServerRoom(onlineRoom, senderName, dataBase);
-                                    assembleCommand(roomNum, ROID_PASSIVE, ROOMJOINACCEPTED, senderName, receiverName, sentPacket);
-                                    sendPacket(sentPacket, tempUser2->socket);
-                                }
-                            
+#ifdef DEBUG
+                            printf("\nreceived room accept\n");
+#endif
+                            if (onlineRoom->isOccupied == ROOM_NOT_OCCUPIED)
+                            {
+                                return -1;
+                            }
+                            else
+                            {
+                                addUserToServerRoom(onlineRoom, senderName, dataBase);
+                                assembleCommand(roomNum, ROID_PASSIVE, ROOMJOINACCEPTED, senderName, receiverName, sentPacket);
+                                sendPacket(sentPacket, tempUser2->socket);
+                            }
+
                             break;
                         case RODENY:
                             assembleCommand(roomNum, ROID_PASSIVE, ROOMJOINDENIED, senderName, receiverName, sentPacket);
                             sendPacket(sentPacket, tempUser2->socket);
                             break;
 
-                        // sync user list of online server with offline room 
+                        // sync user list of online server with offline room
                         case ROSYNC:
                             getRoomFriendList(findServerRoomByNumber(allRoom, roomNum), message);
                             assembleCommand(roomNum, ROID_PASSIVE, ROSYNCED, "server", message, sentPacket);
@@ -666,42 +668,42 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                         {
                         case OPENCOM:
                             getCommandSender(packet, senderName);
-                            tempUser=findUserByName(senderName, dataBase);
-                            char* publicKeyChar=malloc(sizeof(char)*MESS_LIMIT);
+                            tempUser = findUserByName(senderName, dataBase);
+                            char *publicKeyChar = malloc(sizeof(char) * MESS_LIMIT);
                             getCommandTarget(packet, publicKeyChar);
-                            if(tempUser==NULL)
+                            if (tempUser == NULL)
                             {
                                 // user is not yet in database
-                                tempUser=addUser(senderName, senderName, 123, dataBase);
-                                tempUser->hashID=publicKeyChar;
+                                tempUser = addUser(senderName, senderName, 123, dataBase);
+                                tempUser->hashID = publicKeyChar;
                             }
-                            else 
+                            else
                             {
                                 // user already in database
-                                tempUser->hashID=publicKeyChar;
+                                tempUser->hashID = publicKeyChar;
                             }
-                        break;
+                            break;
 
                         case CLOSECOM:
                             // TODO: also take user out of all his current room
-                            for(int i=0; i<MAX_SERVER_USERS; ++i)
+                            for (int i = 0; i < MAX_SERVER_USERS; ++i)
                             {
-                                if(userList->userList[i].userProfile->socket==tempUser->socket)
+                                if (userList->userList[i].userProfile->socket == tempUser->socket)
                                 {
                                     serverLogOffUser(&(userList->userList[i]));
                                     break;
                                 }
                             }
-                           
+
                             break;
 
                         case GETONLINEUSER:
-                            tempUser=findUserByName(senderName, dataBase);
+                            tempUser = findUserByName(senderName, dataBase);
                             getOnlineUser(userList, message);
                             assembleCommand(111, COMID, GETONLINEUSER, "server", message, sentPacket);
                             sendPacket(sentPacket, tempUser->socket);
                             break;
-                        
+
                         case SIGNUP:
 
                             break;
@@ -709,22 +711,19 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                     }
                     else
                     {
-                        #ifdef DEBUG
+#ifdef DEBUG
                         printf("\nreceived unknown command\n");
-                        #endif
+#endif
                         return UNKNOWN_COMMAND_TYPE;
                     }
                 }
-                #ifdef DEBUG
-            else
+#ifdef DEBUG
+                else
                 {
                     printf("\nreceived unknown packet\n");
                 }
-                        #endif
-            
+#endif
             }
-
-            
         }
     }
     return 0;
