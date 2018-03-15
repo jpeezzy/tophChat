@@ -145,6 +145,29 @@ int getMessageBody(char *packet, char *MessageBody)
     return 0;
 }
 
+int getUserFriendList(char** friendList, char* packet)
+{
+    char messageBody[MESS_LIMIT];
+    getCommandTarget(packet, messageBody);
+    int separatorIndex=0;
+    int friendNum=0;
+    for(int i=0; i<MESS_LIMIT; ++i)
+    {
+        if(messageBody[i]=='/')
+        {
+            if(messageBody[i]=='\0')
+            {
+                break;
+            }
+            friendList[friendNum][0]='\0';
+            stringSlicer(messageBody, friendList[i], separatorIndex, i-1);
+            separatorIndex+=i+1;
+            ++friendNum;
+        }
+    }
+    return 0;
+}
+
 // assemble a command from a list of details like room number, type of command and which command of the type it is
 // additional info can be parameter like the friend name, put NULL if there is nothing
 int assembleCommand(int roomNum, char COM_ID, int COM_NUM, char *senderName, char *targetName, char *outputCom)

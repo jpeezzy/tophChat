@@ -289,7 +289,7 @@ int sendRoomInvite(char *userNameRequester, char *userNameTarget, serverChatRoom
     {
         return USER_NOT_ONLINE;
     }
-    assembleCommand(room->roomNum, ROID, ROINVITE, userNameRequester, userNameTarget, packet);
+    assembleCommand(room->roomNum, ROID, ROINVITED, userNameRequester, userNameTarget, packet);
 
 #ifdef TDD_OFFLINE
     printf("the invitation packet is: %s\n", packet);
@@ -431,6 +431,36 @@ int getOnlineUser(onlineUserList *allUsers, char *onlineList)
     return 0;
 }
 
+int getRoomFriendList(serverChatRoom* room, char* friendRoomList)
+{
+    friendRoomList[0]='\0';
+    int nextIndex = 0;
+    for(int i=0; i < MAX_USER_PER_ROOM;++i)
+    {
+        if(room->userList[i]!=NULL)
+        {
+            strcat(friendRoomList, room->userList[i]->userProfile->userName);
+            nextIndex += strlen(room->userList[i]->userProfile->userName);
+            friendRoomList[nextIndex] = '/';
+            friendRoomList[nextIndex + 1] = '\0';
+        }
+    }
+    return 0;
+}
+
+// send messages in all of the room fifo to the members of the room except the sender
+int serverSendFIFO(struct allServerRoom* allRoom, TINFO* dataBase)
+{
+    for(int i=0; i<MAX_SERVER_CHATROOMS; ++i)
+    {
+        if(allRoom->roomList[i].isOccupied==ROOM_BUSY)
+        {
+        serverRoomSpreadMessage(&(allRoom->roomList[i]), dataBase);
+        }
+    }
+    return 0;
+}
+
 int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO *dataBase)
 {
     assert(userList);
@@ -517,7 +547,8 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                             break;
 
                         case DEFRIEND:
-
+                            deleteFriend(tempUser, receiverName);
+                            sendPacket(packet, tempUser2->socket);
                             break;
                         }
                     }
@@ -617,15 +648,48 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                             assembleCommand(roomNum, ROID_PASSIVE, ROOMJOINDENIED, senderName, receiverName, sentPacket);
                             sendPacket(sentPacket, tempUser2->socket);
                             break;
+
+                        // sync user list of online server with offline room 
+                        case ROSYNC:
+                            getRoomFriendList(findServerRoomByNumber(allRoom, roomNum), message);
+                            assembleCommand(roomNum, ROID_PASSIVE, ROSYNCED, "server", message, sentPacket);
+                            sendPacket(sentPacket, tempUser->socket);
+                            break;
                         }
                     }
                     else if (getCommandType(packet) == COMID)
                     {
                         tempUser=findUserByName(senderName, dataBase);
                         tempUser2=findUserByName(receiverName, dataBase);
+                        
                         switch (getCommandID(packet))
                         {
+                        case OPENCOM:
+                            // TODO: probably handle encryption here
+                            char publicKeyChar[MESS_LIMIT];
+                            getCommandTarget(packet, publicKeyChar);
+                            if(tempUser==NULL)
+                            {
+                                // user is not yet in database
+
+                            }
+                            else 
+                            {
+                                // user already in database
+                            }
+                        break;
+
                         case CLOSECOM:
+                            // TODO: also take user out of all his current room
+                            for(int i=0; i<MAX_SERVER_USERS; ++i)
+                            {
+                                if(userList->userList[i].userProfile->socket==tempUser->socket)
+                                {
+                                    serverLogOffUser(&(userList->userList[i]));
+                                    break;
+                                }
+                            }
+                           
                             break;
 
                         case GETONLINEUSER:

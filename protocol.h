@@ -28,9 +28,12 @@ int getCommandID(char *packet);
 // return the letter representing the category of the command
 char getCommandType(char *packet);
 
+// also used to get public key
 void getCommandTarget(char *packet, char *userName);
 
 int getCommandSender(char *packet, char *userName);
+
+int getUserFriendList(char** friendList, char* packet);
 
 // get the name of the sender of a regular message
 void getSenderName(char *userName, char *packet);

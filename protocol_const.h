@@ -54,6 +54,7 @@
 #define ROINVITE 5  // invite someone to room
 #define ROACCEPT 6  // accept room request
 #define RODENY 7    // deny room request
+#define ROSYNC 8 // SYNC the friend list with the server
 
 // passive info like you get denied
 #define ROID_PASSIVE 'A'
@@ -62,6 +63,7 @@
 #define ROOMJOINACCEPTED 2 // request to join room accepted
 #define ROOMJOINDENIED 3   // invitation to join room denied
 #define ROINVITED 4        // invited to a room
+#define ROSYNCED 5
 
 // communication related
 #define COMID 'C'
