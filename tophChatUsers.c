@@ -61,7 +61,6 @@ int deleteUser(TUSER *user)
 	//free(user->friends);
 	free(user);
 	return 0;
-
 }
 /*Function: hashID
  * returns: unsigned int 
@@ -273,6 +272,28 @@ int loadUser(cp textFile, TINFO *userBase)
 	return 0;
 }
 
+/*Function: deleteFriend
+ * Gets a particular user, finds the username of the person they want
+ * unfriended, and unfriends */
+int deleteFriend(TUSER *user, cp username)
+{
+	for(ui i = 0; i<user->friendCount; i++)
+	{
+		if (strcmp(username, user->friends[i]->userName) == 0)
+		{
+			user->friends[i] = NULL;
+			for(ui x = 0; x < user->friendCount - i; x++)
+			{
+				user->friends[i+x] = user->friends[i+x+1];
+				//sift all the users back
+			}
+			user->friendCount--;
+			return 0;
+			//BRINGS THE OTHER FRIENDS BACK 1 step
+		}
+	}
+	return 1;
+}
 #ifdef DEBUG
 int main()
 {

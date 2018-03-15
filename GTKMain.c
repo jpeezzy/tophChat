@@ -76,7 +76,6 @@ MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, server
 gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
     g_print("You exited out the window! \n");
-    g_print("See you later, %s!\n", (gchar *)data);
     client_shutdown = 1; /* leaves event loop */
     return FALSE;        /* return false to destroy window */
 }
@@ -129,7 +128,7 @@ void Login(GtkWidget *widget, gpointer messageStructArray[])
 
     //    strcpy(messageStruct1->username, username);
     strncpy(messageStruct1->username, username, 20);
-    messageStruct1->username[20] = '/0';
+    messageStruct1->username[20] = '\0';
 
     gtk_widget_destroy(vBox[1]);
     gtk_widget_show(vBox[2]);
@@ -515,11 +514,6 @@ int main(int argc, char *argv[])
     /*****   INITIALIZATION   **********/
     /**********************************/
     GtkWidget *window; /* declaring a window */
-
-    char name[50];
-
-    g_print("Enter your name: ");
-    scanf("%50s", &name);
 
     gtk_init(&argc, &argv); /* initializing GTK environment */
 
@@ -1219,11 +1213,11 @@ int main(int argc, char *argv[])
     messageStructArray[1] = loginStruct;
 
     /**** SIGNALS ********/
-    g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
+    g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), NULL); /* deletes window */
     g_signal_connect(accept, "clicked", G_CALLBACK(AcceptMessage), messagePopupScreen);
-    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name);    /* deletes window */
-    g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name); /* deletes window */
-    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(CloseWindow), (gpointer)name);           /* deletes window */
+    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(CloseWindow), NULL);    /* deletes window */
+    g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(CloseWindow), NULL); /* deletes window */
+    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(CloseWindow), NULL);           /* deletes window */
 
     /* Create Account Signals */
     g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);
@@ -1296,7 +1290,6 @@ int main(int argc, char *argv[])
         /*** update message ****/
         if (fetchMessage(&(AllRoom->roomList[0]), message) >= 0)
         {
-
             updateBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen)); /* gets the buffer for the current screen */
 
             gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at the end */
