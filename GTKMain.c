@@ -311,6 +311,9 @@ void EnterKey(GtkWidget *entry, gpointer messageStruct)
 
     //  gtk_entry_set_text(GTK_ENTRY(entry), ""); /* replaces textBox with empty text again */
     //  }
+    GtkWidget *button;
+    button = gtk_new_with_label("test");
+    SendButton(button, messageStruct);
 }
 
 void SendButton(GtkWidget *widget, gpointer messageStruct)
