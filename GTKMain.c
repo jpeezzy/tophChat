@@ -51,6 +51,7 @@ void ShowCharacters(GtkWidget *button, GtkWidget *vBox);                        
 void ClearForm(GtkWidget *button, GtkWidget *vBox);                                                                                    /* clears the forms */
 void CreateAccount(GtkWidget *button, GtkWidget *screen);                                                                              /* create a new account */
 void AcceptMessage(GtkWidget *button, GtkWidget *window);
+void Hide(GtkWidget *widget, GdkEvent *event, gpointer data);
 
 /***************************************************************************************************************************************************************************************************/
 
@@ -130,7 +131,7 @@ void Login(GtkWidget *widget, gpointer messageStructArray[])
     strncpy(messageStruct1->username, username, 20);
     messageStruct1->username[20] = '\0';
 
-    gtk_widget_destroy(vBox[1]);
+    gtk_widget_hide(vBox[1]);
     gtk_widget_show(vBox[2]);
 }
 
@@ -371,7 +372,7 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
 
         gtk_text_buffer_insert(buffer, &iter, gtk_entry_get_text(GTK_ENTRY(list2->data)), -1); /* inserts user text */
 
-        sendMessage(&(messageData->Allroom->roomList[0]), messageData->outputFIFO, "ADMIN", actualMessage); /* send message to fifo */
+        sendMessage(&(messageData->Allroom->roomList[0]), messageData->outputFIFO, messageData->username, actualMessage); /* send message to fifo */
 
         /* display emoji on messageScreen */
         insert_emoji(GTK_TEXT_VIEW(messageScreen), start);
@@ -507,6 +508,12 @@ void UpdateWindow(void)
         gtk_main_iteration();
     }
 } /* end of UpdateWindow */
+
+void Hide(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+    gtk_widget_hide(widget);
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -804,7 +811,7 @@ int main(int argc, char *argv[])
 
     messagePopupScreen = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-    gtk_window_set_title(GTK_WINDOW(messagePopupScreen), "New Message Request!"); /* sets title of window */
+    gtk_window_set_title(GTK_WINDOW(messagePopupScreen), "New Notification!"); /* sets title of window */
     gtk_widget_set_size_request(messagePopupScreen, 270, 100);
     gtk_container_set_border_width(GTK_CONTAINER(messagePopupScreen), 10);
     gtk_window_set_resizable(GTK_WINDOW(messagePopupScreen), FALSE);
@@ -1201,9 +1208,9 @@ int main(int argc, char *argv[])
     /**** SIGNALS ********/
     g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), NULL); /* deletes window */
     g_signal_connect(accept, "clicked", G_CALLBACK(AcceptMessage), messagePopupScreen);
-    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(CloseWindow), NULL);    /* deletes window */
-    g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(CloseWindow), NULL); /* deletes window */
-    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(CloseWindow), NULL);           /* deletes window */
+    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(Hide), NULL);    /* deletes window */
+    g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(Hide), NULL); /* deletes window */
+    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(Hide), NULL);                  /* hides window */
 
     /* Create Account Signals */
     g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);
