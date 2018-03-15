@@ -7,7 +7,7 @@ MAIN := -DMAIN
 testServerBin=testServer
 executable_file := server_main client_main ChatGUI serverGUI $(testServerBin)
 
-test_executable_files := test_emoji test_RSA test_serverGUI test_Encrypt test_server_back_end test_server_main test_tcp_GUI test_client_main 
+test_executable_files := test_emoji test_RSA test_serverGUI test_Encrypt test_server_back_end test_server_main test_tcp_GUI test_client_main test_tuser
 
 # compiler flags for GTK usage
 GTKINC := `pkg-config --cflags gtk+-2.0`
@@ -133,6 +133,9 @@ test_tcp_GUI: tcpPacket_debug.o protocol.o tcpGUI_debug.o client_main.o utils_de
 
 test_client_main: tcpPacket_debug.o protocol.o tcpGUI.o client_main.o utils_debug.o fifo_debug.o
 	$(CC)  $(^) $(DEBUG) $(MAIN) -o $(@)	$(LFLAGS)
+
+test_tuser: tophChatUsers.c tophChatUsers.h
+	$(CC) $(CFLAGS) $(DEBUG) $(<) -o $(@)
 
 clean:
 	rm -rf *.o $(executable_file) -v $(test_executable_files) 

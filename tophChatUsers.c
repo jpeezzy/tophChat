@@ -116,8 +116,10 @@ int addFriend(cp userName, TUSER *user, TINFO *userBase)
 			potentialFriend->friends[potentialFriend->friendCount] = user;
 			potentialFriend->friendCount++;
 		}
+#ifdef DEBUG
 		else
 			printf("User does not exist!\n");
+#endif
 	}
 	return 0;
 }
@@ -140,6 +142,7 @@ void showFriends(TUSER *user)
 	}
 	return;
 }
+
 
 //Function: findUserByName()
 //iterates through the user database array and compares the username
@@ -261,9 +264,12 @@ int loadUser(cp textFile, TINFO *userBase)
 		for(ui i = 0; i < temp->friendCount; i++)
 		{
 			split = strtok(NULL, "|");
-			//printf("i = %d\n", i);
+#ifdef DEBUG
+			printf("%s \n", split);
+			printf("%s \n", "JUSTIN");
+#endif
 			temp->friends[i] = findUserByName(split, userBase);
-			//printf("Here the name is %s\n", temp->friends[0]->userName);
+			//printf("Here the name is %s\n", temp->friends[i]->userName);
 		}
 		//now we start looking for friends
 		//int position = 0;
@@ -294,6 +300,25 @@ int deleteFriend(TUSER *user, cp username)
 	}
 	return 1;
 }
+//returns the list of its friends
+int getFriends(char* username, TINFO* userbase, cp list)
+{
+	TUSER *temp = findUserByName(username, userbase);
+	if(temp->friendCount > 0)
+	{
+		strcat(list, temp->friends[0]->userName);
+	}
+	for(ui i = 1; i < temp->friendCount; i++)
+	{
+		strcat(list, "/");
+		printf("in getFirnesd, the username is %s \n", temp->friends[i]->userName);
+		strcat(list, temp->friends[i]->userName);
+	}
+#ifdef DEBUG
+	printf("in getFriends, the list is %s \n", list);
+#endif
+	return 0;
+}
 #ifdef DEBUG
 int main()
 {
@@ -320,8 +345,12 @@ int main()
 	printf("can we see ADMIN: %s \n", findUserByName("ADMIN", dataBase)->userName);
 	printf("can we see USER: %s \n", findUserByName("USER", dataBase)->userName);
 	printf("can we see USER: %s \n", findUserByName("ADMIN", dataBase)->friends[0]->userName);
-	printf("loaded successfully! are harabe and justin friends? %d\n", 
+	printf("can we see JUSTIN: %s \n", findUserByName("JUSTIN", dataBase)->userName);
+	printf("loaded successfully! are ADMIN and USER friends? %d\n", 
 			checkIfFriends(findUserByName("ADMIN", dataBase), findUserByName("USER", dataBase)));
+	char friends[500];
+	getFriends("ADMIN", dataBase, friends);
+//	printf("frineds are %s \n", friends);
 
 	deleteTINFO(dataBase);
 

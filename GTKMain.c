@@ -36,8 +36,6 @@ struct MessageStruct
 MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, serverConnection *server, struct allRoom *Allroom, fifo *outputFIFO, inboxQueue *inbox, char *username, char *message);
 gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data); /* Exits out of the window and the program */
 gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data);   /* Exits out of the window and the program */
-//void click(GtkWidget *widget, GdkEvent *event, gpointer data);
-//GtkWidget *CreateBox(GtkWidget *window, GtkWidget *button);
 void EnterKey(GtkWidget *entry, gpointer messageStruct);                                                                               /* when the user presses enter in the textBox */
 void SendButton(GtkWidget *widget, gpointer messageStruct);                                                                            /* when user presses send button */
 void OptionsPopup(GtkWidget *button, GtkWidget *options[]);                                                                            /* option box pops up when friend is clicked on */
@@ -53,6 +51,8 @@ void ShowCharacters(GtkWidget *button, GtkWidget *vBox);                        
 void ClearForm(GtkWidget *button, GtkWidget *vBox);                                                                                    /* clears the forms */
 void CreateAccount(GtkWidget *button, GtkWidget *screen);                                                                              /* create a new account */
 void AcceptMessage(GtkWidget *button, GtkWidget *window);
+
+/***************************************************************************************************************************************************************************************************/
 
 MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, serverConnection *server, struct allRoom *Allroom, fifo *outputFIFO, inboxQueue *inbox, char *username, char *message)
 {
@@ -311,6 +311,9 @@ void EnterKey(GtkWidget *entry, gpointer messageStruct)
 
     //  gtk_entry_set_text(GTK_ENTRY(entry), ""); /* replaces textBox with empty text again */
     //  }
+    GtkWidget *button;
+    button = gtk_new_with_label("test");
+    SendButton(button, messageStruct);
 }
 
 void SendButton(GtkWidget *widget, gpointer messageStruct)
@@ -345,7 +348,6 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
     check = gtk_entry_get_text_length(GTK_ENTRY(list2->data));  /* checking length of text input */
     actualMessage = gtk_entry_get_text(GTK_ENTRY(list2->data)); /* saving actual text */
 
-    printf("This is what you said before: %s \n", actualMessage);
 
     if (check != 0) /* only run this if there is a text input */
     {
@@ -369,7 +371,6 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
 
         gtk_text_buffer_insert(buffer, &iter, gtk_entry_get_text(GTK_ENTRY(list2->data)), -1); /* inserts user text */
 
-        printf("This is what you said: %s \n", actualMessage);
         sendMessage(&(messageData->Allroom->roomList[0]), messageData->outputFIFO, "ADMIN", actualMessage); /* send message to fifo */
 
         /* display emoji on messageScreen */
