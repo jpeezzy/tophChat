@@ -59,15 +59,21 @@ void deleteRSA_pub(RSA_PUB *rsaPub)
  * where p must satisfy the condition (p mod e) != 1 */
 unsigned long generateRSA_prime(unsigned long e)
 {
-    unsigned long num32, rand32, prime;
+    unsigned long rand32, prime;
     int test, n;
     
     n = (RSA_BITS/2);
-    num32 = power(2, n - 1);
+    //num32 = power(2, n - 1);
     
     /*generate a random 32 bit integer */
-    rand32 = rand() % (num32 + 1);
-    rand32 = rand32 + num32;
+    rand32 = rand() % (power(2,31) - power(2,30) + 1) + power(2,30);
+    //rand32 = rand32 + num32;
+    
+    //rand32 = rand() & 0xff;
+    //rand32 |= (rand() & 0xff) << 8;
+    //rand32 |= (rand() & 0xff) << 16;
+    //rand32 |= (rand() & 0xef) << 23;
+ 
     #ifdef DEBUG
         printf("\nrand32 = %lu\n", rand32);
     #endif
@@ -111,7 +117,7 @@ int testPrime(unsigned long p)
         return 1;
     }
     /* return false if p is even */
-    if (p % 2 == 0)
+    if (p == 1 || p % 2 == 0)
     {
         return 0;
     }
@@ -266,7 +272,7 @@ void generateRSA_Keys(RSA_PRIV *rsaPriv, RSA_PUB *rsaPub)
     #endif
     p = generateRSA_prime(e);
     #ifdef DEBUG
-        printf("p = %lu\n", p);
+        printf("Found p, p = %lu\n", p);
         printf("\nFinding a prime q...\n");
     #endif
     q = generateRSA_prime(e);
@@ -275,9 +281,14 @@ void generateRSA_Keys(RSA_PRIV *rsaPriv, RSA_PUB *rsaPub)
     #endif
     while(p == q || p * q < power(2, 61) || p * q > power(2, 62))
     {
-        #ifdef DEBUG
+    #ifdef DEBUG
+        if (p == q)
             printf("\np = q, so regenerating q...\n");
-        #endif
+        else if (p * q < power(2, 61))
+            printf("\np*q < 2^61, regenerating q...\n"); 
+        else if (p * q > power(2, 62))
+            printf("\np*q < 2^62, regenrating q...\n");
+    #endif
         q = generateRSA_prime(e);
     }
     assert(p != q); 
@@ -319,6 +330,7 @@ int main()
     RSA_PRIV *rsaPriv = NULL;
     RSA_PUB *rsaPub = NULL;
     srand(time(0));
+    printf("rand_max = %d", RAND_MAX);
     printf("\nTesting generateRSA_prime\n");
     unsigned long RSAprime = generateRSA_prime(PUBLIC_e_VALUE);
     printf("generated RSA prime = %lu\n", RSAprime);
