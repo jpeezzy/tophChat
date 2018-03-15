@@ -98,10 +98,11 @@ int getCommandSender(char *packet, char *userName)
     return 0;
 }
 
-void getCommandTarget(char *packet, char *userName)
+int getCommandTarget(char *packet, char *userName)
 {
     int separatorIndex = 0;
-    for (int i = CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH; i < PACKAGE_SIZE - 1; ++i)
+    int i;
+    for (i = CHAT_ROOM_CHARACTER + ID_LENGTH + COM_LENGTH; i < PACKAGE_SIZE - 1; ++i)
     {
         if (packet[i] == '/')
         {
@@ -109,8 +110,15 @@ void getCommandTarget(char *packet, char *userName)
             break;
         }
     }
-
+    if(packet[i+1]=='1' && packet[i+2]=='\0')
+    {
+        return -1; // this thing is NULL
+    }
+    else
+    {
     stringSlicer(packet, userName, separatorIndex + 1, PACKAGE_SIZE - 2);
+    return 0;
+    }
 }
 
 void getSenderName(char *userName, char *packet)

@@ -29,7 +29,7 @@ int getCommandID(char *packet);
 char getCommandType(char *packet);
 
 // also used to get public key
-void getCommandTarget(char *packet, char *userName);
+int getCommandTarget(char *packet, char *userName);
 
 int getCommandSender(char *packet, char *userName);
 

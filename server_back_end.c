@@ -588,8 +588,10 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                                     #endif
                              }
                             break;
+
                         case RODEL:
                             break;
+
                         case ROINVITE:
                         #ifdef DEBUG
                         printf("\nreceived room invite\n");
@@ -628,6 +630,7 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                                 }
                             }
                             break;
+
                         case ROACCEPT:
                         #ifdef DEBUG
                         printf("\nreceived room accept\n");
@@ -659,23 +662,23 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                     }
                     else if (getCommandType(packet) == COMID)
                     {
-                        tempUser=findUserByName(senderName, dataBase);
-                        tempUser2=findUserByName(receiverName, dataBase);
-                        
                         switch (getCommandID(packet))
                         {
                         case OPENCOM:
-                            // TODO: probably handle encryption here
-                            char publicKeyChar[MESS_LIMIT];
+                            getCommandSender(packet, senderName);
+                            tempUser=findUserByName(senderName, dataBase);
+                            char* publicKeyChar=malloc(sizeof(char)*MESS_LIMIT);
                             getCommandTarget(packet, publicKeyChar);
                             if(tempUser==NULL)
                             {
                                 // user is not yet in database
-
+                                tempUser=addUser(senderName, senderName, 123, dataBase);
+                                tempUser->hashID=publicKeyChar;
                             }
                             else 
                             {
                                 // user already in database
+                                tempUser->hashID=publicKeyChar;
                             }
                         break;
 
@@ -693,9 +696,14 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
                             break;
 
                         case GETONLINEUSER:
+                            tempUser=findUserByName(senderName, dataBase);
                             getOnlineUser(userList, message);
                             assembleCommand(111, COMID, GETONLINEUSER, "server", message, sentPacket);
                             sendPacket(sentPacket, tempUser->socket);
+                            break;
+                        
+                        case SIGNUP:
+
                             break;
                         }
                     }

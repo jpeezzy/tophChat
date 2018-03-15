@@ -41,8 +41,6 @@
 #define DEFRIEND 3     // delete friends
 #define FRIEACCEPT 4   // accept friend request
 
-#define TOTAL_FRRQ 5   // how many friend related request we have
-
 // room related request
 // active requests like asking for room
 #define ROID 'R'
@@ -70,7 +68,7 @@
 #define CLOSECOM 1 // close the communication
 #define OPENCOM 2  // open a new communication
 #define GETONLINEUSER 3
-#define TOTAL_COMRQ 2
+#define SIGNUP 4 // sign user up
 
 // TODO: use enum for this
 // return value of parse function based on the the ype of request
