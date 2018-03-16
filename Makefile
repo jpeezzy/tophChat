@@ -109,5 +109,11 @@ test_serverGUI: serverGUI_DEBUG.o
 
 #clean 
 
+test_E: encrypt.c 
+	$(CC) -DDEBUG -Wall -std=c99 encrypt.c -o test
+
+encrypt: encrypt.c
+	$(CC) -Wall -std=c99 encrypt.c -o encrypt  
+
 clean:
 	rm -rf *.o $(executable_file) -v serverGUI ChatGUI serverGUI test_RSA test_serverGUI test_emoji
