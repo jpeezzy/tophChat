@@ -313,7 +313,7 @@ void EnterKey(GtkWidget *entry, gpointer messageStruct)
     //  gtk_entry_set_text(GTK_ENTRY(entry), ""); /* replaces textBox with empty text again */
     //  }
     GtkWidget *button;
-    button = gtk_new_with_label("test");
+    button = gtk_button_new_with_label("test");
     SendButton(button, messageStruct);
 }
 
@@ -408,6 +408,8 @@ void MessageUser(GtkWidget *widget, GtkWidget *tabCreation[])
     {
         SetMessageScreen(tabCreation[2], tabCreation[5], tabCreation[3], tabCreation[4]);
     }
+
+    gtk_menu_item_deselect(GTK_MENU_ITEM(widget));
 }
 
 void BlockUser(GtkWidget *widget, GtkWidget *tabCreation[])
@@ -1208,9 +1210,9 @@ int main(int argc, char *argv[])
     /**** SIGNALS ********/
     g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), NULL); /* deletes window */
     g_signal_connect(accept, "clicked", G_CALLBACK(AcceptMessage), messagePopupScreen);
-    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(Hide), NULL);    /* deletes window */
-    g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(Hide), NULL); /* deletes window */
-    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(Hide), NULL);                  /* hides window */
+    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete(messagePopupScreen)), NULL);    /* deletes window */
+    g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete(accountCreationScreen)), NULL); /* deletes window */
+    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete(loginScreen)), NULL);                  /* hides window */
 
     /* Create Account Signals */
     g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);
