@@ -25,6 +25,7 @@
 #include "utils.h"
 #include "userActions.h"
 
+#define DEBUG
 serverConnection *openConnection(char *userName, unsigned long int publicKey)
 {
     serverConnection *server = NULL;
