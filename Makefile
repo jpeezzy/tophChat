@@ -29,7 +29,7 @@ server_main: tcpPacket_debug.o server_back_end_debug.o server_main.o utils.o pro
 client_main: tcpPacket_debug.o protocol.o tcpGUI_debug.o client_main.o utils.o
 	$(CC)  $(^) -o $(@)	$(LFLAGS)
 
-ChatGUI: GTKMain.o emoji.o protocol.o utils.o tcpPacket.o tcpGUI.o fifo.o 
+ChatGUI: GTKMain.o emoji.o protocol.o utils.o tcpPacket.o tcpGUI.o fifo.o userActions.o
 	$(CC) $(CFLAGS) $(GTKLIBS) $(^) -o $(@)
 	
 serverGUI: serverGUI.o tcpPacket.o server_back_end.o utils.o protocol.o fifo.o tophChatUsers.o constants.h protocol_const.h
@@ -70,7 +70,7 @@ GTK.o:  GTK.c GTK.h emoji.h
 rsa.o: rsa.c rsa.h 
 	$(CC) $(CLFAGS) -c $(<) -o $(@)
 
-GTKMain.o: GTKMain.c emoji.h 
+GTKMain.o: GTKMain.c fifo.h constants.h protocol_const.h tcpGUI.h utils.h protocol.h emoji.h constants.h
 	$(CC) $(CFLAGS) $(GTKINC) -c $(<) -o $(@)
 
 emoji.o: emoji.c emoji.h
