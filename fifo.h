@@ -22,4 +22,6 @@ int readBuffer(fifo *buf_struct, char *buf_content);
 
 int writeBuffer(fifo *buffer, const char *writeData);
 
+//initializes buffer
+fifo *initBuffer(int length);
 #endif

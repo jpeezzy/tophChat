@@ -75,4 +75,6 @@
 #define NOT_ONLINE -1
 #define ONLINE 1
 
+//CONSTANT BUFFER SIZE FOR FIFO
+#define FIFO_CONSTANT 1000
 #endif
