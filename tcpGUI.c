@@ -259,6 +259,7 @@ int sendAllToServer(fifo *outputBuffer, serverConnection *server)
 int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection *server)
 {
     char packet[PACKAGE_SIZE];
+    char message[MESS_LIMIT];
     int errCode = 0;
     chatRoom *tempRoom;
     if ((errCode = fetchPacket(packet, server->socket)) > 0)
@@ -266,7 +267,8 @@ int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection
         if (getpacketType(packet) == ISMESSAGE)
         {
             tempRoom = retrieveRoom(allRoom, getroomNumber(packet));
-            writeBuffer(tempRoom->inMessage, packet);
+            getMessageBody(packet, message);
+            writeBuffer(tempRoom->inMessage, message);
             return ISMESSAGE;
         }
         else if (getpacketType(packet) == ISCOMM)

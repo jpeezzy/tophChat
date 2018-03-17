@@ -31,7 +31,7 @@ int receiveRoom(roomList *allRoom, int serverroomNum)
     }
 }
 
-int sendInvite(int roomNum, char* userName, char* receiverName, fifo* outputBuffer)
+int sendInvite(int roomNum, char *userName, char *receiverName, fifo *outputBuffer)
 {
     char packet[PACKAGE_SIZE];
     assembleCommand(roomNum, ROID, ROINVITE, userName, receiverName, packet);
@@ -70,7 +70,7 @@ int joinInvitedRoom(roomList *allRoom, int roomNumber, char *userName, fifo *out
     }
 }
 
-int denyInvitedRoom(int roomNumber, char *userName, char* targetName, fifo *outputBuffer)
+int denyInvitedRoom(int roomNumber, char *userName, char *targetName, fifo *outputBuffer)
 {
     char packet[PACKAGE_SIZE];
     assembleCommand(roomNumber, ROID, RODENY, userName, targetName, packet);
@@ -83,7 +83,7 @@ int leaveRoom(chatRoom *room, char *userName, fifo *outputBuffer)
     closeBuffer(room->inMessage);
     room->inMessage = initBuffer(CLIENT_CHAT_ROOM_INTPUT_FIFO_MAX);
     room->status = ROOM_UNALLOCATED;
-    room->memberChanged=0;
+    room->memberChanged = 0;
     assembleCommand(room->roomNum, ROID, ROLEAVE, userName, NULL, packet);
     writeBuffer(outputBuffer, packet);
     return 0;
@@ -123,7 +123,6 @@ int sendMessage(chatRoom *room, fifo *outputFIFO, char *userName, char *message)
     char tempPacket[PACKAGE_SIZE];
     // TODO: multithreaded mutex
     assembleMessage(room->roomNum, userName, message, tempPacket);
-    writeBuffer(room->inMessage, message);
     if (writeBuffer(outputFIFO, tempPacket) == FIFO_FULL)
     {
         return -1;
