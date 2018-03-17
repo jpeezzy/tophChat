@@ -28,7 +28,7 @@ fifo *initBuffer(int length)
 
 int closeBuffer(fifo *buf)
 {
-	assert(buf);
+    assert(buf);
     for (int i = 0; i < buf->bufLength; ++i)
     {
         free(buf->buffer[i]);
@@ -40,11 +40,11 @@ int closeBuffer(fifo *buf)
 
 int readBuffer(fifo *buf_struct, char *buf_content)
 {
-	printf("in read buffer\n");
+    // printf("in read buffer\n");
     assert(buf_struct);
     assert(buf_struct->bufLength);
 #ifdef DEBUG
-	printf("passes assertions in readBuffer");
+    printf("passes assertions in readBuffer");
 #endif
     if ((buf_struct->buffer)[buf_struct->readPos] == NULL)
     {
