@@ -63,11 +63,11 @@ serverConnection *openConnection(char *userName, unsigned long int publicKey)
     }
 
     // public key exchange
-    char publicKeyChar[MESS_LIMIT];
-    char packet[PACKAGE_SIZE];
-    intToString(publicKey, publicKeyChar, 62);
-    assembleCommand(1, COMID, OPENCOM, userName, publicKeyChar, packet);
-    sendPacket(packet, server->socket);
+    // char publicKeyChar[MESS_LIMIT];
+    // char packet[PACKAGE_SIZE];
+    // intToString(publicKey, publicKeyChar, 62);
+    // assembleCommand(1, COMID, OPENCOM, userName, publicKeyChar, packet);
+    // sendPacket(packet, server->socket);
     freeaddrinfo(serverInfo);
     return server;
 }

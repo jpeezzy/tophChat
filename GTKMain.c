@@ -138,7 +138,7 @@ void Login(GtkWidget *widget, gpointer messageStructArray[])
     // TODO: change public key
     serverConnection *server = openConnection(username, 843579435);
     assert(server);
-    messageStructArray1->server = server;
+    messageStruct1->server = server;
 }
 
 void click(GtkWidget *widget, GdkEvent *event, gpointer data)
@@ -1283,8 +1283,8 @@ int main(int argc, char *argv[])
 
     while (!client_shutdown)
     {
-        recvMessageFromServer(AllRoom, inbox, server);
-        sendToServer(outputBuffer, server);
+        recvMessageFromServer(AllRoom, inbox, messageStructArray[1]->server);
+        sendToServer(outputBuffer, messageStructArray[1]->server);
 
         /*** update message ****/
         if (fetchMessage(&(AllRoom->roomList[0]), message) >= 0)
