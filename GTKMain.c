@@ -1203,11 +1203,11 @@ int main(int argc, char *argv[])
 
     /* Message Struct Initialization */
     MESSAGE_STRUCT *messageStruct;
-    messageStruct = CreateMessageStruct(vBox, window, server, AllRoom, outputBuffer, inbox, "", "");
+    messageStruct = CreateMessageStruct(vBox, window, NULL, AllRoom, outputBuffer, inbox, "", "");
 
     /* Login Struct */
     MESSAGE_STRUCT *loginStruct;
-    loginStruct = CreateMessageStruct(loginVBox, loginScreen, server, AllRoom, outputBuffer, inbox, "", "");
+    loginStruct = CreateMessageStruct(loginVBox, loginScreen, NULL, AllRoom, outputBuffer, inbox, "", "");
 
     /* MessageStruct Array */
     MESSAGE_STRUCT *messageStructArray[2];
@@ -1283,8 +1283,8 @@ int main(int argc, char *argv[])
 
     while (!client_shutdown)
     {
-        recvMessageFromServer(AllRoom, inbox, messageStructArray[1]->server);
-        sendToServer(outputBuffer, messageStructArray[1]->server);
+        recvMessageFromServer(AllRoom, inbox, messageStructArray[0]->server);
+        sendToServer(outputBuffer, messageStructArray[0]->server);
 
         /*** update message ****/
         if (fetchMessage(&(AllRoom->roomList[0]), message) >= 0)
