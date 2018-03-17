@@ -324,9 +324,9 @@ int main()
 {
 	/*creating a user */
 	TINFO *dataBase = createTINFO();
-/*	addUser("Justindlee","Justin", 1234, dataBase);
+	addUser("Justindlee","Justin", 1234, dataBase);
 	addUser("BoostedGorilla","asdf", 1234, dataBase);
-
+/*
 	printf("I was able to find %s \n", findUserByName("Justindlee", dataBase)->userName);
 
 	printf("We authentify the user with the password 123,"" result is %d \n", 
@@ -339,20 +339,21 @@ int main()
 //	saveUser(findUserByName("Justindlee", dataBase));
 //	printf("saved successfully!\n");
 
-	loadUser("Users.txt", dataBase);
+	//loadUser("Users.txt", dataBase);
 	printf("loaded successfully?\n");
 	//printf("%s\n", dataBase->Users[0]->userName);
-	printf("can we see ADMIN: %s \n", findUserByName("ADMIN", dataBase)->userName);
-	printf("can we see USER: %s \n", findUserByName("USER", dataBase)->userName);
+	//printf("can we see ADMIN: %s \n", findUserByName("ADMIN", dataBase)->userName);
+	printf("can we see USER: %s \n", findUserByName("Justindlee", dataBase)->userName);
+	/*
 	printf("can we see USER: %s \n", findUserByName("ADMIN", dataBase)->friends[0]->userName);
 	printf("can we see JUSTIN: %s \n", findUserByName("JUSTIN", dataBase)->userName);
 	printf("loaded successfully! are ADMIN and USER friends? %d\n", 
 			checkIfFriends(findUserByName("ADMIN", dataBase), findUserByName("USER", dataBase)));
 	char friends[500];
-	getFriends("ADMIN", dataBase, friends);
+	getFriends("ADMIN", dataBase, friends);*/
 //	printf("frineds are %s \n", friends);
 
-	deleteTINFO(dataBase);
+	//deleteTINFO(dataBase);
 
 	printf("Finished running!\n");
 

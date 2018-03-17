@@ -137,5 +137,7 @@ test_client_main: tcpPacket_debug.o protocol.o tcpGUI.o client_main.o utils_debu
 test_tuser: tophChatUsers.c tophChatUsers.h
 	$(CC) $(CFLAGS) $(DEBUG) $(<) -o $(@)
 
+test_fifo: TEST_fifo.c fifo.c fifo.h 
+	$(CC) $(CFLAGS) $(DEBUG) TEST_fifo.c fifo.c -o $(@)
 clean:
 	rm -rf *.o $(executable_file) -v $(test_executable_files) 
