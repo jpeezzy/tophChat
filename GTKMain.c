@@ -1287,7 +1287,7 @@ int main(int argc, char *argv[])
 
         UpdateWindow(); /* main event loop */
 
-        if (!isLogin)
+        if (isLogin)
         {
             // server communication
             recvMessageFromServer(AllRoom, inbox, messageStructArray[0]->server);
