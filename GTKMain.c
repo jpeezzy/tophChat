@@ -34,8 +34,8 @@ struct MessageStruct
 };
 
 MESSAGE_STRUCT *CreateMessageStruct(GtkWidget *widget, GtkWidget *window, serverConnection *server, struct allRoom *Allroom, fifo *outputFIFO, inboxQueue *inbox, char *username, char *message);
-gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data); /* Exits out of the window and the program */
-gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data);   /* Exits out of the window and the program */
+gboolean CloseWindow(GtkWidget *widget, GdkEvent *event, gpointer data);                                                               /* Exits out of the window and the program */
+gboolean LoginExit(GtkWidget *widget, GdkEvent *event, gpointer data);                                                                 /* Exits out of the window and the program */
 void EnterKey(GtkWidget *entry, gpointer messageStruct);                                                                               /* when the user presses enter in the textBox */
 void SendButton(GtkWidget *widget, gpointer messageStruct);                                                                            /* when user presses send button */
 void OptionsPopup(GtkWidget *button, GtkWidget *options[]);                                                                            /* option box pops up when friend is clicked on */
@@ -133,6 +133,12 @@ void Login(GtkWidget *widget, gpointer messageStructArray[])
 
     gtk_widget_hide(vBox[1]);
     gtk_widget_show(vBox[2]);
+
+    // server connection
+    // TODO: change public key
+    serverConnection *server = openConnection(username, 843579435);
+    assert(server);
+    messageStructArray1->server = server;
 }
 
 void click(GtkWidget *widget, GdkEvent *event, gpointer data)
@@ -349,7 +355,6 @@ void SendButton(GtkWidget *widget, gpointer messageStruct)
     check = gtk_entry_get_text_length(GTK_ENTRY(list2->data));  /* checking length of text input */
     actualMessage = gtk_entry_get_text(GTK_ENTRY(list2->data)); /* saving actual text */
 
-
     if (check != 0) /* only run this if there is a text input */
     {
         GtkTextBuffer *buffer;
@@ -515,7 +520,6 @@ void Hide(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
     gtk_widget_hide(widget);
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -1184,15 +1188,19 @@ int main(int argc, char *argv[])
     loginArray[2] = window;
 
     /* CLIENT SERVER INITIALIZATION */
-    serverConnection *server = openConnection();
-    assert(server);
+
     char packet[PACKAGE_SIZE] = "";
     char message[MESS_LIMIT] = "";
+
+    // room stuffs bypassing room asking
     roomList *AllRoom = roomsetInit();
     (AllRoom->roomList[0]).status = ROOM_WAITING;
     receiveRoom(AllRoom, 0);
+    AllRoom->roomList[0].roomNum = 0;
+
     fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
     inboxQueue *inbox = initInboxQueue();
+
     /* Message Struct Initialization */
     MESSAGE_STRUCT *messageStruct;
     messageStruct = CreateMessageStruct(vBox, window, server, AllRoom, outputBuffer, inbox, "", "");
@@ -1200,7 +1208,6 @@ int main(int argc, char *argv[])
     /* Login Struct */
     MESSAGE_STRUCT *loginStruct;
     loginStruct = CreateMessageStruct(loginVBox, loginScreen, server, AllRoom, outputBuffer, inbox, "", "");
-
 
     /* MessageStruct Array */
     MESSAGE_STRUCT *messageStructArray[2];
@@ -1210,9 +1217,9 @@ int main(int argc, char *argv[])
     /**** SIGNALS ********/
     g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), NULL); /* deletes window */
     g_signal_connect(accept, "clicked", G_CALLBACK(AcceptMessage), messagePopupScreen);
-    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete(messagePopupScreen)), NULL);    /* deletes window */
+    g_signal_connect(messagePopupScreen, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete(messagePopupScreen)), NULL);       /* deletes window */
     g_signal_connect(accountCreationScreen, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete(accountCreationScreen)), NULL); /* deletes window */
-    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete(loginScreen)), NULL);                  /* hides window */
+    g_signal_connect(loginScreen, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete(loginScreen)), NULL);                     /* hides window */
 
     /* Create Account Signals */
     g_signal_connect(newUsername, "key-press-event", G_CALLBACK(Overwrite), newUsername);

@@ -503,7 +503,9 @@ int triagePacket(onlineUserList *userList, struct allServerRoom *allRoom, TINFO 
 #ifdef DEBUG
                     printf("\nreceived user message\n");
 #endif
-                    sendServerRoomMessage(findServerRoomByNumber(allRoom, getroomNumber(packet)), packet);
+                    getSenderName(senderName, packet);
+                    tempUser = findUserByName(senderName, dataBase);
+                    sendPacket(packet, tempUser->socket);
 #ifdef DEBUG
                     printf("\nsent user message to server room\n");
 #endif

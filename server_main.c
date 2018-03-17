@@ -54,7 +54,12 @@ int main(void)
     TUSER *userProfile0 = findUserByName(userName[0], dataBase);
     TUSER *userProfile1 = findUserByName(userName[1], dataBase);
 
+    // bypass friend invitation
     addFriend(userName[0], userProfile1, dataBase);
+
+    // bypass room invitation
+    addUserToServerRoom(testRoom, "USER", dataBase);
+    addUserToServerRoom(testRoom, "ADMIN", dataBase);
     // limit to two users
     for (;;)
     {
