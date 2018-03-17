@@ -267,8 +267,7 @@ int recvMessageFromServer(roomList *allRoom, inboxQueue *inbox, serverConnection
         if (getpacketType(packet) == ISMESSAGE)
         {
             tempRoom = retrieveRoom(allRoom, getroomNumber(packet));
-            getMessageBody(packet, message);
-            writeBuffer(tempRoom->inMessage, message);
+            writeBuffer(tempRoom->inMessage, packet);
             return ISMESSAGE;
         }
         else if (getpacketType(packet) == ISCOMM)

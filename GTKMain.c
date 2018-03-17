@@ -1188,33 +1188,6 @@ int main(int argc, char *argv[])
     loginArray[1] = loginScreen;
     loginArray[2] = window;
 
-    /* CLIENT SERVER INITIALIZATION */
-
-    char packet[PACKAGE_SIZE] = "";
-    char message[MESS_LIMIT] = "";
-
-    // room stuffs bypassing room asking
-    roomList *AllRoom = roomsetInit();
-    (AllRoom->roomList[0]).status = ROOM_WAITING;
-    receiveRoom(AllRoom, 0);
-    AllRoom->roomList[0].roomNum = 0;
-
-    fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
-    inboxQueue *inbox = initInboxQueue();
-
-    /* Message Struct Initialization */
-    MESSAGE_STRUCT *messageStruct;
-    messageStruct = CreateMessageStruct(vBox, window, NULL, AllRoom, outputBuffer, inbox, "", "");
-
-    /* Login Struct */
-    MESSAGE_STRUCT *loginStruct;
-    loginStruct = CreateMessageStruct(loginVBox, loginScreen, NULL, AllRoom, outputBuffer, inbox, "", "");
-
-    /* MessageStruct Array */
-    MESSAGE_STRUCT *messageStructArray[2];
-    messageStructArray[0] = messageStruct;
-    messageStructArray[1] = loginStruct;
-
     /**** SIGNALS ********/
     g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), NULL); /* deletes window */
     g_signal_connect(accept, "clicked", G_CALLBACK(AcceptMessage), messagePopupScreen);
@@ -1282,6 +1255,34 @@ int main(int argc, char *argv[])
     GtkTextMark *updateStart;
     //char message[PACKAGE_SIZE];
 
+    /****** CLIENT SERVER INITIALIZATION ******/
+
+    // room stuffs bypassing room asking
+    roomList *AllRoom = roomsetInit();
+    (AllRoom->roomList[0]).status = ROOM_WAITING;
+    receiveRoom(AllRoom, 0);
+    AllRoom->roomList[0].roomNum = 0;
+
+    fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
+    inboxQueue *inbox = initInboxQueue();
+
+    /* Message Struct Initialization */
+    MESSAGE_STRUCT *messageStruct;
+    messageStruct = CreateMessageStruct(vBox, window, NULL, AllRoom, outputBuffer, inbox, "", "");
+
+    /* Login Struct */
+    MESSAGE_STRUCT *loginStruct;
+    loginStruct = CreateMessageStruct(loginVBox, loginScreen, NULL, AllRoom, outputBuffer, inbox, "", "");
+
+    /* MessageStruct Array */
+    MESSAGE_STRUCT *messageStructArray[2];
+    messageStructArray[0] = messageStruct;
+    messageStructArray[1] = loginStruct;
+
+    char senderName[MAX_USER_NAME];
+    char packet[PACKAGE_SIZE] = "";
+    char message[MESS_LIMIT] = "";
+
     while (!client_shutdown)
     {
 
@@ -1294,13 +1295,20 @@ int main(int argc, char *argv[])
             sendToServer(outputBuffer, messageStructArray[0]->server);
 
             /*** update message ****/
-            if (fetchMessage(&(AllRoom->roomList[0]), message) >= 0)
+            if (fetchMessage(&(AllRoom->roomList[0]), packet) >= 0)
             {
+                getMessageBody(packet, message);
+                getSenderName(senderName, packet);
+
                 updateBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen)); /* gets the buffer for the current screen */
 
                 gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at the end */
 
                 gtk_text_buffer_insert(updateBuffer, &updateIter, "\n\n", -1); /* insert new lines */
+
+                gtk_text_buffer_insert(buffer, &iter, senderName, -1); /* adds "username: " */
+
+                gtk_text_buffer_insert(buffer, &iter, ": ", 2); /* adds ": " */
 
                 gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at end again */
 
