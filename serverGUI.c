@@ -46,13 +46,13 @@ static GtkTreeModel *store_model_room(serverRoomList *allRoom)
     store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_UINT);
     
     /* Append a row and add in data */
-    for(i = 0; i < allRoom->totalRoom; ++i)
+    for(i = 0; i < MAX_SERVER_CHATROOMS; ++i)
     {
         sprintf(roomName, "Room %d", i);
         gtk_list_store_append(store, &iter);
         
         /* if the room is occupied */
-        if (allRoom->roomList[i].isOccupied == 1)
+        if (allRoom->roomList[i].isOccupied != ROOM_NOT_OCCUPIED)
         {
             gtk_list_store_set(store, &iter, 
                                0, roomName,
@@ -134,7 +134,7 @@ static GtkWidget *view_model_room(serverRoomList *allRoom)
     return view; 
 }
 
-static GtkTreeModel *store_model_user(onlineUserList *allOnline)
+static GtkTreeModel *store_model_user(TINFO *userDatabase)
 {
     assert(allOnline);
     int i;
@@ -145,36 +145,35 @@ static GtkTreeModel *store_model_user(onlineUserList *allOnline)
     store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_UINT);
     
     /* Append a row and add in data */
-    for(i = 0; i < allOnline->totalOnlineUser; ++i)
+    for(i = 0; i < userDatabase->numOfUsers; ++i)
     {
         gtk_list_store_append(store, &iter);
         
         /* if user is available */
-        if (allOnline->userList[i].slot_status == 1)
+        if (userDatabase->Users[i]->socket >= 0)
         {
             gtk_list_store_set(store, &iter, 
-                               0, allOnline->userList[i].userProfile->userName,
-                               1, "Available",
-                               2, 5678,
-                               3, allOnline->userList[i].userProfile->friendCount,  
-                               -1);
+                               0, userDatabase->Users[i]->userName,
+                               1, "Online",
+                               2, userDatabase->Users[i]->socket,
+                               3, userDatabase->Users[i]->friendCount,
+                              -1);
         }
         else
         {
             gtk_list_store_set(store, &iter, 
-                               0, allOnline->userList[i].userProfile->userName,
-                               1, "Busy",
-                               2, 5678,
-                               3, allOnline->userList[i].userProfile->friendCount,
-                               -1);
-
+                               0, userDatabase->Users[i]->userName,
+                               1, "Offline",
+                               2, userDatabase->Users[i]->socket,
+                               3, userDatabase->Users[i]->friendCount,
+                              -1);
         }
     }
                        
     return GTK_TREE_MODEL(store);
 }
 
-static GtkWidget *view_model_user(onlineUserList *allOnline)
+static GtkWidget *view_model_user(TINFO *userDatabase)
 {
     GtkCellRenderer *renderer;
     GtkTreeModel *model;
@@ -218,7 +217,7 @@ static GtkWidget *view_model_user(onlineUserList *allOnline)
                                                 "text", 3,
                                                 NULL);
 
-    model = store_model_user(allOnline);
+    model = store_model_user(userDatabase);
 
     gtk_tree_view_set_model(GTK_TREE_VIEW(view), model);
 
@@ -342,20 +341,28 @@ int main(int argc, char* argv[])
     timeout.tv_sec = 2;
     fd_set setListener;
     FD_ZERO(&setListener);
-    
+
     int socketListener = listenSocketInit();
+    assert(socketListener >= 0);
     char packet[PACKAGE_SIZE] = "";
+    char message[MESS_LIMIT] = "";
     FD_SET(socketListener, &setListener);
     int j = 0;
+    int res;
 
     TINFO *dataBase = createTINFO();
     serverRoomList *roomList = serverRoomSetCreate();
     struct messageServerRoom *testRoom = serverRoomCreate(roomList);
     onlineUserList *userList = serverCreateOnlineList();
 
-    char *userName[] = {"ADMIN", "USER"};
+    char *userName[] = {"USER", "ADMIN"};
     addUser(userName[0], userName[0], 213123, dataBase);
     addUser(userName[1], userName[1], 213123, dataBase);
+
+    TUSER *userProfile0 = findUserByName(userName[0], dataBase);
+    TUSER *userProfile1 = findUserByName(userName[1], dataBase);
+
+    addFriend(userName[0], userProfile1, dataBase);
     
     GtkWidget *Window; /* the server window */
 
@@ -376,40 +383,52 @@ int main(int argc, char* argv[])
     /* server main loop */
     while(!server_Shutdown)
     {
-        printf("loop\n");
-        UpdateWindow();
+       // UpdateWindow();
         FD_ZERO(&setListener);
         FD_SET(socketListener, &setListener);
         if (j < 2)
         {
-            if (select(socketListener + 1, &setListener, NULL, NULL, &timeout) > 0)
+            res = select(socketListener + 1, &setListener, NULL, NULL, &timeout);
+            if (res > 0)
             {
-                incomingSocket = accept(socketListener, &addrDummy, &socklenDummy);
-                ++(userList->totalOnlineUser);
-                if (serverAddOnlineUser(userName[j], userList, incomingSocket, dataBase) == NULL)
+                if (((incomingSocket = accept(socketListener, &addrDummy, &socklenDummy)) >= 0))
                 {
-                    perror("\ncan't add user to server\n");
-                }
-
-                if (addUserToServerRoom(testRoom, userName[j], dataBase) < 0)
-                {
-                    perror("\ncan't adduser to server room\n");
+#ifdef DEBUG
+                    printf("\nconnection received the socket is %d\n", incomingSocket);
+#endif
+                    ++(userList->totalOnlineUser);
+                    if (serverAddOnlineUser(userName[j], userList, incomingSocket, dataBase) == NULL)
+                    {
+                        perror("\ncan't add user to server\n");
+                    }
+                    ++j;
                 }
                 else
                 {
-                    printf("\nuser added\n");
+#ifdef DEBUG
+                    printf("\nfailed to acceept socket\n");
+#endif
                 }
-                ++j;
             }
         }
         if (j == 2)
         {
-            if (triagePacket(userList, roomList, dataBase, packet) == 2)
+            // #ifdef DEBUG
+            // printf("\nreceived both\n");
+            // fflush(stdout);
+            // #endif
+            if (triagePacket(userList, roomList, dataBase) == 2)
             {
-                printf("received message: %s\n", packet);
+#ifdef DEBUG
+                printf("\naccessing message\n");
+#endif
+                readBuffer(testRoom->inMessage, packet);
+                getMessageBody(packet, message);
+                printf("received message: %s\n", message);
                 serverRoomSpreadMessage(testRoom, dataBase);
             }
         }
+        UpdateWindow();
     }
     return 0;
 } /* end of main */
