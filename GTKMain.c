@@ -1283,9 +1283,11 @@ int main(int argc, char *argv[])
 
     while (!client_shutdown)
     {
+        // server communication
         recvMessageFromServer(AllRoom, inbox, messageStructArray[0]->server);
         sendToServer(outputBuffer, messageStructArray[0]->server);
 
+        UpdateWindow(); /* main event loop */
         /*** update message ****/
         if (fetchMessage(&(AllRoom->roomList[0]), message) >= 0)
         {
@@ -1307,8 +1309,6 @@ int main(int argc, char *argv[])
 
             // gtk_entry_set_text(GTK_ENTRY(textBox), ""); /* replaces textBox with empty text again */
         }
-
-        UpdateWindow(); /* main event loop */
     }
     return 0;
 }
