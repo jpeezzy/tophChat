@@ -17,7 +17,7 @@
 #include "emoji.h"
 
 int client_shutdown = 0;
-
+int isLogin = 0;
 typedef struct MessageStruct MESSAGE_STRUCT;
 
 /* message struct to hold server and GUI input stuff */
@@ -139,6 +139,7 @@ void Login(GtkWidget *widget, gpointer messageStructArray[])
     serverConnection *server = openConnection(username, 843579435);
     assert(server);
     messageStruct1->server = server;
+    isLogin = 1;
 }
 
 void click(GtkWidget *widget, GdkEvent *event, gpointer data)
@@ -1286,30 +1287,33 @@ int main(int argc, char *argv[])
 
         UpdateWindow(); /* main event loop */
 
-        // server communication
-        recvMessageFromServer(AllRoom, inbox, messageStructArray[0]->server);
-        sendToServer(outputBuffer, messageStructArray[0]->server);
-
-        /*** update message ****/
-        if (fetchMessage(&(AllRoom->roomList[0]), message) >= 0)
+        if (!isLogin)
         {
-            updateBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen)); /* gets the buffer for the current screen */
+            // server communication
+            recvMessageFromServer(AllRoom, inbox, messageStructArray[0]->server);
+            sendToServer(outputBuffer, messageStructArray[0]->server);
 
-            gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at the end */
+            /*** update message ****/
+            if (fetchMessage(&(AllRoom->roomList[0]), message) >= 0)
+            {
+                updateBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(messageScreen)); /* gets the buffer for the current screen */
 
-            gtk_text_buffer_insert(updateBuffer, &updateIter, "\n\n", -1); /* insert new lines */
+                gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at the end */
 
-            gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at end again */
+                gtk_text_buffer_insert(updateBuffer, &updateIter, "\n\n", -1); /* insert new lines */
 
-            /* get mark for emoji display at the point before user text is inserted */
-            updateStart = gtk_text_buffer_create_mark(updateBuffer, NULL, &updateIter, TRUE);
+                gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at end again */
 
-            gtk_text_buffer_insert(updateBuffer, &updateIter, message, -1); /* inserts user text */
+                /* get mark for emoji display at the point before user text is inserted */
+                updateStart = gtk_text_buffer_create_mark(updateBuffer, NULL, &updateIter, TRUE);
 
-            /* display emoji on messageScreen */
-            insert_emoji(GTK_TEXT_VIEW(messageScreen), updateStart);
+                gtk_text_buffer_insert(updateBuffer, &updateIter, message, -1); /* inserts user text */
 
-            // gtk_entry_set_text(GTK_ENTRY(textBox), ""); /* replaces textBox with empty text again */
+                /* display emoji on messageScreen */
+                insert_emoji(GTK_TEXT_VIEW(messageScreen), updateStart);
+
+                // gtk_entry_set_text(GTK_ENTRY(textBox), ""); /* replaces textBox with empty text again */
+            }
         }
     }
     return 0;
