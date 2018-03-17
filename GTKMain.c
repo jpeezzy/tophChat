@@ -1306,9 +1306,9 @@ int main(int argc, char *argv[])
 
                 gtk_text_buffer_insert(updateBuffer, &updateIter, "\n\n", -1); /* insert new lines */
 
-                gtk_text_buffer_insert(buffer, &iter, senderName, -1); /* adds "username: " */
+                gtk_text_buffer_insert(updateBuffer, &updateIter, senderName, -1); /* adds "username: " */
 
-                gtk_text_buffer_insert(buffer, &iter, ": ", 2); /* adds ": " */
+                gtk_text_buffer_insert(updateBuffer, &updateIter, ": ", 2); /* adds ": " */
 
                 gtk_text_buffer_get_iter_at_offset(updateBuffer, &updateIter, -1); /* get mark at end again */
 
