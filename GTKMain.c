@@ -1182,6 +1182,17 @@ int main(int argc, char *argv[])
     optionsArray9[5] = tabLabel9;
     optionsArray9[6] = blockButton;
 
+    /****** CLIENT SERVER INITIALIZATION ******/
+
+    // room stuffs bypassing room asking
+    roomList *AllRoom = roomsetInit();
+    (AllRoom->roomList[0]).status = ROOM_WAITING;
+    receiveRoom(AllRoom, 0);
+    AllRoom->roomList[0].roomNum = 0;
+
+    fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
+    inboxQueue *inbox = initInboxQueue();
+
     /* Message Struct Initialization */
     MESSAGE_STRUCT *messageStruct;
     messageStruct = CreateMessageStruct(vBox, window, NULL, AllRoom, outputBuffer, inbox, "", "");
@@ -1267,17 +1278,6 @@ int main(int argc, char *argv[])
     GtkTextIter updateIter;
     GtkTextMark *updateStart;
     //char message[PACKAGE_SIZE];
-
-    /****** CLIENT SERVER INITIALIZATION ******/
-
-    // room stuffs bypassing room asking
-    roomList *AllRoom = roomsetInit();
-    (AllRoom->roomList[0]).status = ROOM_WAITING;
-    receiveRoom(AllRoom, 0);
-    AllRoom->roomList[0].roomNum = 0;
-
-    fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
-    inboxQueue *inbox = initInboxQueue();
 
     char senderName[MAX_USER_NAME];
     char packet[PACKAGE_SIZE] = "";
