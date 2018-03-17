@@ -1283,11 +1283,13 @@ int main(int argc, char *argv[])
 
     while (!client_shutdown)
     {
+
+        UpdateWindow(); /* main event loop */
+
         // server communication
         recvMessageFromServer(AllRoom, inbox, messageStructArray[0]->server);
         sendToServer(outputBuffer, messageStructArray[0]->server);
 
-        UpdateWindow(); /* main event loop */
         /*** update message ****/
         if (fetchMessage(&(AllRoom->roomList[0]), message) >= 0)
         {
