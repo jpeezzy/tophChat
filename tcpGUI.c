@@ -182,7 +182,7 @@ roomList *roomsetInit(void)
         (temproomSet->roomList[i]).memberChanged = 0;
         for (int j = 0; j < MAX_USER_PER_ROOM; ++j)
         {
-            temproomSet->roomList[i].friendList[j] = malloc(sizeof(char) * MAX_USER_NAME);
+            temproomSet->roomList[i].friendList[j] = malloc(sizeof(char) * PACKAGE_SIZE);
         }
     }
 
