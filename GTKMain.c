@@ -1182,11 +1182,24 @@ int main(int argc, char *argv[])
     optionsArray9[5] = tabLabel9;
     optionsArray9[6] = blockButton;
 
+    /* Message Struct Initialization */
+    MESSAGE_STRUCT *messageStruct;
+    messageStruct = CreateMessageStruct(vBox, window, NULL, AllRoom, outputBuffer, inbox, "", "");
+
+    /* Login Struct */
+    MESSAGE_STRUCT *loginStruct;
+    loginStruct = CreateMessageStruct(loginVBox, loginScreen, NULL, AllRoom, outputBuffer, inbox, "", "");
+
     /* login */
     GtkWidget *loginArray[3];
     loginArray[0] = loginVBox;
     loginArray[1] = loginScreen;
     loginArray[2] = window;
+
+    /* MessageStruct Array */
+    MESSAGE_STRUCT *messageStructArray[2];
+    messageStructArray[0] = messageStruct;
+    messageStructArray[1] = loginStruct;
 
     /**** SIGNALS ********/
     g_signal_connect(window, "delete-event", G_CALLBACK(CloseWindow), NULL); /* deletes window */
@@ -1265,19 +1278,6 @@ int main(int argc, char *argv[])
 
     fifo *outputBuffer = initBuffer(CLIENT_OUTPUT_FIFO_MAX);
     inboxQueue *inbox = initInboxQueue();
-
-    /* Message Struct Initialization */
-    MESSAGE_STRUCT *messageStruct;
-    messageStruct = CreateMessageStruct(vBox, window, NULL, AllRoom, outputBuffer, inbox, "", "");
-
-    /* Login Struct */
-    MESSAGE_STRUCT *loginStruct;
-    loginStruct = CreateMessageStruct(loginVBox, loginScreen, NULL, AllRoom, outputBuffer, inbox, "", "");
-
-    /* MessageStruct Array */
-    MESSAGE_STRUCT *messageStructArray[2];
-    messageStructArray[0] = messageStruct;
-    messageStructArray[1] = loginStruct;
 
     char senderName[MAX_USER_NAME];
     char packet[PACKAGE_SIZE] = "";
