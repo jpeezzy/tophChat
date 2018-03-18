@@ -7,7 +7,8 @@
 //This is an implementation of Suu Encrpytion based off AES 64bit
 
 //constants for byte exchange 
-static const uint8_t sbox[256] = {
+static const int sbox[256] = {
+  //0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
   0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
   0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
   0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
@@ -25,7 +26,7 @@ static const uint8_t sbox[256] = {
   0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
   0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16 };
 
-static const uint8_t rsbox[256] = {
+static const int rsbox[256] = {
   0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
   0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
   0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e,
@@ -90,10 +91,13 @@ void keyExpansion(int round, int keyArray[4][4], int roundkey[4][4])
         roundkey[2][3] = roundkey[3][3];
         roundkey[3][3] = temp;
 
-        //run last col through substitution
+        //run through substitution
         for(i = 0; i<4; ++i)
         {
-            roundkey[3][i] = byteExchange(roundkey[3][i]);
+            for(j = 0; j<4; ++j)
+            {
+                roundkey[i][j] = byteExchange(roundkey[i][j]);
+            }
         }
 
         //XOR last colwith round constant
@@ -135,18 +139,26 @@ void keytoArray(unsigned long int key, int keyArray[4][4])
     unsigned long int tempkey;
 
     tempkey = key;
+    int count = 0;
 
     for(i = 0; i<4; ++i)
     {
         for(j = 0; j<4; ++j)
         {   
-            keyArray[i][j] = tempkey % 16;
-            tempkey = tempkey/16;
+            if(count == 8)
+            {
+                tempkey = key;
+                count = 0;
+            }
+
+            keyArray[i][j] = tempkey % 256;
+            tempkey = tempkey/256;
+            count++;
         }
     }
 }
 
-void encrypt(char input[mlength], unsigned long int key)
+void encrypt(unsigned char input[mlength], unsigned long int key)
 {
     int keyArray[4][4];
     int roundKey[4][4];
@@ -176,8 +188,9 @@ void encrypt(char input[mlength], unsigned long int key)
         }
 
         //the start of the encrypt rounds 
-        for(round = 0; round<4; ++round)
+        for(round = 0; round<1; ++round)
         {
+            /*
             if(round == 0)
             {
                 //XOR with intial vector 
@@ -200,6 +213,7 @@ void encrypt(char input[mlength], unsigned long int key)
                     }
                 }
             }
+            */
 
             //apply subsitution to array
             for(i = 0; i<4; ++i)
@@ -209,7 +223,7 @@ void encrypt(char input[mlength], unsigned long int key)
                     inputArray[i][j] = byteExchange(inputArray[i][j]);
                 }
             }
-
+            /*
             //apply diffusion to array shift
             //2 row first left unchanged 
             tempD = inputArray[1][0];
@@ -244,7 +258,7 @@ void encrypt(char input[mlength], unsigned long int key)
 
             //generateroundkey
             keyExpansion(round, keyArray, roundKey);
-            
+        
             //XOR with round key 
             for(i = 0; i<4; ++i)
             {
@@ -270,29 +284,30 @@ void encrypt(char input[mlength], unsigned long int key)
                 {
                     keyArray[i][j] = roundKey[i][j];
                 }
-            }
+            }*/
         }
-
         //save input array back into array
         int Scount = 16;
         for(i = 0; i<4; ++i)
         {
             for(j = 0; j<4; ++j)
             {   
-                input[place-Scount] = inputArray[i][j];
+                input[place-Scount] = (char)inputArray[i][j];
+                //printf("%d \n", inputArray[i][j]);
                 Scount--;
             }
         }
     }
 }
 
-void decrypt(char input[mlength], unsigned long int key)
+void decrypt( unsigned char input[mlength], unsigned long int key)
 {
     int keyArray[4][4];
     int roundKey[4][4];
     int poutput[4][4];
     int step;
-    int place = 0;
+    int place = 480;
+    int Scount = 0;
     int inputArray[4][4];
     int i,j;
     int tempD;
@@ -306,131 +321,46 @@ void decrypt(char input[mlength], unsigned long int key)
     for(step = 0; step<30; ++step)
     {   
         //turn input into array
+        Scount = 0;
         for(i = 0; i<4; ++i)
         {
             for(j = 0; j<4; ++j)
             {
-                inputArray[i][j] = input[place];
-                place++;
+                inputArray[i][j] = input[(place-16)+Scount];
+                Scount++;
             }
         }
 
         //the start of the encrypt rounds 
-        for(round = 0; round<4; ++round)
+        for(round = 0; round<1; ++round)
         {
-            if(round == 0)
+            for(i = 0; i < 4; ++i)
             {
-                //XOR with intial vector 
-                for(i = 0; i<4; ++i)
+                for(j = 0; j < 4; ++j)
                 {
-                    for(j = 0; j<4; ++j)
-                    {
-                        inputArray[i][j] = inputArray[i][j] ^ intialVector[i][j];    
-                    }
-                }
-            }
-            else 
-            {
-                //XOR with previous output
-                for(i = 0; i<4; ++i)
-                {
-                    for(j = 0; j<4; ++j)
-                    {
-                        inputArray[i][j] = inputArray[i][j] ^ poutput[i][j]; 
-                    }
-                }
-            }
-
-            //apply subsitution to array
-            for(i = 0; i<4; ++i)
-            {
-                for(j = 0; j<4; ++j)
-                {
-                    inputArray[i][j] = byteExchange(inputArray[i][j]);
-                }
-            }
-
-            //apply diffusion to array shift
-            //2 row first left unchanged 
-            tempD = inputArray[1][0];
-            inputArray[1][0] = inputArray[1][1];
-            inputArray[1][1] = inputArray[1][2];
-            inputArray[1][2] = inputArray[1][3];
-            inputArray[1][3] = tempD;
-            //3 row 
-            tempD = inputArray[2][0];
-            inputArray[2][0] = inputArray[2][2];
-            inputArray[2][2] = tempD;
-            tempD = inputArray[2][1];
-            inputArray[2][1] = inputArray[2][3];
-            inputArray[2][3] = tempD;
-            //4 row 
-            tempD = inputArray[3][3];
-            inputArray[3][3] = inputArray[3][2];
-            inputArray[3][2] = inputArray[3][1];
-            inputArray[3][1] = inputArray[3][0];
-            inputArray[3][0] = tempD;
-
-            //mix cols
-            for(i = 0; i<4; ++i)
-            {
-                tempD = inputArray[i][0];
-                inputArray[i][0] = inputArray[i][3];
-                inputArray[i][3] = tempD;
-                tempD = inputArray[i][1];
-                inputArray[i][1] = inputArray[i][2];
-                inputArray[i][2] = tempD;
-            }
-
-            //generateroundkey
-            keyExpansion(round, keyArray, roundKey);
-            
-            //XOR with round key 
-            for(i = 0; i<4; ++i)
-            {
-                for(j = 0; j<4; ++j)
-                {
-                    inputArray[i][j] = inputArray[i][j] ^ roundKey[i][j]; 
-                }
-            }
-
-            //copy output to poutput
-            for(i = 0; i<4; ++i)
-            {
-                for(j = 0; j<4; ++j)
-                {
-                    poutput[i][j] = inputArray[i][j];
-                }
-            }
-
-            //copy roundkey to keyArray
-            for(i = 0; i<4; ++i)
-            {
-                for(j = 0; j<4; ++j)
-                {
-                    keyArray[i][j] = roundKey[i][j];
+                    inputArray[i][j] = (char) RbExchange(inputArray[i][j]);
                 }
             }
         }
 
         //save input array back into array
-        int Scount = 16;
+        Scount = 0;
         for(i = 0; i<4; ++i)
         {
             for(j = 0; j<4; ++j)
             {   
-                input[place-Scount] = inputArray[i][j];
-                Scount--;
+                input[(place-16)+Scount] = inputArray[i][j];
+                Scount++;
             }
         }
+        place = place - 16;
     }
 
 }
 
 int main()
 {
-    char test[mlength];
-    char testA[mlength];
+    unsigned char test[mlength];
     int i;
 
     for(i=0; i<mlength; ++i)
@@ -449,30 +379,19 @@ int main()
     test[8] = 't';
     test[9] = 'h';
     test[10] = 'e';
-    test[499] = '\0';
+    test[480] = '\0';
     
-    for(i=0; i<mlength; ++i)
-    {
-        testA[i] = test[i];    
-    }
-
+    printf("%d \n", RbExchange(77));
     //test key 
-    unsigned long int testkey = 0x457d5d672f;
+    unsigned long int testkey = 0x27656457d5d672f;
+    printf("%ld \n", testkey);
     //making it 62 bit
-    testkey = testkey/4;
+    //testkey = testkey/4;
 
     printf(" %s \n", test);
-    encrypt(testA, testkey);
-    printf(" %s \n", testA);
-    //decrypt(test, testkey);
+    encrypt(test, testkey);
     printf(" %s \n", test);
-    if( testA == testA)
-    {
-        printf("\n test passed \n");
-    }
-    else
-    {
-        printf("\n test did not pass\n");
-    }
+    decrypt(test, testkey);
+    printf(" %s \n", test);
     return 0;
 }
