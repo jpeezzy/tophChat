@@ -42,13 +42,13 @@ serverConnection *openConnection(char *userName, unsigned long int publicKey)
     // give hints about TCP connection and IPV4
     serverHints.ai_family = AF_INET;
     serverHints.ai_socktype = SOCK_STREAM;
-
-#ifndef DEBUG
-    // assuming that the chat server is on zuma
-    getaddrinfo(CHAT_SERVER_ADDR, CHAT_SERVER_PORT, &serverHints, &serverInfo);
-#else
-    getaddrinfo("localhost", CHAT_SERVER_PORT, &serverHints, &serverInfo);
-#endif
+getaddrinfo(CHAT_SERVER_ADDR, CHAT_SERVER_PORT, &serverHints, &serverInfo);
+// #ifndef DEBUG
+//     // assuming that the chat server is on zuma
+//     getaddrinfo(CHAT_SERVER_ADDR, CHAT_SERVER_PORT, &serverHints, &serverInfo);
+// #else
+//     getaddrinfo("localhost", CHAT_SERVER_PORT, &serverHints, &serverInfo);
+// #endif
     assert(serverInfo);
     server->socket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
     while ((connect(server->socket, serverInfo->ai_addr, serverInfo->ai_addrlen)) == -1 && count < RECONNECT_NUM)
