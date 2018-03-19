@@ -1,0 +1,42 @@
+/*************************************************************/
+            Quickstart Guide for Tophchat
+/***********************************************************/
+
+Thanks for trying TophChat, your support is appreaciated 
+
+            Table of Contents
+
+1. Connecting to Server
+2. Logging In
+3. Emojis
+4. Logging Out
+
+
+-----------------------------------------------------------------
+                 Connecting to Server 
+-----------------------------------------------------------------
+            1. Go into Customer_Package "bin" directory 
+            2. run command "./ChatGUI"
+       ***note: hostname/port no. do not need to be specified;
+           however, client cannot run on host zuma.eecs.uci.edu***
+------------------------------------------------------------------
+                      Logging In
+------------------------------------------------------------------
+            3. Input username: "USER"
+            4. Input password: "213123"
+            5. Click "Log In" button
+------------------------------------------------------------------
+                        Chatting
+------------------------------------------------------------------
+            10. You can now start chatting with your friend, ADMIN
+------------------------------------------------------------------
+                        Emojis
+------------------------------------------------------------------
+            11. Don't forget to fully express yourself with emojis!
+------------------------------------------------------------------
+                        Exiting
+------------------------------------------------------------------
+            12. When done chatting, quit by exiting out 
+            
+            
+*Thank you for using our Toph Chat program! Have a nice day.

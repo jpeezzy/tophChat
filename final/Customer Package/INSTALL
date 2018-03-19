@@ -1,0 +1,10 @@
+To Install and Run the chat application
+
+ *Make sure server is up and running*
+1. Go to /bin/ directory with command "cd bin"
+2. Run command "./ChatGUI" 
+3. Start chatting!
+ 
+*If an error message is returned, the chat server 
+ may not be online or there may be an internet connectivity issue.
+ Try again later.  
