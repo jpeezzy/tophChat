@@ -191,7 +191,7 @@ void encrypt(unsigned char input[mlength], unsigned long int key)
         for(round = 0; round<1; ++round)
         {
             /*
-            if(round == 0)
+            if(step == 0)
             {
                 //XOR with intial vector 
                 for(i = 0; i<4; ++i)
@@ -212,8 +212,7 @@ void encrypt(unsigned char input[mlength], unsigned long int key)
                         inputArray[i][j] = inputArray[i][j] ^ poutput[i][j]; 
                     }
                 }
-            }
-            */
+            }*/
 
             //apply subsitution to array
             for(i = 0; i<4; ++i)
@@ -255,7 +254,8 @@ void encrypt(unsigned char input[mlength], unsigned long int key)
                 inputArray[i][1] = inputArray[i][2];
                 inputArray[i][2] = tempD;
             }
-
+            */
+            /*
             //generateroundkey
             keyExpansion(round, keyArray, roundKey);
         
@@ -267,7 +267,7 @@ void encrypt(unsigned char input[mlength], unsigned long int key)
                     inputArray[i][j] = inputArray[i][j] ^ roundKey[i][j]; 
                 }
             }
-
+            */
             //copy output to poutput
             for(i = 0; i<4; ++i)
             {
@@ -276,7 +276,7 @@ void encrypt(unsigned char input[mlength], unsigned long int key)
                     poutput[i][j] = inputArray[i][j];
                 }
             }
-
+            /*
             //copy roundkey to keyArray
             for(i = 0; i<4; ++i)
             {
@@ -327,6 +327,10 @@ void decrypt( unsigned char input[mlength], unsigned long int key)
             for(j = 0; j<4; ++j)
             {
                 inputArray[i][j] = input[(place-16)+Scount];
+                if(step != 0)
+                {
+                    poutput[i][j] = input[(place-32)+Scount]; 
+                }
                 Scount++;
             }
         }
@@ -334,6 +338,20 @@ void decrypt( unsigned char input[mlength], unsigned long int key)
         //the start of the encrypt rounds 
         for(round = 0; round<1; ++round)
         {
+            /*
+            //generateroundkey
+            keyExpansion((3-round), keyArray, roundKey);
+            printf(" %d\n",(3-round));
+            //XOR with round key 
+            for(i = 0; i<4; ++i)
+            {
+                for(j = 0; j<4; ++j)
+                {
+                    inputArray[i][j] = inputArray[i][j] ^ roundKey[i][j]; 
+                }
+            }
+            */
+            //undo sub
             for(i = 0; i < 4; ++i)
             {
                 for(j = 0; j < 4; ++j)
@@ -341,6 +359,30 @@ void decrypt( unsigned char input[mlength], unsigned long int key)
                     inputArray[i][j] = (char) RbExchange(inputArray[i][j]);
                 }
             }
+            
+            /*
+            if(step == 0)
+            {
+                //XOR with intial vector 
+                for(i = 0; i<4; ++i)
+                {
+                    for(j = 0; j<4; ++j)
+                    {
+                        inputArray[i][j] = inputArray[i][j] ^ intialVector[i][j];    
+                    }
+                }
+            }
+            else 
+            {
+                //XOR with previous output
+                for(i = 0; i<4; ++i)
+                {
+                    for(j = 0; j<4; ++j)
+                    {
+                        inputArray[i][j] = inputArray[i][j] ^ poutput[i][j]; 
+                    }
+                }
+            }*/
         }
 
         //save input array back into array
