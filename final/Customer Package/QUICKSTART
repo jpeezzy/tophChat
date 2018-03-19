@@ -22,17 +22,13 @@ Thanks for trying TophChat, your support is appreaciated
 ------------------------------------------------------------------
                       Logging In
 ------------------------------------------------------------------
-            3. Input username: "user2"
-            4. Input password: "pass"
+            3. Input username: "USER"
+            4. Input password: "213123"
             5. Click "Log In" button
 ------------------------------------------------------------------
                         Chatting
 ------------------------------------------------------------------
-            6. Click "Add Friend" button
-            7. Enter in friend name: "user1"
-            8. Wait for user1 to accept friend request
-            9. A popup notification will show when request is accepted
-            10. You can now start chatting with your friend, user1
+            10. You can now start chatting with your friend, ADMIN
 ------------------------------------------------------------------
                         Emojis
 ------------------------------------------------------------------
