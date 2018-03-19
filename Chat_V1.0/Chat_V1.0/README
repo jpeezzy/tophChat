@@ -1,0 +1,38 @@
+/*************** Toph Chat README ******************/
+Authors: 
+    Khoi "Glorious Leader" Trinh
+	Justin "Blackburn" Lee 
+	Abel "Hot Garbage" Jimenez 
+	Aung "Chromosome" Thu 
+	Jason "Massive" Duong
+
+Affiliated with: University of California, Irvine
+Version: Release 1.0.0: Status (Final Release)
+Date: March 19, 2018
+/***************************************************/
+
+Description: Toph Chat is an instant messaging application 
+supporting standard features such as private chats and emojis.
+
+	Program Status
+Shortcomings: Adding friends, make account, encryption, message multiple users, 
+	create new chatroom, new chatroom invite, friend list, server GUI
+
+Fully-Implemented:  client-to-client messaging, logging in, account authentification,
+	emojis, client GUI
+
+     *Note: Messaging possible between two hard-coded user accounts. 
+     
+		Username #1: ADMIN		Username #2: USER
+		Password #1: 213123		Password #2: 213123
+		
+
+*Refer to /doc/Chat_UserManual.pdf for more in-depth information
+on the functionalities and corresponding timelines for each functionality.
+
+
+
+References
+Linux sockets: http://www.linuxhowtos.org/C_C++/socket.htm 
+GTK+ 2.0: https://developer.gnome.org/gtk-tutorial/stable/ 
+RSA encryption: https://www.di-mgt.com.au/rsa_alg.html
