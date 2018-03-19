@@ -15,15 +15,16 @@ Description: Toph Chat is an instant messaging application
 supporting standard features such as private chats and emojis.
 
 	Program Status
-Shortcomings: Adding multiple friends, make account, encryption, message multiple users, 
-	create new chatroom, new chatroom invite 
+Shortcomings: Adding friends, make account, encryption, message multiple users, 
+	create new chatroom, new chatroom invite, friend list, server GUI
 
-Fully-Implemented: Adding friend, client-to=client messaging, logging in, account authentification, show friend list,
-	emojis, client GUI & server GUI
+Fully-Implemented:  client-to-client messaging, logging in, account authentification,
+	emojis, client GUI
 
      *Note: Messaging possible between two hard-coded user accounts. 
-		Username #1: user1		Username #2: user2
-		Password #1: pass		Password #2: pass
+     
+		Username #1: ADMIN		Username #2: USER
+		Password #1: 213123		Password #2: 213123
 		
 
 *Refer to /doc/Chat_UserManual.pdf for more in-depth information
