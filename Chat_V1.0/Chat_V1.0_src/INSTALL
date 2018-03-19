@@ -1,0 +1,48 @@
+	      Main Chat Progam:
+To install:
+1. Go to Chat_V1.0_src/src/
+2. Compile object files using lower-level Makefile 
+3. Run command "make all"
+     -the object files will be generated in the Chat_V1.0_src/src/ directory
+4. Move one directory up to Chat_V1.0_src with command "cd .."
+5. Compile executables using upper-level Makefile 
+6. Run command "make all" again
+     -the executable files will be generated in the Chat_V1.0_src/bin/ directory
+
+To install tests:
+1. Go to Chat_V1.0_src/src/
+2. Compile object files using lower-level Makefile 
+3. Run command "make all"
+     -the debug object files will be generated in the Chat_V1.0_src/src/ directory
+4. Move one directory up to Chat_V1.0_src with command "cd .."
+5. Compile executables using upper-level Makefile 
+6. Run command "make test" again
+     -the test executable files will be generated in the Chat_V1.0_src/bin/ directory
+
+*Server must be up and running before users can connect. And the server must be 
+running on hostname: "zuma.eecs.uci.edu".
+To run server:
+1. First log into hostname: "zuma.eecs.uci.edu" with your EECS account
+2. Go to Chat_V1.0_src/bin/ directory with command "cd bin"
+3. Run server executable using command "./Server"
+      *hostname & port no. do not need to be specified in this command
+
+To run clients:
+1. Log onto any of the eecs.uci.edu servers (except zuma)
+2. Go to Chat_V1.0_src/bin/ directory with command "cd bin"
+4. Run command "./ChatGUI"
+      *hostname & port no. do not need to be specified in this command
+5. Since "Create Account" is not fully functional, use one of our 
+     two provided accounts,
+     
+	Username: ADMIN			Username: USER
+	Password: 213123		Password: 213123
+
+
+6. Start chatting!
+7. Don't forget to fully express yourself with emojis!
+
+
+*If an error message is returned, the chat server 
+ may not be online or there may be an internet connectivity issue.
+ Try again later.  
