@@ -1,0 +1,9 @@
+script:
+	git pull
+	make clean
+	make ChatGUI
+	#./ChatGUI
+
+file:
+	vi test.c
+	echo "int main()" > test.c
